@@ -284,6 +284,50 @@ Enum: в ответах — строки, для записи — `toEnum(Schema
 
 ---
 
+### Раздел 5.1 — «Изменения в компонентах (Спринт 9)»
+
+**`pages/heroes/[id].vue`**
+- ✅ `loading="lazy"` и `decoding="async"` возвращены на `img.galleria__thumbnail` (закрытие техдолга #9)
+- ✅ `alt` с fallback: `image.description || \`Фотография ${fullName}\`` (закрытие техдолга #11)
+- ✅ `twitterCard` и все `twitter:*` метатеги полностью удалены из `useSeoMeta` (закрытие техдолга #13)
+- ✅ Галерея работает через `IntersectionObserver` + сентинел (автоподгрузка), кнопка «Загрузить ещё» — fallback
+- ⚠️ INP ~271ms — требует оптимизации в будущем спринте
+
+**`layouts/default.vue`**
+- ✅ Добавлен `preload` логотипа с `fetchpriority="high"` (частичное закрытие техдолга #14)
+- ✅ Логотип имеет `fetchpriority="high"` в `<img>`
+
+**`pages/index.vue`**
+- ✅ Изображения карточек героев используют `loading="lazy"`
+- ✅ CLS предотвращён через `aspect-ratio: 4 / 5` на `.hero-card__photo` (закрытие техдолга #15)
+
+
+### Рефакторинг ссылок-кнопок (P2.1)
+
+Паттерн `<NuxtLink><Button/></NuxtLink>` заменён на один семантический интерактивный элемент:
+
+```vue
+<Button as="router-link" :to="..." />
+```
+
+Изменения внесены в файлы:
+
+- `app/components/admin/HeroForm.vue` — кнопка «Отмена»
+- `app/pages/submit.vue` — кнопка «Вернуться к реестру»
+- `app/pages/admin/index.vue` — «Новый герой», «Реестр героев», «Модерация заявок», «API-ключи»
+- `app/pages/admin/heroes/[id].vue` — «Открыть на сайте»
+- `app/pages/admin/heroes/index.vue` — «+ Новый герой», «Изменить»
+- `app/pages/admin/submissions/index.vue` — «Открыть героя»
+
+Результат:
+
+- устранены вложенные интерактивные элементы `<a><button>`;
+- улучшена HTML-семантика;
+- улучшена доступность для клавиатуры и скринридеров;
+- сохранены визуальные стили, иконки и поведение навигации.
+
+---
+
 ## 6. Конфигурация оптимизации фронтенда (Спринт 8)
 
 ### 6.1 Локальные шрифты (`@nuxt/fonts`)
@@ -457,7 +501,12 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 | **LightningCSS** | ✅ Завершено (Спринт 8) |
 | **`scrollBehaviorType: 'smooth'`** | ✅ Завершено (Спринт 8) |
 | **`/heroes/**` в `routeRules`** | ✅ Завершено (Спринт 8) |
-| **Ленивая загрузка изображений галереи** | ⚠️ Откатано (см. техдолг #9) |
+| Ленивая загрузка изображений галереи (публичная + админка) | ✅ Завершено (Спринт 9) |
+| Fallback для `alt` в галерее (`Фотография ${fullName}`) | ✅ Завершено (Спринт 9) |
+| Удаление `twitterCard` / `twitter:*` из всех страниц | ✅ Завершено (Спринт 9) |
+| CLS на главной (`aspect-ratio: 4/5` для карточек) | ✅ Завершено (Спринт 9) |
+| `preload` + `fetchpriority="high"` для логотипа | ✅ Завершено (Спринт 9) |
+| Рефакторинг ссылок-кнопок (`Button as="router-link"`) | ✅ Завершено (Спринт 9) |
 
 ---
 
@@ -465,49 +514,48 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 
 | # | Файл / область | Проблема | Действие |
 |---|---|---|---|
-| 1 | `HeroForm.vue` | `fieldMask` захардкожен | ✅ Решено |
-| 2 | Thumbnail-генерация | Асинхронная (1–5 сек), `thumbnail_url` может быть пустым | Использовать `url` как fallback + polling |
-| 3 | Дубли `robots`-метатегов | Глобальный `seoMeta` + локальный `useSeoMeta` | Проверить приоритет после деплоя |
-| 4 | ISR-кэш | Жил до 24 ч после правки | ✅ Решено через `/api/cache/purge` |
-| 5 | `@nuxt/fonts` | Body Timeout Error при сборке без интернета | ✅ Решено — модуль возвращён с `provider: 'local'`, шрифты в `public/fonts/*.woff2` |
-| 6 | `routeRules` | `/heroes/` не покрывал `/heroes/<id>` | ✅ Решено — добавлено `/heroes/**` |
-| 7 | `HeroPhotos.vue` | `move()` / `setMain()` использовали `props.photos` | ✅ Решено |
-| 8 | `processing_time_ms` в `TestLlmProviderResponse` | Тип `int64`, в JSON приходит как `string` | ✅ Решено — `Number()` |
-| 9 | `[id].vue` (public) | `loading="lazy"` и `decoding="async"` на превью галереи были добавлены, но **откатаны** | 🔴 **Открыт**: вернуть `loading="lazy"` + `decoding="async"` на `img.galleria__thumbnail` в `[id].vue` |
-| 10 | `HeroPhotos.vue` (admin) | `loading="lazy"` на `<Image>` был добавлен, но **откатан** | 🔴 **Открыт**: вернуть `loading="lazy"` на `<Image>` в `HeroPhotos.vue` |
-| 11 | `[id].vue` (public) | `alt` у превью галереи = `image.description` без fallback | 🟡 Рекомендация: `image.description \|\| \`Фотография ${fullName}\`` |
-| 12 | `robots.txt` | Директивы `Content-Usage` и `Content-Signal` не являются стандартом | 🟡 Известно: `@nuxtjs/robots` генерирует их как есть, валидатор Lighthouse помечает как `Unknown directive` |
-| 13 | `twitterCard` | Убран из глобального `seoMeta`, но остался в `useSeoMeta` страницы `[id].vue` | 🟢 Низкий приоритет: `twitterCard` deprecated, но пока работает |
-| 14 | LCP на главной | 3.6 сек (цель < 2.5 сек). Причины: шрифты, логотип без `fetchpriority="high"` | 🟡 **Открыт**: добавить `fetchpriority="high"` и `preload` для логотипа на главной |
-| 15 | Изображения на главной | Нет `width`/`height` у изображений карточек героев | 🟡 **Открыт**: добавить размеры для уменьшения CLS |
+| 9 | `[id].vue` (public) | `loading="lazy"` и `decoding="async"` были откатаны | ✅ Решено (Спринт 9) — возвращены, галерея работает корректно |
+| 10 | `HeroPhotos.vue` (admin) | `loading="lazy"` был откатан | ✅ Решено (Спринт 9) — возвращён, PrimeVue `preview` работает |
+| 11 | `[id].vue` (public) | `alt` без fallback | ✅ Решено (Спринт 9) — fallback `Фотография ${fullName}` |
+| 13 | `twitterCard` | Оставался в `useSeoMeta` страницы `[id].vue` | ✅ Решено (Спринт 9) — полностью удалён |
+| 14 | LCP на главной | 3.6 сек, логотип без приоритета | 🟡 Частично закрыт: `preload` + `fetchpriority="high"` добавлены |
+| 15 | Изображения на главной | CLS из-за отсутствия размеров | ✅ Решено (Спринт 9) — `aspect-ratio: 4 / 5` |
+| 3 | Дубли `robots`-метатегов | Глобальный `seoMeta` + локальный `useSeoMeta` | 🔵 Отложено — требует глубокого аудита `nuxt-seo-utils` |
+| 16 | `[id].vue` (public) | INP ~271ms (`needs-improvement`) в галерее | 🔴 Открыт — оптимизировать `imageClick` через debounce/idle callback |
+| 17 | `[id].vue` (public) | `Numeric tagPriority (35)` в unhead | 🟡 Низкий приоритет — заменить на алиас `critical` |
+| 18 | `[id].vue` (public) | Inline `<script>` 3.0KB (вероятно, Яндекс.Метрика или OG-secret) | 🟡 Низкий приоритет — вынести во внешний файл |
+| 19 | `<NuxtLink><Button/>` паттерн | Вложенные интерактивные элементы `<a><button>` нарушали семантику HTML и ухудшали a11y | ✅ Решено (Спринт 9) — заменено на `Button as="router-link"` |
 
 ---
 
-## 11. Следующие шаги (приоритеты для новой сессии)
+### Раздел 11. Следующие шаги (приоритеты для новой сессии)
 
-### P0 — Критические
+#### P0 — Критические
 
 | # | Задача | Описание |
 |---|---|---|
 | P0.1 | Валидация Спринта 8 на проде | Проверить работу `@nuxt/fonts`, `colorMode`, `htmlValidator`, ISR с `allowQuery` |
-| P0.2 | Вернуть `loading="lazy"` | Техдолг #9, #10: добавить `loading="lazy"` на изображения галереи в `[id].vue` и `HeroPhotos.vue` |
 
-### P1 — Высокий приоритет
+> ⚠️ P0.2 закрыт в Спринте 9 — `loading="lazy"` возвращён, alt с fallback добавлен.
 
-| # | Задача | Описание |
-|---|---|---|
-| P1.1 | LCP-оптимизация главной | Техдолг #14: `fetchpriority="high"` на логотип, `preload` в `<head>`, `width`/`height` на изображения |
-| P1.2 | Проверить дубли `robots`-метатегов | `curl -s https://вежливые.рус/heroes/<id> \| grep robots` |
-
-### P2 — Средний приоритет
+#### P1 — Высокий приоритет
 
 | # | Задача | Описание |
 |---|---|---|
-| P2.1 | Рефакторинг `<NuxtLink><Button/></NuxtLink>` → `Button as="router-link"` | Семантика HTML + a11y |
-| P2.2 | Мониторинг через метрики | Визуализация Prometheus метрик из бэкенда |
-| P2.3 | Повышение покрытия тестами | `internal/smtp` (42.4%) и `internal/usecase` (60.5%) |
+| P1.1 | LCP-оптимизация главной (довести до < 2.5s) | `preload` и `fetchpriority` уже есть. Осталось: проверить Lighthouse, при необходимости вынести критические CSS |
 
-### P3 — Отложено
+> ⚠️ P1.2 (дубли robots) перенесён в P3.
+
+#### P2 — Средний приоритет (обновлён)
+
+| # | Задача | Описание |
+|---|---|---|
+| P2.1 | **Оптимизация INP в галерее** | Техдолг #16: debounce `imageClick`, убрать синхронные операции |
+| P2.2 | Замена `Numeric tagPriority (35)` на алиас | Техдолг #17: unhead предупреждение |
+| P2.3 | Мониторинг через метрики | Визуализация Prometheus метрик из бэкенда |
+| P2.4 | Повышение покрытия тестами | `internal/smtp` (42.4%) и `internal/usecase` (60.5%) |
+
+#### P3 — Отложено (обновлён)
 
 | # | Задача |
 |---|---|
@@ -517,6 +565,8 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 | P3.4 | Гибкие даты для всех сущностей (конфликты, локации) |
 | P3.5 | Grafana-дашборд |
 | P3.6 | PWA manifest |
+| **NEW** P3.7 | Дубли `robots`-метатегов (требует аудита `nuxt-seo-utils`) |
+| **NEW** P3.8 | Inline `<script>` 3.0KB — вынести во внешний файл |
 
 ---
 
@@ -547,11 +597,53 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 | Клиентская проверка дубликатов | `app/composables/useDuplicateCheck.ts` |
 | Синхронизация темы (color-mode + PrimeVue) | `app/composables/useThemeSync.ts` + `app.vue` |
 | Парсинг дат из извлечения | `app/components/admin/HeroForm.vue` → `parseExtractedDate` |
-| Конвертация `FlexibleDateJson` → protobuf | `app/components/admin/HeroForm.vue` → `prepareDateForApi` + `fromJson` |
+| Конвертация `FlexibleDateJson` → protobuf | `app/components/admin/HeroForm.vue` → `prepareDateForApi` + `fromJson` ||---|---|
+| SEO карточки героя (без Twitter) | `app/pages/heroes/[id].vue` |
+| Логотип с preload + fetchpriority | `app/layouts/default.vue` |
+| CLS-safe карточки на главной | `app/pages/index.vue` (`.hero-card__photo { aspect-ratio: 4/5 }`) |
+| Галерея с lazy + alt fallback | `app/pages/heroes/[id].vue` (`img.galleria__thumbnail`) |
+| Семантическая ссылка-кнопка | `app/pages/admin/index.vue` (`Button as="router-link"`) |
 
 ---
 
 ## 13. Changelog сессий
+
+## Спринт 9 (2026-09-12) — Закрытие техдолга по lazy-loading и LCP
+
+### ✅ Завершено
+
+**Производительность (Core Web Vitals):**
+- `loading="lazy"` и `decoding="async"` возвращены на `img.galleria__thumbnail` в `[id].vue` (техдолг #9)
+- `loading="lazy"` возвращён на `<Image>` в `HeroPhotos.vue` (техдолг #10)
+- `alt` с fallback `Фотография ${fullName}` в публичной галерее (техдолг #11)
+- `aspect-ratio: 4 / 5` на `.hero-card__photo` в `index.vue` — устранён CLS (техдолг #15)
+- `preload` + `fetchpriority="high"` для логотипа в `default.vue` (частично техдолг #14)
+
+**SEO:**
+- `twitterCard` и все `twitter:*` метатеги полностью удалены из `[id].vue` (техдолг #13)
+- Open Graph полностью покрывает потребности всех соцсетей (включая Telegram/X)
+
+**Регрессионное тестирование:**
+- PrimeVue `<Image preview>` работает корректно с `loading="lazy"` в админке
+- Galleria в `[id].vue` открывается по клику на превью (lazy не ломает preview)
+- Главное фото героя (`<figure class="hero__portrait">`) загружается без `loading="lazy"` — LCP не страдает
+
+**Качество кода и a11y:**
+- Закрыт P2.1: паттерн `<NuxtLink><Button/></NuxtLink>` заменён на `Button as="router-link"`
+- Устранены вложенные интерактивные элементы `<a><button>`
+- Улучшена семантика ссылок-кнопок в админке и публичной части
+- Навигация, стили, иконки и открытие в новой вкладке работают корректно
+
+### 🟡 Перенесено в отложенные (P3)
+- Дубли `robots`-метатегов (техдолг #3) — требует аудита `nuxt-seo-utils`
+- `width`/`height` для изображений на главной — заменено на `aspect-ratio` (более гибкое решение)
+
+### 🔴 Обнаружено (новый техдолг)
+- INP ~271ms на странице героя (`needs-improvement`)
+- `Numeric tagPriority (35)` в unhead (предупреждение)
+- Inline `<script>` 3.0KB (предупреждение unhead)
+
+---
 
 ### Спринт 8 (2026-09-11) — Оптимизация фронтенда
 
@@ -603,7 +695,18 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 1. **Не подключай `@nuxt/fonts` повторно** — он уже настроен с `provider: 'local'`, шрифты в `public/fonts/*.woff2`.
 2. **Не используй `@nuxt/a11y`** — модуль нестабилен для Nuxt 3. Используй `eslint-plugin-vuejs-accessibility` вместо него.
 3. **`htmlValidator.ignore`** — именно `ignore`, а не `exclude`. Свойство `exclude` не существует в `@nuxtjs/html-validator`.
-4. **`twitterCard`** на странице `[id].vue` в `useSeoMeta` — оставлен намеренно. Убирать только если будет принято решение полностью отказаться от Twitter Cards.
 5. **Директивы `Content-Usage` / `Content-Signal` в `robots.txt`** — не являются стандартом. Lighthouse помечает как `Unknown directive`. Если это неприемлемо, убрать из конфигурации `@nuxtjs/robots`.
 6. **`useThemeSync.ts`** — использует `import.meta.client` для защиты от обращения к `document` на сервере. Без этой проверки будет `Cannot read properties of undefined (reading 'documentElement')`.
 7. **`allowQuery` в `routeRules`** — критичен. Без него любой бот может сгенерировать миллионы уникальных URL и заполнить кэш (cache poisoning). Список параметров должен строго соответствовать полям `ListHeroesRequest` из `hero.proto`.
+- ✅ `twitterCard` и все `twitter:*` метатеги **полностью удалены** в Спринте 9. Open Graph полностью заменяет их функциональность.
+- ✅ INP на странице героя требует внимания: `imageClick` в `[id].vue` выполняется за ~271ms. Если INP останется высоким, применить `useDebounceFn` из `@vueuse/nuxt` или `requestIdleCallback` для тяжёлых операций.
+- ✅ `aspect-ratio: 4 / 5` в `index.vue` — это замена `width`/`height`. Если дизайн изменится и карточки станут другого соотношения сторон, обновить именно этот CSS-класс.
+- ✅ Не используй паттерн `<NuxtLink><Button/></NuxtLink>`. Для ссылок, выглядящих как кнопки, используй:
+
+```vue
+<Button as="router-link" :to="..." label="..." />
+```
+
+Это корректно с точки зрения HTML, клавиатурной навигации и скринридеров.
+
+После полного отказа от вложенных `<a><button>` можно рассмотреть повторное включение правила `element-permitted-content` в `htmlValidator`, но только после отдельной проверки всех страниц на аналогичные паттерны.

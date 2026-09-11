@@ -321,7 +321,7 @@
           Если вы указали email — сообщим о результате модерации.
         </p>
         <div class="submit-success__actions">
-          <NuxtLink to="/"><Button outlined label="Вернуться к реестру" /></NuxtLink>
+          <Button as="router-link" to="/" outlined label="Вернуться к реестру" />
           <Button label="Отправить ещё одну заявку" @click="resetForm" />
         </div>
       </div>

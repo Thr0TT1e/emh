@@ -125,13 +125,13 @@
       <template #title>Быстрые действия</template>
       <template #content>
         <div class="flex flex-wrap gap-3">
-          <NuxtLink to="/admin/heroes/new"><Button icon="pi pi-plus" label="Новый герой" /></NuxtLink>
-          <NuxtLink to="/admin/heroes"><Button outlined icon="pi pi-users" label="Реестр героев" /></NuxtLink>
-          <NuxtLink to="/admin/submissions"><Button outlined icon="pi pi-inbox" label="Модерация заявок" /></NuxtLink>
-          <NuxtLink to="/admin/keys"><Button outlined icon="pi pi-key" label="API-ключи" /></NuxtLink>
+          <Button as="router-link" to="/admin/heroes/new" icon="pi pi-plus" label="Новый герой" />
+          <Button as="router-link" to="/admin/heroes" outlined icon="pi pi-users" label="Реестр героев" />
+          <Button as="router-link" to="/admin/submissions" outlined icon="pi pi-inbox" label="Модерация заявок" />
+          <Button as="router-link" to="/admin/keys" outlined icon="pi pi-key" label="API-ключи" />
         </div>
       </template>
-    </Card>
+    </Card>0
   </div>
 </template>
 

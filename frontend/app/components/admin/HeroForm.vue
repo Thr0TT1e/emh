@@ -494,7 +494,7 @@
         <!-- Кнопки -->
         <div class="hf__row-flex">
           <Button type="submit" :loading="busy" :label="mode === 'create' ? 'Создать героя' : 'Сохранить'" />
-          <NuxtLink to="/admin/heroes"><Button type="button" outlined label="Отмена" /></NuxtLink>
+          <Button as="router-link" to="/admin/heroes" outlined label="Отмена" />
         </div>
       </form>
     </template>

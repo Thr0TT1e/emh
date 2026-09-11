@@ -113,9 +113,8 @@
               </span>
             </div>
           </div>
-          <NuxtLink :to="`/heroes/${id}`">
-            <Button outlined icon="pi pi-external-link" label="Открыть на сайте" />
-          </NuxtLink>
+
+          <Button as="router-link" :to="`/heroes/${id}`" outlined icon="pi pi-external-link" label="Открыть на сайте" />
         </div>
       </template>
     </Card>

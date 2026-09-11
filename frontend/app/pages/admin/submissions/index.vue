@@ -246,9 +246,8 @@
                     <Button v-if="extractionResult" label="Создать героя" icon="pi pi-user-plus" severity="success"
                         @click="createHeroFromExtraction" />
 
-                    <NuxtLink v-if="active?.targetHeroId" :to="`/admin/heroes/${active.targetHeroId}`">
-                        <Button label="Открыть героя" outlined icon="pi pi-external-link" />
-                    </NuxtLink>
+                    <Button v-if="active?.targetHeroId" as="router-link" :to="`/admin/heroes/${active.targetHeroId}`"
+                        label="Открыть героя" outlined icon="pi pi-external-link" />
 
                     <Button label="Отклонить" severity="danger" icon="pi pi-times" :loading="reviewing"
                         @click="review(SubmissionReviewDecision.REJECT)" />

@@ -189,9 +189,7 @@
           </label>
         </div>
 
-        <NuxtLink to="/admin/heroes/new" class="admin_card_btn">
-          <Button label="+ Новый герой" />
-        </NuxtLink>
+        <Button as="router-link" to="/admin/heroes/new" class="admin_card_btn" label="+ Новый герой" />
       </div>
     </template>
   </Card>
@@ -247,9 +245,7 @@
     <Column header="" style="width: 160px">
       <template #body="{ data }">
         <div class="flex justify-end gap-1 whitespace-nowrap text-right">
-          <NuxtLink :to="`/admin/heroes/${data.id}`">
-            <Button text size="small" label="Изменить" />
-          </NuxtLink>
+          <Button as="router-link" :to="`/admin/heroes/${data.id}`" text size="small" label="Изменить" />
 
           <Button text size="small" severity="danger" :label="isArchived(data.status) ? 'Удалить' : 'В архив'"
             @click="remove(data)" />
