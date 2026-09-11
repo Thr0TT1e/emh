@@ -278,15 +278,20 @@
             v-tooltip.bottom="p.isMain ? 'Это главное фото' : 'Сделать главным'" @click="setMain(p.id!)">
             <i :class="p.isMain ? 'pi pi-star-fill' : 'pi pi-star'" />
           </button>
+
           <Button icon="pi pi-arrow-up-right-and-arrow-down-left-from-center" size="small" severity="secondary"
             aria-label="Выделить лицо (face box)" v-tooltip.bottom="'Выделить лицо (face box)'"
             @click="openEditFaceBox(p)" />
         </div>
+
         <label class="ph__check">
           <Checkbox :model-value="selected.includes(p.id!)" :binary="true" @update:model-value="toggle(p.id!)" />
         </label>
+
         <Tag v-if="p.isMain" value="главное" severity="warn" class="ph-main-badge" />
+
         <Image :src="p.thumbnailUrl || p.url" :alt="p.description || 'Фотография героя'" preview loading="lazy" />
+
         <figcaption>
           <button :disabled="i === 0" title="Левее" @click="move(i, -1)">←</button>
           <button :disabled="i === photos.length - 1" title="Правее" @click="move(i, 1)">→</button>
