@@ -166,9 +166,6 @@
     ogSiteName: site.name,
     ogLocale: 'ru_RU',
     ogImage: () => ogPhoto.value,
-    twitterCard: () => ogPhoto.value ? 'summary_large_image' : 'summary',
-    twitterTitle: () => fullName.value || 'Герой',
-    twitterDescription: () => seoDescription.value,
     robots: 'index, follow',
   });
 

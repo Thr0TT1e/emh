@@ -9,6 +9,18 @@
   // Состояние мобильного меню
   const drawerVisible = ref(false);
   const closeDrawer = () => { drawerVisible.value = false; };
+
+  useHead({
+    link: [
+      {
+        rel: 'preload',
+        href: '/logo_v5_full_gor_rwb.svg',
+        as: 'image',
+        type: 'image/svg+xml',
+        fetchpriority: 'high'
+      }
+    ]
+  })
 </script>
 
 <template>
