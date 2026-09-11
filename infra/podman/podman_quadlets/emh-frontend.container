@@ -1,0 +1,17 @@
+# ~/.config/containers/systemd/emh-frontend.container
+
+[Unit]
+Description=EMH Frontend (Nuxt ISR)
+After=emh-backend.service
+
+[Container]
+Image=docker.io/thr0tt1e/emh-frontend:v0.0.3
+ContainerName=emh-frontend
+Network=emh-net.network
+PublishPort=127.0.0.1:3000:3000
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

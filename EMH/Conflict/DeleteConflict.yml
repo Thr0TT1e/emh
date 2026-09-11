@@ -1,0 +1,24 @@
+info:
+  name: DeleteConflict
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.ConflictAdminService/DeleteConflict"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "019fb443-5cd7-7112-829f-bd6d34dade91"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

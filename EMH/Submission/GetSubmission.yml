@@ -1,0 +1,24 @@
+info:
+  name: GetSubmission
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.SubmissionAdminService/GetSubmission"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "<SUBMISSION_ID>"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

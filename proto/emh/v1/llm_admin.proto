@@ -1,0 +1,108 @@
+// Административный сервис управления LLM-провайдерами.
+syntax = "proto3";
+package emh.v1;
+
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// LlmProviderInfo информация о провайдере для админки.
+message LlmProviderInfo {
+  // id - уникальный идентификатор записи провайдера в БД (UUID).
+  string id = 1;
+  // name - уникальное имя провайдера (совпадает с конфигом).
+  string name = 2;
+  // type - тип провайдера (ollama, openai_compatible, anthropic).
+  string type = 3;
+  // model - название используемой модели.
+  string model = 4;
+  // is_active - является ли провайдер текущим активным.
+  bool is_active = 5;
+  // priority - приоритет провайдера (для fallback-логики).
+  int32 priority = 6;
+  // notes - заметки администратора.
+  string notes = 7;
+  // created_at - дата и время создания записи.
+  google.protobuf.Timestamp created_at = 8;
+  // updated_at - дата и время последнего обновления.
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// ListLlmProvidersRequest запрос списка провайдеров.
+message ListLlmProvidersRequest {}
+
+// ListLlmProvidersResponse список провайдеров.
+message ListLlmProvidersResponse {
+  // providers - массив настроенных провайдеров.
+  repeated LlmProviderInfo providers = 1;
+  // count - общее количество провайдеров в системе.
+  int32 count = 2;
+}
+
+// SetActiveLlmProviderRequest запрос на активацию провайдера.
+message SetActiveLlmProviderRequest {
+  // id - UUID записи провайдера в БД.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// SetActiveLlmProviderResponse результат активации.
+message SetActiveLlmProviderResponse {
+  // success - флаг успешного выполнения операции.
+  bool success = 1;
+  // provider - обновлённая информация о провайдере.
+  LlmProviderInfo provider = 2;
+}
+
+// TestLlmProviderRequest запрос на тестирование провайдера.
+message TestLlmProviderRequest {
+  // id - UUID записи провайдера в БД.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // test_prompt - текст промпта для тестовой генерации.
+  string test_prompt = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+// TestLlmProviderResponse результат тестирования.
+message TestLlmProviderResponse {
+  // success - флаг успешного получения ответа от LLM.
+  bool success = 1;
+  // raw_response - сырой текст ответа от модели.
+  string raw_response = 2;
+  // processing_time_ms - время выполнения запроса в миллисекундах.
+  int64 processing_time_ms = 3;
+  // error_message - текст ошибки, если success = false.
+  string error_message = 4;
+}
+
+// UpdateLlmProviderRequest запрос на обновление метаданных провайдера.
+message UpdateLlmProviderRequest {
+  // id - UUID записи провайдера в БД.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // priority - новый приоритет провайдера.
+  int32 priority = 2 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+  // notes - новые заметки администратора.
+  string notes = 3 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+  // field_mask - список обновляемых полей (priority, notes).
+  repeated string field_mask = 4;
+}
+
+// UpdateLlmProviderResponse обновлённый провайдер.
+message UpdateLlmProviderResponse {
+  // provider - обновлённая информация о провайдере.
+  LlmProviderInfo provider = 1;
+}
+
+// LlmAdminService админский сервис управления LLM-провайдерами.
+service LlmAdminService {
+  // ListLlmProviders возвращает список всех настроенных провайдеров.
+  rpc ListLlmProviders(ListLlmProvidersRequest) returns (ListLlmProvidersResponse);
+
+  // SetActiveLlmProvider активирует указанный провайдер (остальные деактивируются триггером БД).
+  rpc SetActiveLlmProvider(SetActiveLlmProviderRequest) returns (SetActiveLlmProviderResponse);
+
+  // TestLlmProvider отправляет тестовый запрос к провайдеру для проверки доступности.
+  rpc TestLlmProvider(TestLlmProviderRequest) returns (TestLlmProviderResponse);
+
+  // UpdateLlmProvider обновляет приоритет и заметки провайдера.
+  rpc UpdateLlmProvider(UpdateLlmProviderRequest) returns (UpdateLlmProviderResponse);
+}

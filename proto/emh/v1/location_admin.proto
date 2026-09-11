@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/location.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// CreateLocationRequest данные для создания новой локации.
+message CreateLocationRequest {
+  // name - современное название (обязательно).
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  // historical_name - историческое название (опционально).
+  string historical_name = 2;
+  // type - тип географического объекта.
+  LocationType type = 3 [(buf.validate.field).enum.not_in = 0];
+  // parent_id - ID родительской локации.
+  string parent_id = 4 [
+    (buf.validate.field).string.uuid = true,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // latitude - широта центра объекта (-90..90).
+  double latitude = 5 [(buf.validate.field).double.gte = -90, (buf.validate.field).double.lte = 90];
+  // longitude - долгота центра объекта (-180..180).
+  double longitude = 6 [(buf.validate.field).double.gte = -180, (buf.validate.field).double.lte = 180];
+}
+
+// CreateLocationResponse результат создания локации.
+message CreateLocationResponse {
+  // id - UUID созданной локации.
+  string id = 1;
+}
+
+// UpdateLocationRequest данные для частичного обновления локации.
+message UpdateLocationRequest {
+  // id - UUID обновляемой локации.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // name - новое современное название.
+  string name = 2 [
+      (buf.validate.field).string.min_len = 1,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // historical_name - новое историческое название.
+  string historical_name = 3;
+  // type - новый тип локации.
+  LocationType type = 4 [
+      (buf.validate.field).enum.not_in = 0,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // parent_id - новый ID родительской локации.
+  string parent_id = 5 [
+      (buf.validate.field).string.uuid = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // latitude - новая широта.
+  double latitude = 6 [
+      (buf.validate.field).double.gte = -90,
+      (buf.validate.field).double.lte = 90,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // longitude - новая долгота.
+  double longitude = 7 [
+      (buf.validate.field).double.gte = -180,
+      (buf.validate.field).double.lte = 180,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // field_mask - список полей для обновления.
+  repeated string field_mask = 8;
+}
+
+// UpdateLocationResponse обновленный объект локации.
+message UpdateLocationResponse {
+  // location - актуальное состояние локации.
+  Location location = 1;
+}
+
+// DeleteLocationRequest запрос на удаление локации.
+message DeleteLocationRequest {
+  // id - UUID удаляемой локации.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteLocationResponse подтверждение удаления.
+message DeleteLocationResponse {
+  // success - true если удаление успешно.
+  bool success = 1;
+}
+
+// ReparentLocationsRequest запрос на массовую перепривязку дочерних локаций.
+message ReparentLocationsRequest {
+  // old_parent_id - ID старого родителя.
+  string old_parent_id = 1 [(buf.validate.field).string.uuid = true];
+  // new_parent_id - ID нового родителя.
+  string new_parent_id = 2 [(buf.validate.field).string.uuid = true];
+}
+
+// ReparentLocationsResponse результат операции перепривязки.
+message ReparentLocationsResponse {
+  // affected_count - количество успешно перенесенных локаций.
+  int32 affected_count = 1;
+}
+
+// LocationAdminService защищенный сервис для управления справочником мест.
+service LocationAdminService {
+  // CreateLocation создает новую запись в справочнике мест.
+  rpc CreateLocation(CreateLocationRequest) returns (CreateLocationResponse);
+  // UpdateLocation частично обновляет существующую локацию.
+  rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse);
+  // DeleteLocation удаляет локацию (требует предварительной репривязки детей).
+  rpc DeleteLocation(DeleteLocationRequest) returns (DeleteLocationResponse);
+  // ReparentLocations массово переносит дочерние локации к новому родителю.
+  rpc ReparentLocations(ReparentLocationsRequest) returns (ReparentLocationsResponse);
+}

@@ -1,0 +1,81 @@
+// Административный сервис для управления справочником наград.
+
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/award.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// CreateAwardRequest данные для создания новой награды в справочнике.
+message CreateAwardRequest {
+  // name - официальное название награды (обязательно).
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  // description - описание или статут награды.
+  string description = 2;
+  // image_url - URL загруженного изображения ленты или знака награды.
+  string image_url = 3 [(buf.validate.field).string.uri = true];
+  // sort_order - приоритет сортировки при отображении (старшие награды выше).
+  int32 sort_order = 4 [(buf.validate.field).int32.gte = 0];
+}
+
+// CreateAwardResponse результат успешного создания награды.
+message CreateAwardResponse {
+  // id - UUID созданной награды.
+  string id = 1;
+}
+
+// UpdateAwardRequest данные для частичного обновления существующей награды.
+message UpdateAwardRequest {
+  // id - UUID обновляемой награды (обязательно).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // name - новое официальное название.
+  string name = 2 [
+      (buf.validate.field).string.min_len = 1,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // description - новое описание или статут.
+  string description = 3;
+  // image_url - новый URL изображения награды.
+  string image_url = 4 [
+      (buf.validate.field).string.uri = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // sort_order - новый приоритет сортировки.
+  int32 sort_order = 5 [
+      (buf.validate.field).int32.gte = 0,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // field_mask - список полей для обновления. Позволяет отличить очистку поля от отсутствия изменений.
+  repeated string field_mask = 6;
+}
+
+// UpdateAwardResponse обновленный объект награды.
+message UpdateAwardResponse {
+  // award - актуальное состояние награды после обновления.
+  Award award = 1;
+}
+
+// DeleteAwardRequest запрос на удаление награды из справочника.
+message DeleteAwardRequest {
+  // id - UUID удаляемой награды.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteAwardResponse подтверждение операции удаления.
+message DeleteAwardResponse {
+  // success - true если удаление прошло успешно.
+  bool success = 1;
+}
+
+// AwardAdminService защищенный сервис для управления справочником наград.
+service AwardAdminService {
+  // CreateAward создает новую запись в справочнике наград.
+  rpc CreateAward(CreateAwardRequest) returns (CreateAwardResponse);
+  // UpdateAward частично обновляет существующую награду по field_mask.
+  rpc UpdateAward(UpdateAwardRequest) returns (UpdateAwardResponse);
+  // DeleteAward удаляет награду. При наличии связей с героями вернет ошибку.
+  rpc DeleteAward(DeleteAwardRequest) returns (DeleteAwardResponse);
+}

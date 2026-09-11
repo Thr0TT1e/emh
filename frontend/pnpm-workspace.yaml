@@ -1,0 +1,6 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+minimumReleaseAgeExclude:
+  - '@nuxtjs/sitemap@8.5.0'
+  - '@nuxt/scripts@1.3.8'

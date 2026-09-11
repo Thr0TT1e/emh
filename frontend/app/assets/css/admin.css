@@ -1,0 +1,316 @@
+/* Служебные стили админ-панели. Классы с префиксом a-, утечек на публичный сайт нет. */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-side {
+  width: 236px;
+  flex-shrink: 0;
+  background: #16181d;
+  color: #b9bec8;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-side__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.35rem 1.25rem;
+  border-bottom: 1px solid #262a33;
+  color: #f2f3f5;
+  text-decoration: none;
+}
+
+.admin-side__brand b {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+}
+
+.admin-side__brand small {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--emh-bronze);
+}
+
+.admin-nav {
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.admin-nav a {
+  display: block;
+  padding: 0.62rem 1.25rem 0.62rem 1.1rem;
+  color: #b9bec8;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    padding-left 0.2s ease;
+}
+
+.admin-nav a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  padding-left: 1.3rem;
+}
+
+.admin-nav a.router-link-active {
+  color: #fff;
+  border-left-color: var(--emh-crimson);
+  background: rgba(163, 22, 33, 0.14);
+}
+
+.admin-side__foot {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #262a33;
+  font-size: 0.82rem;
+}
+
+.admin-side__user {
+  color: #f2f3f5;
+  font-weight: 600;
+}
+
+.admin-side__role {
+  color: var(--emh-bronze);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-content {
+  /* margin: 0 auto; */
+  padding: 2.4rem 2.2rem 5rem;
+}
+
+.admin-pagehead {
+  display: grid;
+  justify-items: end;
+}
+
+.apanel__toolbar {
+  display: grid;
+  grid-template-columns: auto auto max-content;
+  column-gap: 0.5rem;
+}
+
+/* Таблица-реестр */
+.atable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--emh-line);
+}
+
+.atable th {
+  text-align: left;
+  padding: 0.68rem 0.9rem;
+  background: #fafafb;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--emh-bronze);
+  font-weight: 600;
+  border-bottom: 1px solid var(--emh-line);
+}
+
+.atable td {
+  padding: 0.72rem 0.9rem;
+  border-bottom: 1px solid var(--emh-line);
+  font-size: 0.92rem;
+  vertical-align: middle;
+}
+
+.atable tbody tr {
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.atable tbody tr:hover {
+  background: #fdf6f6;
+  box-shadow: inset 3px 0 0 var(--emh-crimson);
+}
+
+.atable .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.atable .mono {
+  font-family: ui-monospace, 'Cascadia Mono', 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* Поля форм */
+.afield__label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--emh-bronze);
+  font-weight: 600;
+}
+
+.afield__input {
+  width: 100%;
+  padding: 0.58rem 0.7rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--emh-ink);
+  background: #fff;
+  border: 1px solid var(--emh-line);
+  border-radius: 2px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.afield__input:focus {
+  outline: none;
+  border-color: var(--emh-crimson);
+  box-shadow: 0 0 0 3px rgba(163, 22, 33, 0.12);
+}
+
+textarea.afield__input {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.afield__hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.75rem;
+  color: var(--emh-muted);
+}
+
+/* Карточки-панели */
+.apanel {
+  background: #fff;
+  border: 1px solid var(--emh-line);
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.6rem;
+}
+
+.apanel__title {
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--emh-bronze);
+  font-weight: 700;
+  margin: 0 0 1.1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--emh-line);
+}
+
+/* Сводка: учётная лента вместо карточек */
+.ledger {
+  display: flex;
+  background: #fff;
+  border: 1px solid var(--emh-line);
+}
+
+.ledger__cell {
+  flex: 1;
+  padding: 1.5rem 1.6rem;
+  border-right: 1px solid var(--emh-line);
+  transition: background 0.2s ease;
+}
+
+.ledger__cell:last-child {
+  border-right: 0;
+}
+
+.ledger__cell:hover {
+  background: #fdf6f6;
+}
+
+.ledger__value {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger__value--flame {
+  color: var(--emh-crimson);
+}
+
+.ledger__caption {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--emh-muted);
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(3px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-5px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(5px);
+  }
+}
+
+.shake {
+  animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* В стили секции сайдбара */
+.nav-badge {
+  margin-left: 0.4rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--emh-carmine, #bd2f3c);
+  border-radius: 999px;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.admin-nav__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-nav__label {
+  padding: 0.9rem 0.7rem 0.3rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--p-text-muted-color);
+  user-select: none;
+}

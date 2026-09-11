@@ -1,0 +1,43 @@
+# ==========================================
+# ЭТАП 1: Сборка (Build)
+# ==========================================
+FROM docker.io/golang:1.26-alpine AS build-env
+
+WORKDIR /app
+
+# Копируем зависимости
+COPY go.mod go.sum ./
+# RUN go mod download
+
+# Копируем исходники и компилируем
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./bin/emh ./cmd/api/
+
+# Устанавливаем goose (он понадобится в runtime для миграций)
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+
+# ==========================================
+# ЭТАП 2: Runtime (Production)
+# ==========================================
+FROM registry.altlinux.org/alt/alt:p11
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+# Копируем бинарник приложения
+COPY --from=build-env /app/bin/emh /app/emh
+
+# ❗ ВАЖНО: Копируем goose и миграции в финальный образ!
+# Это позволит запускать миграции через этот же образ.
+COPY --from=build-env /go/bin/goose /usr/local/bin/goose
+COPY --from=build-env /app/migrations /app/migrations
+COPY --from=build-env /app/config/config.example.yaml /app/config/config.yaml
+
+# Сертификаты НЕ копируем (они будут в volume)
+EXPOSE 3480/tcp
+
+CMD ["/app/emh"]

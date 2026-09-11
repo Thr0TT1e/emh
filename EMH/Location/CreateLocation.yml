@@ -1,0 +1,29 @@
+info:
+  name: CreateLocation
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.LocationAdminService/CreateLocation"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Санкт-Петербург",
+        "historicalName": "Ленинград",
+        "type": "LOCATION_TYPE_CITY",
+        "parentId": "019fb51e-2596-7dc4-827c-2d91843c7880",
+        "latitude": 59.931,
+        "longitude": 30.360
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

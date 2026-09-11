@@ -1,0 +1,18 @@
+services:
+  postgres_db_service:
+    container_name: postgres_db_service
+    build:
+      dockerfile: docker/Dockerfile
+      context: ../
+    environment:
+      DB_NAME: DB_NAME_CI
+      DB_USER: DB_USER_CI
+      DB_PASSWORD: DB_PASSWORD_CI
+    ports:
+      - "PG_PORT_CI:5432"
+    volumes:
+      - postgres_db_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_db_data:

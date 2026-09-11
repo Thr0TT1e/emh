@@ -1,0 +1,28 @@
+info:
+  name: AddHeroPhoto
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/AddHeroPhoto"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "url": "https://minio.example.com/heroes/photo2.jpg",
+        "description": "Награждение",
+        "isMain": false,
+        "sortOrder": 1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

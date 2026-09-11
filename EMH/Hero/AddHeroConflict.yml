@@ -1,0 +1,27 @@
+info:
+  name: AddHeroConflict
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/AddHeroConflict"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "conflictId": "019fb50b-c94f-7a3a-ab51-2e3cdd3bbee7",
+        "specificLocation": "под Москвой",
+        "rankAtConflict": "Старший лейтенант"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

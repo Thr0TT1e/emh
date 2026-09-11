@@ -1,0 +1,88 @@
+// Сервис управления API-ключами.
+
+syntax = "proto3";
+
+package emh.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// ApiKey метаданные API-ключа (без секретной части).
+message ApiKey {
+  // id - UUID записи ключа.
+  string id = 1;
+  // key_id - публичный идентификатор ключа (не секрет).
+  string key_id = 2;
+  // name - человекочитаемое имя ключа.
+  string name = 3;
+  // description - описание назначения ключа.
+  string description = 4;
+  // role - права ключа.
+  string role = 5;
+  // created_by - кто создал ключ.
+  string created_by = 6;
+  // revoked_at - время отзыва (пусто если активен).
+  google.protobuf.Timestamp revoked_at = 7;
+  // expires_at - срок действия (пусто если бессрочный).
+  google.protobuf.Timestamp expires_at = 8;
+  // last_used_at - время последнего использования.
+  google.protobuf.Timestamp last_used_at = 9;
+  // created_at - время создания.
+  google.protobuf.Timestamp created_at = 10;
+}
+
+// CreateApiKeyRequest запрос на создание API-ключа.
+message CreateApiKeyRequest {
+  // name - имя ключа (обязательно).
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  // description - описание назначения.
+  string description = 2;
+  // role - права ключа (по умолчанию admin).
+  string role = 3;
+  // expires_at - срок действия (опционально).
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+// CreateApiKeyResponse результат создания ключа.
+message CreateApiKeyResponse {
+  // api_key - метаданные созданного ключа.
+  ApiKey api_key = 1;
+  // full_key - полный ключ. Показывается ТОЛЬКО ОДИН РАЗ — сохраните его.
+  string full_key = 2;
+}
+
+// ListApiKeysRequest запрос списка ключей.
+message ListApiKeysRequest {
+  // include_revoked - включать ли отозванные ключи.
+  bool include_revoked = 1;
+}
+
+// ListApiKeysResponse список ключей.
+message ListApiKeysResponse {
+  // api_keys - массив ключей (без секретов).
+  repeated ApiKey api_keys = 1;
+}
+
+// RevokeApiKeyRequest запрос на отзыв ключа.
+message RevokeApiKeyRequest {
+  // id - UUID отзывааемого ключа.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// RevokeApiKeyResponse подтверждение отзыва.
+message RevokeApiKeyResponse {
+  // success - true если ключ отозван.
+  bool success = 1;
+}
+
+// ApiKeyAdminService защищённый сервис управления API-ключами.
+service ApiKeyAdminService {
+  // CreateApiKey создаёт ключ и возвращает его полное значение (один раз).
+  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse);
+  // ListApiKeys возвращает список ключей с их статусами.
+  rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse);
+  // RevokeApiKey отзывает ключ (без возможности восстановления).
+  rpc RevokeApiKey(RevokeApiKeyRequest) returns (RevokeApiKeyResponse);
+}

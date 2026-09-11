@@ -1,0 +1,88 @@
+// Сервис для загрузки файлов.
+
+syntax = "proto3";
+
+package emh.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// UploadType определяет назначение загружаемого файла.
+enum UploadType {
+  // UPLOAD_TYPE_UNSPECIFIED - тип не задан.
+  UPLOAD_TYPE_UNSPECIFIED = 0;
+  // UPLOAD_TYPE_HERO_PHOTO - фотография героя.
+  UPLOAD_TYPE_HERO_PHOTO = 1;
+  // UPLOAD_TYPE_AWARD_IMAGE - изображение награды.
+  UPLOAD_TYPE_AWARD_IMAGE = 2;
+  // UPLOAD_TYPE_SUBMISSION_ATTACHMENT - документ к заявке.
+  UPLOAD_TYPE_SUBMISSION_ATTACHMENT = 3;
+}
+
+// GetUploadUrlRequest запрос на получение presigned URL для загрузки.
+message GetUploadUrlRequest {
+  // type - тип загружаемого контента.
+  UploadType type = 1 [(buf.validate.field).enum.not_in = 0];
+  // filename - оригинальное имя файла.
+  string filename = 2 [(buf.validate.field).string.min_len = 1];
+  // content_type - MIME-тип файла.
+  string content_type = 3 [(buf.validate.field).string.min_len = 1];
+}
+
+// GetUploadUrlResponse содержит URL для прямой загрузки и будущий публичный путь.
+message GetUploadUrlResponse {
+  // upload_url - presigned PUT URL для загрузки файла в S3/MinIO.
+  string upload_url = 1;
+  // public_url - финальный публичный URL файла после успешной загрузки.
+  string public_url = 2;
+  // expires_at - время истечения действия presigned URL (RFC3339).
+  string expires_at = 3;
+}
+
+// BatchGetUploadUrlsRequest Batch-запрос для пакетной генерации presigned URL
+message BatchGetUploadUrlsRequest {
+  // files - список файлов для загрузки (не более 50 за один запрос).
+  repeated FileToUpload files = 1 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).repeated.max_items = 50
+  ];
+  // type - тип загружаемого контента (одинаковый для всех файлов в пакете).
+  UploadType type = 2 [(buf.validate.field).enum.not_in = 0];
+}
+
+// BatchGetUploadUrlsResponse Batch-ответ с массивом presigned URL
+message BatchGetUploadUrlsResponse {
+  // urls - массив presigned URL для каждого файла.
+  repeated UploadUrlInfo urls = 1;
+  // count - количество сгенерированных URL.
+  int32 count = 2;
+}
+
+// FileToUpload Описание одного файла для batch-загрузки
+message FileToUpload {
+  // filename - оригинальное имя файла.
+  string filename = 1 [(buf.validate.field).string.min_len = 1];
+  // content_type - MIME-тип файла.
+  string content_type = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+// UploadUrlInfo Элемент batch-ответа
+message UploadUrlInfo {
+  // filename - имя файла (для маппинга на фронтенде).
+  string filename = 1;
+  // upload_url - presigned PUT URL для загрузки файла в S3/MinIO.
+  string upload_url = 2;
+  // public_url - финальный публичный URL файла после успешной загрузки.
+  string public_url = 3;
+  // expires_at - время истечения действия presigned URL (RFC3339).
+  string expires_at = 4;
+}
+
+// MediaService сервис для работы с медиа-контентом.
+service MediaService {
+  // GetUploadUrl генерирует presigned URL для безопасной прямой загрузки в хранилище.
+  rpc GetUploadUrl(GetUploadUrlRequest) returns (GetUploadUrlResponse);
+  // BatchGetUploadUrls генерирует несколько presigned URL за один запрос.
+  rpc BatchGetUploadUrls(BatchGetUploadUrlsRequest) returns (BatchGetUploadUrlsResponse);
+}

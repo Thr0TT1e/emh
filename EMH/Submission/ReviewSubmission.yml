@@ -1,0 +1,26 @@
+info:
+  name: ReviewSubmission
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.SubmissionAdminService/ReviewSubmission"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "<SUBMISSION_ID>",
+        "decision": "SUBMISSION_REVIEW_DECISION_APPROVE",
+        "moderatorComment": "Данные подтверждены документально"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,26 @@
+info:
+  name: ListLocations
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.LocationService/ListLocations"
+  body:
+    type: json
+    data: |-
+      // Список дочерних локаций страны
+      {
+        "parentId": "019fb51e-2596-7dc4-827c-2d91843c7880"
+      }
+      // Поиск по историческому названию
+      {
+        "searchQuery": "Ленинград"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

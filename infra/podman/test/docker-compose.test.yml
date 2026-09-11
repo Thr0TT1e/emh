@@ -1,0 +1,25 @@
+# Тестовая инфраструктура для интеграционных тестов репозиториев.
+# Используется командой `just test-db-up` и CI.
+# База данных изолирована: отдельный порт (5444), отдельный volume.
+services:
+  emh-test-postgres:
+    image: docker.io/library/postgres:18
+    container_name: emh-test-postgres
+    environment:
+      POSTGRES_USER: emh_test
+      POSTGRES_PASSWORD: emh_test_secret
+      POSTGRES_DB: emh_test_db
+    ports:
+      - "5444:5432"
+    volumes:
+      - emh_test_pg_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emh_test -d emh_test_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+
+volumes:
+  emh_test_pg_data:
+    driver: local

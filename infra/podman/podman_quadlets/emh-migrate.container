@@ -1,0 +1,22 @@
+# ~/.config/containers/systemd/emh-migrate.container
+
+[Unit]
+Description=EMH Database Migrations
+After=emh-postgres.service
+Requires=emh-postgres.service
+
+[Container]
+Image=docker.io/thr0tt1e/emh-backend:v0.0.1
+ContainerName=emh-migrate
+EnvironmentFile=%h/emh/.env
+Network=emh-net.network
+# ❗ Оборачиваем в shell (одинарные кавычки снаружи),
+# чтобы shell раскрыл $DATABASE_URL в двойных кавычках внутри.
+Exec=/bin/sh -c 'goose -dir /app/migrations postgres "$DATABASE_URL" up'
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

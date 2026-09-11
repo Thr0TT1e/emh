@@ -1,0 +1,27 @@
+info:
+  name: AddHeroAward
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/AddHeroAward"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "awardId": "019fb445-8bdd-74bd-9eac-7db2b17ca03e",
+        "awardDate": "1944-08-23",
+        "decreeNumber": "Указ ПВС СССР от 23.08.1944"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

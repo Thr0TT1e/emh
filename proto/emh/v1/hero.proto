@@ -1,0 +1,275 @@
+// Основные сущности и публичный сервис для работы с героями.
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/common.proto";
+import "emh/v1/location.proto";
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// HeroSummary содержит краткую информацию о герое для отображения в списках и результатах поиска.
+message HeroSummary {
+  // id - уникальный идентификатор героя (UUID).
+  string id = 1;
+  // last_name - фамилия героя.
+  string last_name = 2;
+  // first_name - имя героя.
+  string first_name = 3;
+  // middle_name - отчество героя (может быть пустым).
+  string middle_name = 4;
+  // main_photo_url - URL главной фотографии для превью.
+  string main_photo_url = 5;
+  // rank - воинское звание героя.
+  string rank = 6;
+  // short_bio - краткая биография (до 300 символов) для карточек.
+  string short_bio = 7;
+  // award_names - список названий наград для отображения бейджей.
+  repeated string award_names = 8;
+  // birth_date - дата рождения героя.
+  // DEPRECATED: используйте birth_date_info. Поле сохранено для обратной совместимости.
+  google.protobuf.Timestamp birth_date = 9;
+  // death_date - дата гибели героя.
+  // DEPRECATED: используйте death_date_info. Поле сохранено для обратной совместимости.
+  google.protobuf.Timestamp death_date = 10;
+  // nickname - позывной героя (например, «Тридцатый»).
+  string nickname = 11;
+  // unit - подразделение или воинская часть.
+  string unit = 12;
+  // service_branch - ведомство или род войск (ФСБ, ВДВ и т.д.).
+  string service_branch = 13;
+  // main_thumbnail_url - URL превью главной фотографии (обрезано по face_box).
+  // Используется для карточек в списках. Может быть пустым, если thumbnail ещё не сгенерирован воркером.
+  string main_thumbnail_url = 14;
+  // birth_date_info - гибкая дата рождения героя.
+  FlexibleDate birth_date_info = 15;
+  // death_date_info - гибкая дата гибели героя.
+  FlexibleDate death_date_info = 16;
+  // status - текущий статус публикации записи
+  PublicationStatus status = 17;
+}
+
+// HeroDetail содержит полную информацию о герое для детальной страницы.
+message HeroDetail {
+  // summary - базовая информация о герое.
+  HeroSummary summary = 1;
+  // full_bio - полный текст биографии или рассказа о подвиге.
+  string full_bio = 2;
+  // photos - галерея фотографий героя.
+  repeated Photo photos = 3;
+  // awards - список наград героя с деталями.
+  repeated HeroAward awards = 4;
+  // conflicts - список конфликтов, в которых участвовал герой.
+  repeated HeroConflict conflicts = 5;
+  // locations - географические привязки (рождение, гибель, захоронение).
+  repeated HeroLocation locations = 6;
+  // status - текущий статус публикации записи.
+  PublicationStatus status = 7;
+  // audit - системные метаданные создания и обновления.
+  AuditInfo audit = 8;
+  // position - должность героя.
+  string position = 9;
+  // cause_of_death - причина или обстоятельства гибели.
+  string cause_of_death = 10;
+  // service_start_date - дата начала службы.
+  google.protobuf.Timestamp service_start_date = 11;
+  // memberships - членство в организациях и объединениях.
+  repeated string memberships = 12;
+  // sources - источники данных о герое.
+  repeated HeroSource sources = 13;
+  // relations - связи с другими героями.
+  repeated HeroRelation relations = 14;
+  // service_start_date_info - гибкая дата начала службы.
+  FlexibleDate service_start_date_info = 15;
+}
+
+// HeroSource представляет источник данных о герое (ссылка на статью, архив, книгу).
+message HeroSource {
+  // id - уникальный идентификатор источника.
+  string id = 1;
+  // url - ссылка на источник.
+  string url = 2;
+  // title - заголовок или название источника.
+  string title = 3;
+  // source_type - тип источника (vk, website, archive, book).
+  string source_type = 4;
+  // excerpt - сохранённый фрагмент текста из источника.
+  string excerpt = 5;
+}
+
+// HeroRelation представляет связь героя с другим героем.
+message HeroRelation {
+  // id - уникальный идентификатор связи.
+  string id = 1;
+  // from_hero_id - UUID героя-источника связи.
+  string from_hero_id = 2;
+  // to_hero_id - UUID связанного героя.
+  string to_hero_id = 3;
+  // relation_type - тип связи (father_son, comrade, commander).
+  string relation_type = 4;
+  // description - описание связи.
+  string description = 5;
+  // related_hero_name - ФИО связанного героя (денормализация для удобства).
+  string related_hero_name = 6;
+}
+
+// FaceBox область интереса на фотографии (обычно лицо героя).
+// Координаты задаются в пикселях от левого верхнего угла изображения.
+message FaceBox {
+    // x - координата левого верхнего угла (пиксели от левого края).
+    int32 x = 1;
+    // y - координата левого верхнего угла (пиксели от верха).
+    int32 y = 2;
+    // width - ширина области в пикселях.
+    int32 width = 3 [(buf.validate.field).int32.gt = 0];
+    // height - высота области в пикселях.
+    int32 height = 4 [(buf.validate.field).int32.gt = 0];
+}
+
+// Photo представляет отдельную фотографию в галерее героя.
+message Photo {
+  // id - уникальный идентификатор фотографии.
+  string id = 1;
+  // url - полный URL оригинального изображения.
+  string url = 2;
+  // thumbnail_url - URL уменьшенной версии для галереи.
+  string thumbnail_url = 3;
+  // description - подпись или описание фотографии.
+  string description = 4;
+  // sort_order - порядок отображения в галерее.
+  int32 sort_order = 5;
+  // is_main - флаг главной фотографии (используется в превью).
+  bool is_main = 6;
+  // face_box - область интереса для crop thumbnail (опционально).
+  FaceBox face_box = 7;
+}
+
+// HeroAward описывает конкретную награду героя.
+message HeroAward {
+  // award_id - UUID награды из справочника.
+  string award_id = 1;
+  // award_name - название награды (денормализовано для удобства).
+  string award_name = 2;
+  // award_date - дата вручения или издания указа.
+  google.protobuf.Timestamp award_date = 3;
+  // decree_number - номер приказа или указа о награждении.
+  string decree_number = 4;
+  // award_date_info - гибкая дата награждения.
+  // Если заполнено, имеет приоритет над award_date.
+  FlexibleDate award_date_info = 5;
+}
+
+// HeroConflict описывает участие героя в конкретном конфликте.
+message HeroConflict {
+  // conflict_id - UUID конфликта из справочника.
+  string conflict_id = 1;
+  // conflict_name - название конфликта (денормализовано).
+  string conflict_name = 2;
+  // specific_location - место боя или гибели в рамках данного конфликта.
+  string specific_location = 3;
+  // rank_at_conflict - звание героя на момент участия в данном конфликте.
+  string rank_at_conflict = 4;
+}
+
+// HeroLocation связывает героя с географическим объектом.
+message HeroLocation {
+  // location_id - UUID локации из справочника.
+  string location_id = 1;
+  // location - полные данные локации.
+  Location location = 2;
+  // type - тип связи (место рождения, гибели и т.д.).
+  HeroLocationType type = 3;
+}
+
+// GetHeroRequest запрос на получение полной карточки героя.
+message GetHeroRequest {
+  // id - UUID героя.
+  string id = 1;
+}
+
+// GetHeroResponse ответ с полной информацией о герое.
+message GetHeroResponse {
+  // hero - детальная карточка героя.
+  HeroDetail hero = 1;
+}
+
+// ListHeroesRequest параметры поиска и фильтрации списка героев.
+message ListHeroesRequest {
+  // pagination - параметры курсорной пагинации.
+  PaginationRequest pagination = 1;
+  // search_query - поисковый запрос по ФИО.
+  string search_query = 2;
+  // conflict_id - фильтр по ID конфликта.
+  string conflict_id = 3;
+  // location_id - фильтр по ID локации (рождение/гибель).
+  string location_id = 4;
+  // date_from - нижняя граница даты гибели для фильтрации.
+  google.protobuf.Timestamp date_from = 5;
+  // date_to - верхняя граница даты гибели для фильтрации.
+  google.protobuf.Timestamp date_to = 6;
+}
+
+// ListHeroesResponse результат поиска героев с пагинацией.
+message ListHeroesResponse {
+  // heroes - список кратких карточек героев.
+  repeated HeroSummary heroes = 1;
+  // pagination - метаданные для перехода к следующей странице.
+  PaginationResponse pagination = 2;
+}
+
+// ListHeroPhotosRequest запрос на получение всех фотографий героя.
+message ListHeroPhotosRequest {
+  // hero_id - UUID героя.
+  string hero_id = 1 [(buf.validate.field).string.uuid = true];
+  // pagination - параметры пагинации для больших галерей.
+  PaginationRequest pagination = 2;
+}
+
+// ListHeroPhotosResponse список фотографий героя, упорядоченный по sort_order.
+message ListHeroPhotosResponse {
+  // photos - фотографии героя.
+  repeated Photo photos = 1;
+  // pagination - метаданные пагинации.
+  PaginationResponse pagination = 2;
+}
+
+// ListHeroSourcesRequest запрос на получение источников данных героя.
+message ListHeroSourcesRequest {
+  // hero_id - UUID героя.
+  string hero_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// ListHeroSourcesResponse список источников данных героя.
+message ListHeroSourcesResponse {
+  // sources - источники данных героя.
+  repeated HeroSource sources = 1;
+}
+
+// ListHeroRelationsRequest запрос на получение связей героя с другими героями.
+message ListHeroRelationsRequest {
+  // hero_id - UUID героя.
+  string hero_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// ListHeroRelationsResponse список связей героя с другими героями.
+message ListHeroRelationsResponse {
+  // relations - связи героя.
+  repeated HeroRelation relations = 1;
+}
+
+// HeroService публичный сервис для чтения данных о героях.
+service HeroService {
+  // GetHero возвращает полную карточку героя по ID.
+  rpc GetHero(GetHeroRequest) returns (GetHeroResponse);
+  // ListHeroes выполняет поиск и фильтрацию героев с пагинацией.
+  rpc ListHeroes(ListHeroesRequest) returns (ListHeroesResponse);
+  // ListHeroPhotos возвращает все фотографии героя для галереи.
+  rpc ListHeroPhotos(ListHeroPhotosRequest) returns (ListHeroPhotosResponse);
+  // ListHeroSources возвращает источники данных героя.
+  rpc ListHeroSources(ListHeroSourcesRequest) returns (ListHeroSourcesResponse);
+  // ListHeroRelations возвращает связи героя с другими героями.
+  rpc ListHeroRelations(ListHeroRelationsRequest) returns (ListHeroRelationsResponse);
+}

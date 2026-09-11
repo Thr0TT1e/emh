@@ -1,0 +1,118 @@
+services:
+  # ==========================================
+  # INGRESS & TLS (Caddy)
+  # ==========================================
+  caddy:
+    image: docker.io/caddy:2-alpine
+    container_name: emh-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+    depends_on:
+      - emh
+      - frontend
+
+  # ==========================================
+  # FRONTEND (Static Nuxt)
+  # ==========================================
+  frontend:
+    image: docker.io/thr0tt1e/emh-frontend:v0.0.1
+    container_name: emh-frontend
+    restart: unless-stopped
+    networks:
+      - web
+
+  # ==========================================
+  # BACKEND API
+  # ==========================================
+  emh:
+    image: docker.io/thr0tt1e/emh-backend:v0.0.1
+    container_name: emh-backend
+    restart: unless-stopped
+    env_file:
+      - .env # Секреты на VPS
+    volumes:
+      - ./certs:/app/certs:ro # Если нужны внутр. TLS
+    networks:
+      - web
+      - db
+    depends_on:
+      emh-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  # ==========================================
+  # MIGRATIONS (Init Container)
+  # ==========================================
+  emh-migrate:
+    image: docker.io/thr0tt1e/emh-backend:v0.0.1
+    container_name: emh-migrate
+    restart: "no"
+    env_file:
+      - .env
+    # Переопределяем команду: запускаем goose, а не приложение
+    command: ["goose", "-dir", "/app/migrations", "postgres", "$DATABASE_URL", "up"]
+    networks:
+      - db
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ==========================================
+  # INFRASTRUCTURE
+  # ==========================================
+  postgres:
+    image: docker.io/postgres:18.4-alpine
+    container_name: emh-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: docker.io/minio/minio
+    container_name: emh-minio
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    volumes:
+      - minio_data:/data
+    networks:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  caddy_data:
+  caddy_config:
+  pg_data:
+  minio_data:
+
+networks:
+  web:
+    driver: bridge
+  db:
+    driver: bridge
+    internal: true # Запрещаем выход в интернет для БД

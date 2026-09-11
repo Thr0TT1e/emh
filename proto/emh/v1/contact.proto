@@ -1,0 +1,68 @@
+// Сервис обратной связи: приём сообщений с формы /contacts и отправка email через SMTP.
+syntax = "proto3";
+package emh.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// CreateContactMessageRequest — запрос на создание сообщения обратной связи.
+// Форма НЕ предназначена для отправки данных о героях (для этого есть SubmissionService).
+message CreateContactMessageRequest {
+  // name — имя отправителя (обязательно, 2–200 символов).
+  string name = 1 [
+    (buf.validate.field).string.min_len = 2,
+    (buf.validate.field).string.max_len = 200
+  ];
+
+  // email — email отправителя для ответа.
+  string email = 2 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+
+  // subject — тема обращения (опционально, до 200 символов).
+  string subject = 3 [
+    (buf.validate.field).string.max_len = 200
+  ];
+
+  // message — текст сообщения (обязательно, 10–5000 символов).
+  string message = 4 [
+    (buf.validate.field).string.min_len = 10,
+    (buf.validate.field).string.max_len = 5000
+  ];
+
+  // page_url — страница, с которой была отправлена форма (для контекста).
+  string page_url = 5 [
+    (buf.validate.field).string.max_len = 2048
+  ];
+
+  // honeypot — скрытое поле для простых ботов. Должно быть пустым.
+  // Если заполнено — запрос принимается, но email не отправляется.
+  string honeypot = 6 [
+    (buf.validate.field).string.max_len = 200
+  ];
+
+  // consent — согласие на обработку персональных данных. Обязательно true.
+  bool consent = 7 [
+    (buf.validate.field).bool.const = true
+  ];
+}
+
+// CreateContactMessageResponse — результат создания сообщения.
+message CreateContactMessageResponse {
+  // id — UUID созданного сообщения в таблице contact_messages.
+  string id = 1 [
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+// ContactService — публичный сервис обратной связи.
+// Endpoint: POST /emh.v1.ContactService/CreateContactMessage
+service ContactService {
+  // CreateContactMessage принимает сообщение формы обратной связи,
+  // сохраняет его в БД и (если SMTP включён и это не honeypot)
+  // инициирует отправку письма владельцу проекта.
+  rpc CreateContactMessage(CreateContactMessageRequest)
+      returns (CreateContactMessageResponse);
+}

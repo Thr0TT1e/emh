@@ -1,0 +1,21 @@
+info:
+  name: ListHeroPhotos
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{hero_id}}emh.v1.HeroService/ListHeroPhotos"
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

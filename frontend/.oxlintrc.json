@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "eslint", "import", "vue"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-alert": "error",
+    "oxc/approx-constant": "warn",
+    "no-plusplus": "off",
+    "eslint/prefer-const": [
+      "error",
+      {
+        "destructuring": "any"
+      }
+    ]
+  },
+  "env": {
+    "builtin": true
+  }
+}

@@ -1,0 +1,8 @@
+[Unit]
+Description=EMH Prometheus data volume
+
+[Volume]
+Driver=local
+
+[Install]
+WantedBy=default.target

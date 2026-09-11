@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/common.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// Location представляет географический объект в справочнике мест.
+message Location {
+  // id - уникальный идентификатор локации (UUID).
+  string id = 1;
+  // name - современное название населенного пункта или объекта.
+  string name = 2;
+  // historical_name - историческое название на период события (опционально).
+  string historical_name = 3;
+  // type - тип географического объекта.
+  LocationType type = 4;
+  // parent_id - ID родительской локации (региона или страны).
+  string parent_id = 5;
+  // latitude - широта для отображения на карте.
+  double latitude = 6;
+  // longitude - долгота для отображения на карте.
+  double longitude = 7;
+}
+
+// GetLocationRequest запрос на получение локации по ID.
+message GetLocationRequest {
+  // id - UUID локации.
+  string id = 1;
+}
+
+// GetLocationResponse ответ с данными локации.
+message GetLocationResponse {
+  // location - объект локации.
+  Location location = 1;
+}
+
+// ListLocationsRequest параметры выборки локаций.
+message ListLocationsRequest {
+  // parent_id - фильтр по родительской локации (например, города области).
+  string parent_id = 1;
+  // search_query - текстовый поиск по названию.
+  string search_query = 2;
+  // type - фильтр по типу локации.
+  LocationType type = 3;
+  // pagination - параметры курсорной пагинации.
+  PaginationRequest pagination = 4;
+}
+
+// ListLocationsResponse список найденных локаций.
+message ListLocationsResponse {
+  // locations - массив объектов локаций.
+  repeated Location locations = 1;
+  // pagination - метаданные для перехода к следующей странице.
+  PaginationResponse pagination = 2;
+}
+
+// LocationService публичный сервис для работы со справочником мест.
+service LocationService {
+  // GetLocation возвращает локацию по ID.
+  rpc GetLocation(GetLocationRequest) returns (GetLocationResponse);
+  // ListLocations возвращает отфильтрованный список локаций.
+  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse);
+}

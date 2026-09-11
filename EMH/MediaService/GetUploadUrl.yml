@@ -1,0 +1,23 @@
+info:
+  name: GetUploadUrl
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.MediaService/GetUploadUrl"
+  body:
+    type: json
+    data: |-
+      {
+        "type": "UPLOAD_TYPE_HERO_PHOTO",
+        "filename": "hero.jpg",
+        "contentType": "image/jpeg"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

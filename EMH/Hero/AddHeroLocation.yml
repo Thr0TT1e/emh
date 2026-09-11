@@ -1,0 +1,33 @@
+info:
+  name: AddHeroLocation
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/AddHeroLocation"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      // Привязать локацию как место рождения
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "locationId": "<LOCATION_ID>",
+        "type": "HERO_LOCATION_TYPE_BIRTH"
+      }
+      // Привязать ту же локацию как место захоронения (другой тип — другая связь)
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "locationId": "<LOCATION_ID>",
+        "type": "HERO_LOCATION_TYPE_BURIAL"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

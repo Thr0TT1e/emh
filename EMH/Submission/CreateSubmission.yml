@@ -1,0 +1,27 @@
+info:
+  name: CreateSubmission
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.SubmissionService/CreateSubmission"
+  body:
+    type: json
+    data: |-
+      {
+        "submitterName": "Иван Петров",
+        "submitterEmail": "ivan@example.com",
+        "targetHeroId": "<HERO_ID>",
+        "payloadJson": "{\"correction\": \"Уточнить дату гибели\", \"source\": \"Архив МО РФ\"}",
+        "attachmentUrls": [
+          "https://localhost:4443/emh-media/submissions/doc1.pdf"
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

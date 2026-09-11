@@ -1,0 +1,166 @@
+// Сервис извлечения структурированных данных из сырого текста (LLM-пайплайн).
+// Вызывается админом вручную для предзаполнения формы героя.
+syntax = "proto3";
+package emh.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// ─────────────────────────────────────────────
+// Запрос / Ответ: извлечение из текста или URL
+// ─────────────────────────────────────────────
+
+// ExtractHeroDataRequest запрос на извлечение данных героя из сырого текста или URL.
+message ExtractHeroDataRequest {
+  // Требуется указать либо raw_text, либо source_url.
+  option (buf.validate.message).cel = {
+    id: "extract_hero_data_request.text_or_url",
+    message: "either raw_text or source_url must be provided",
+    expression: "this.raw_text != '' || this.source_url != ''"
+  };
+
+  // raw_text - сырой текст статьи, поста или письма.
+  string raw_text = 1;
+
+  // source_url - URL источника (VK, сайт). Текст будет извлечён автоматически.
+  string source_url = 2 [
+    (buf.validate.field).string.uri = true,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+}
+
+// ExtractHeroDataResponse результат извлечения данных героя.
+message ExtractHeroDataResponse {
+  // hero - извлечённые данные героя.
+  ExtractedHero hero = 1;
+  // conflicts - извлечённые конфликты.
+  repeated ExtractedConflict conflicts = 2;
+  // awards - извлечённые награды.
+  repeated ExtractedAward awards = 3;
+  // locations - извлечённые локации.
+  repeated ExtractedLocation locations = 4;
+  // source_urls - URL источников, использованных при извлечении.
+  repeated string source_urls = 5;
+  // warnings - предупреждения о низкой уверенности или неоднозначностях.
+  repeated string warnings = 6;
+  // duplicate_hero_ids - возможные дубликаты среди существующих героев.
+  repeated string duplicate_hero_ids = 7;
+  // raw_llm_json - сырой JSON-ответ модели (для аудита и отладки).
+  string raw_llm_json = 8;
+  // extraction_log_id - UUID записи в llm_extraction_logs (для трассировки).
+  string extraction_log_id = 9;
+}
+
+// ─────────────────────────────────────────────
+// Запрос / Ответ: извлечение из заявки
+// ─────────────────────────────────────────────
+
+// ExtractFromSubmissionRequest запрос на извлечение данных из заявки.
+message ExtractFromSubmissionRequest {
+  // submission_id - UUID заявки, из которой извлекаются данные.
+  string submission_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// ExtractFromSubmissionResponse результат извлечения из заявки.
+message ExtractFromSubmissionResponse {
+  // hero - извлечённые данные героя.
+  ExtractedHero hero = 1;
+  // conflicts - извлечённые конфликты.
+  repeated ExtractedConflict conflicts = 2;
+  // awards - извлечённые награды.
+  repeated ExtractedAward awards = 3;
+  // locations - извлечённые локации.
+  repeated ExtractedLocation locations = 4;
+  // warnings - предупреждения о низкой уверенности.
+  repeated string warnings = 5;
+  // raw_llm_json - сырой JSON-ответ модели.
+  string raw_llm_json = 6;
+  // extraction_log_id - UUID записи в llm_extraction_logs.
+  string extraction_log_id = 7;
+}
+
+// ─────────────────────────────────────────────
+// Извлечённые сущности
+// ─────────────────────────────────────────────
+
+// ExtractedHero извлечённые данные героя.
+message ExtractedHero {
+  // last_name - фамилия героя.
+  string last_name = 1;
+  // first_name - имя героя.
+  string first_name = 2;
+  // middle_name - отчество героя.
+  string middle_name = 3;
+  // nickname - позывной или прозвище.
+  string nickname = 4;
+  // rank - воинское звание.
+  string rank = 5;
+  // unit - подразделение или воинская часть.
+  string unit = 6;
+  // position - должность.
+  string position = 7;
+  // service_branch - ведомство или род войск.
+  string service_branch = 8;
+  // birth_date - дата рождения (YYYY-MM-DD, YYYY-MM или YYYY).
+  string birth_date = 9;
+  // death_date - дата гибели (YYYY-MM-DD, YYYY-MM или YYYY).
+  string death_date = 10;
+  // cause_of_death - причина или обстоятельства гибели.
+  string cause_of_death = 11;
+  // service_start_date - дата начала службы.
+  string service_start_date = 12;
+  // short_bio - краткая биография (до 500 символов).
+  string short_bio = 13 [(buf.validate.field).string.max_len = 500];
+  // full_bio - полная биография или рассказ о подвиге.
+  string full_bio = 14;
+  // memberships - членство в организациях и объединениях.
+  repeated string memberships = 15;
+}
+
+// ExtractedConflict извлечённый конфликт с привязкой к герою.
+message ExtractedConflict {
+  // name - название конфликта.
+  string name = 1;
+  // specific_location - место боя или гибели в рамках конфликта.
+  string specific_location = 2;
+  // rank_at_conflict - звание героя на момент участия в конфликте.
+  string rank_at_conflict = 3;
+  // suggested_conflict_type - подсказка типа конфликта для связывания со справочником.
+  string suggested_conflict_type = 4;
+}
+
+// ExtractedAward извлечённая награда героя.
+message ExtractedAward {
+  // name - название награды.
+  string name = 1;
+  // award_date - дата награждения (YYYY-MM-DD или YYYY).
+  string award_date = 2;
+  // decree_number - номер приказа или указа о награждении.
+  string decree_number = 3;
+}
+
+// ExtractedLocation извлечённая локация с типом связи с героем.
+message ExtractedLocation {
+  // name - название населённого пункта или объекта.
+  string name = 1;
+  // historical_name - историческое название на период события.
+  string historical_name = 2;
+  // location_type - тип географического объекта (country/region/city/village/cemetery).
+  string location_type = 3;
+  // hero_location_type - тип связи с героем (birth/death/burial/residence).
+  string hero_location_type = 4;
+}
+
+// ─────────────────────────────────────────────
+// Сервис
+// ─────────────────────────────────────────────
+
+// ExtractionService админский сервис извлечения структурированных данных через LLM.
+service ExtractionService {
+  // ExtractHeroData извлекает данные героя из текста или URL для проверки редактором.
+  rpc ExtractHeroData(ExtractHeroDataRequest) returns (ExtractHeroDataResponse);
+
+  // ExtractFromSubmission извлекает данные героя из payload_json существующей заявки.
+  rpc ExtractFromSubmission(ExtractFromSubmissionRequest) returns (ExtractFromSubmissionResponse);
+}

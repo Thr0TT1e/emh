@@ -1,0 +1,18 @@
+info:
+  name: ReorderHeroPhotos
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/ReorderHeroPhotos"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,30 @@
+# Конфигурация Prometheus для EMH.
+# Сбор метрик с backend (/metrics), MinIO (опционально), и самого Prometheus.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ─── EMH Backend ────────────────────────────────────────────
+  # Метрики приложения: RPC, Auth, LLM, S3, Workers, Business.
+  # В контейнерной сети обращаемся по имени сервиса.
+  - job_name: 'emh-backend'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['emh-backend:3480']
+        labels:
+          app: 'emh-backend'
+          env: 'dev'
+
+  # ─── Prometheus self-monitoring ─────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ─── MinIO (раскомментировать при необходимости) ────────────
+  # Требует в env MinIO:
+  #   MINIO_PROMETHEUS_AUTH_TYPE: public
+  # - job_name: 'minio'
+  #   metrics_path: /minio/v2/metrics/cluster
+  #   static_configs:
+  #     - targets: ['emh-minio:9000']

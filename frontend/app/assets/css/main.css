@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
+
+/* Дизайн-фундамент мемориального проекта.
+   Типографика: Playfair Display (заголовки) + Golos Text (текст) — обе с кириллицей.
+   Палитра: холодный гранит, вечный огонь (крампл), бронза. */
+
+:root {
+  --emh-bg: #f2f3f5;
+  --emh-surface: #ffffff;
+  --emh-ink: #1a1c20;
+  --emh-muted: #5c616b;
+  --emh-crimson: #a31621;
+  --emh-crimson-dark: #7c1119;
+  --emh-bronze: #7a5c2e;
+  --emh-line: #d9dce1;
+
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Golos Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Локальные шрифты (замена @nuxt/fonts)
+   ═══════════════════════════════════════════════════════════ */
+
+/* @font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/PlayfairDisplay.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/PlayfairDisplay-Italic.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Golos Text';
+  src: url('/fonts/Golos-Text.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+} */
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--emh-bg);
+  color: var(--emh-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Многослойный фоновый градиент: холодный гранит + отблеск вечного огня */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 30rem at 50% -10%, rgba(163, 22, 33, 0.07), transparent 60%),
+    radial-gradient(40rem 24rem at 85% 110%, rgba(176, 141, 87, 0.09), transparent 60%),
+    linear-gradient(180deg, #f4f5f7 0%, #eef0f2 100%);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  color: var(--emh-ink);
+}
+
+p {
+  line-height: 1.65;
+}
+
+a {
+  color: var(--emh-crimson);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--emh-crimson-dark);
+}
+
+::selection {
+  background: rgba(163, 22, 33, 0.18);
+}
+
+/* Вечный огонь — живой акцент мемориала */
+.flame {
+  position: relative;
+  width: 13px;
+  height: 19px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.flame::before,
+.flame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
+  background: radial-gradient(
+    ellipse at 50% 78%,
+    #f0a13c 0%,
+    #d4552a 42%,
+    #a31621 74%,
+    transparent 100%
+  );
+  transform-origin: 50% 100%;
+  animation: flicker 1.9s ease-in-out infinite;
+}
+
+.flame::after {
+  inset: 22% 26% 0 26%;
+  background: radial-gradient(ellipse at 50% 82%, #ffe6ae 0%, #f0a13c 55%, transparent 100%);
+  animation-duration: 1.35s;
+  animation-delay: 0.25s;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1) rotate(0deg);
+    opacity: 0.95;
+  }
+
+  30% {
+    transform: scaleY(1.14) scaleX(0.93) rotate(-2deg);
+    opacity: 1;
+  }
+
+  60% {
+    transform: scaleY(0.9) scaleX(1.07) rotate(2deg);
+    opacity: 0.82;
+  }
+
+  82% {
+    transform: scaleY(1.07) scaleX(0.96) rotate(-1deg);
+    opacity: 0.95;
+  }
+}
+
+/* Появление при скролле */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Бронзовый разделитель секций */
+.rule {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--emh-bronze), transparent 70%);
+  margin: 0;
+}
+
+.shell_logo {
+  height: 50px;
+}

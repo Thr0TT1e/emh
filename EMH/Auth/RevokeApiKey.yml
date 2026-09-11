@@ -1,0 +1,26 @@
+info:
+  name: RevokeApiKey
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.ApiKeyAdminService/RevokeApiKey"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "<KEY_UUID>"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaXNzIjoiZW1oIiwic3ViIjoiYWRtaW4iLCJleHAiOjE3ODU2OTkwODAsImlhdCI6MTc4NTYxMjY4MH0.GnR9WoeVf5wcirTa4obEPrKvamBjEQKMVyA1LW1EtLM
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

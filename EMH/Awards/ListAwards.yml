@@ -1,0 +1,21 @@
+info:
+  name: ListAwards
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{hero_id}}emh.v1.AwardService/ListAwards"
+  body:
+    type: json
+    data: |-
+      {
+        "searchQuery": "Герой"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

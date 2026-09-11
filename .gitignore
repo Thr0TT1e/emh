@@ -1,0 +1,10 @@
+backend/tmp
+certs/*
+backend/config/config.yaml
+*/**/.env.local
+
+# Тестовые артефакты
+backend/coverage.out
+backend/coverage.html
+
+ls_dir.txt

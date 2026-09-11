@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    "*.vue",
+    "app/sdk/*"
+  ],
+  "printWidth": 100,
+  "singleQuote": true,
+  "sortImports": true,
+  "bracketSameLine": true,
+  "vueIndentScriptAndStyle": true
+}

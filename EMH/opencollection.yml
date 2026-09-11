@@ -1,0 +1,47 @@
+opencollection: 1.0.0
+
+info:
+  name: EMH
+config:
+  protobuf:
+    protoFiles:
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/submission.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/media.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/location.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/location_admin.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/hero.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/hero_admin.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/enums_emh.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/conflict.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/conflict_admin.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/common.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/award.proto
+      - type: file
+        path: ../../../coding/emh/proto/emh/v1/award_admin.proto
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

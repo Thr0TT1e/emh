@@ -1,0 +1,3 @@
+# ~/.config/containers/systemd/emh-net.network
+[Network]
+Subnet=10.89.19.0/24

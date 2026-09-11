@@ -1,0 +1,166 @@
+// Сервис пользовательских заявок (краудсорсинг).
+// Публичный сервис изолирован от админского для разграничения доступа.
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// Submission заявка на добавление или исправление данных о герое.
+message Submission {
+  // id - уникальный идентификатор заявки.
+  string id = 1;
+  // submitter_name - имя отправителя.
+  string submitter_name = 2;
+  // submitter_email - email отправителя для обратной связи.
+  string submitter_email = 3;
+  // target_hero_id - ID героя, к которому относится заявка (пусто для нового героя).
+  string target_hero_id = 4;
+  // payload_json - JSON с данными заявки (гибкая структура).
+  string payload_json = 5;
+  // attachment_urls - URL прикреплённых документов или фото.
+  repeated string attachment_urls = 6;
+  // status - статус обработки (DRAFT=на модерации, PUBLISHED=одобрена, ARCHIVED=отклонена).
+  PublicationStatus status = 7;
+  // moderator_comment - комментарий модератора по результату рассмотрения.
+  string moderator_comment = 8;
+  // audit - метаданные создания и обновления.
+  AuditInfo audit = 9;
+  // content_hash - SHA-256 хеш нормализованного payload_json (read-only).
+  string content_hash = 10;
+}
+
+// SubmissionReviewDecision решение модератора по заявке.
+enum SubmissionReviewDecision {
+  // SUBMISSION_REVIEW_DECISION_UNSPECIFIED - решение не задано.
+  SUBMISSION_REVIEW_DECISION_UNSPECIFIED = 0;
+  // SUBMISSION_REVIEW_DECISION_APPROVE - одобрить заявку.
+  SUBMISSION_REVIEW_DECISION_APPROVE = 1;
+  // SUBMISSION_REVIEW_DECISION_REJECT - отклонить заявку.
+  SUBMISSION_REVIEW_DECISION_REJECT = 2;
+}
+
+// CreateSubmissionRequest данные для создания заявки посетителем.
+message CreateSubmissionRequest {
+  // submitter_name - имя отправителя (обязательно).
+  string submitter_name = 1 [(buf.validate.field).string.min_len = 1];
+  // submitter_email - контактный email отправителя.
+  string submitter_email = 2 [(buf.validate.field).string.email = true];
+  // target_hero_id - ID существующего героя (пусто для заявки на нового героя).
+  string target_hero_id = 3 [
+    (buf.validate.field).string.uuid = true,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // payload_json - данные заявки в формате JSON.
+  string payload_json = 4 [(buf.validate.field).string.min_len = 2];
+  // attachment_urls - ссылки на прикреплённые файлы.
+  repeated string attachment_urls = 5 [(buf.validate.field).repeated.items.string.uri = true];
+}
+
+// CreateSubmissionResponse результат создания заявки.
+message CreateSubmissionResponse {
+  // submission_id - UUID созданной заявки.
+  string submission_id = 1;
+}
+
+// ListSubmissionsRequest параметры выборки заявок для модерации.
+message ListSubmissionsRequest {
+  // pagination - параметры курсорной пагинации.
+  PaginationRequest pagination = 1;
+  // status - фильтр по статусу заявки.
+  PublicationStatus status = 2;
+}
+
+// ListSubmissionsResponse список заявок для модератора.
+message ListSubmissionsResponse {
+  // submissions - массив заявок.
+  repeated Submission submissions = 1;
+  // pagination - метаданные пагинации.
+  PaginationResponse pagination = 2;
+}
+
+// GetSubmissionRequest запрос на получение заявки по ID.
+message GetSubmissionRequest {
+  // id - UUID заявки.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// GetSubmissionResponse ответ с заявкой.
+message GetSubmissionResponse {
+  // submission - объект заявки.
+  Submission submission = 1;
+}
+
+// ReviewSubmissionRequest запрос на модерацию заявки.
+message ReviewSubmissionRequest {
+  // id - UUID заявки.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // decision - решение модератора (одобрить/отклонить).
+  SubmissionReviewDecision decision = 2 [(buf.validate.field).enum.not_in = 0];
+  // moderator_comment - комментарий модератора.
+  string moderator_comment = 3;
+}
+
+// ReviewSubmissionResponse заявка после модерации.
+message ReviewSubmissionResponse {
+  // submission - обновлённый объект заявки.
+  Submission submission = 1;
+}
+
+// SubmissionReview запись аудита модерации заявки.
+// Фиксирует кто, когда и какое решение принял по конкретной заявке.
+// История неизменяема: записи только добавляются, не редактируются.
+message SubmissionReview {
+    // id - уникальный идентификатор записи аудита (UUID).
+    string id = 1;
+    // submission_id - UUID заявки, к которой относится решение.
+    string submission_id = 2;
+    // reviewer_name - имя модератора, принявшего решение (извлекается из JWT).
+    string reviewer_name = 3;
+    // decision - решение модератора (одобрить/отклонить).
+    SubmissionReviewDecision decision = 4;
+    // comment - комментарий модератора к решению (причина отклонения и т.д.).
+    string comment = 5;
+    // created_at - время принятия решения.
+    google.protobuf.Timestamp created_at = 6;
+}
+
+// ListSubmissionReviewsRequest запрос на получение истории модерации заявки.
+message ListSubmissionReviewsRequest {
+    // submission_id - UUID заявки, для которой запрашивается история.
+    string submission_id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// ListSubmissionReviewsResponse история модерации заявки в обратном
+// хронологическом порядке (новые записи первыми).
+message ListSubmissionReviewsResponse {
+    // reviews - записи аудита модерации.
+    repeated SubmissionReview reviews = 1;
+}
+
+// SubmissionService публичный сервис для создания заявок посетителями сайта.
+service SubmissionService {
+  // CreateSubmission создаёт новую заявку от посетителя.
+  rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse);
+}
+
+// SubmissionAdminService защищённый сервис для модерации заявок.
+service SubmissionAdminService {
+    // ListSubmissions возвращает список заявок с фильтрацией и пагинацией.
+    rpc ListSubmissions(ListSubmissionsRequest) returns (ListSubmissionsResponse);
+
+    // GetSubmission возвращает заявку по ID.
+    rpc GetSubmission(GetSubmissionRequest) returns (GetSubmissionResponse);
+
+    // ReviewSubmission одобряет или отклоняет заявку с комментарием модератора.
+    // Создаёт запись аудита в submission_reviews.
+    rpc ReviewSubmission(ReviewSubmissionRequest) returns (ReviewSubmissionResponse);
+
+    // ListSubmissionReviews возвращает историю модерации заявки (аудит-трейл).
+    rpc ListSubmissionReviews(ListSubmissionReviewsRequest) returns (ListSubmissionReviewsResponse);
+}

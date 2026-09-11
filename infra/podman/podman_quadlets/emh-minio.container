@@ -1,0 +1,26 @@
+[Unit]
+Description=EMH MinIO Object Storage
+After=network-online.target
+
+[Container]
+Image=docker.io/minio/minio
+ContainerName=emh-minio
+EnvironmentFile=%h/emh/.env
+Volume=minio_data:/data
+Network=emh-net.network
+# keep-id маппит пользователя контейнера на хостового
+# Это решает проблему прав доступа в rootless режиме
+UserNS=keep-id
+# Запускаем MinIO server с console на порту 9001
+Exec=minio server /data --console-address ":9001"
+HealthCmd=curl -f http://localhost:9000/minio/health/live || exit 1
+HealthInterval=30s
+HealthRetries=3
+HealthTimeout=10s
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

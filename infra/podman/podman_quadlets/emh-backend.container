@@ -1,0 +1,34 @@
+# ~/.config/containers/systemd/emh-backend.container
+
+[Unit]
+Description=EMH Backend API
+After=network-online.target emh-postgres.service emh-minio.service emh-migrate.service
+Wants=network-online.target
+Requires=emh-postgres.service emh-minio.service emh-migrate.service
+
+[Container]
+Image=docker.io/thr0tt1e/emh-backend:v0.0.3
+ContainerName=emh-backend
+
+# Переменные окружения
+EnvironmentFile=%h/emh/.env
+Volume=%h/emh/config.yaml:/app/config/config.yaml:ro
+
+# Сеть
+Network=emh-net.network
+
+# Порт
+PublishPort=127.0.0.1:3480:3480
+
+# Healthcheck
+HealthCmd=curl -sf http://localhost:3480/healthz || exit 1
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

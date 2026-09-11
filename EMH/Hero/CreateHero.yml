@@ -1,0 +1,69 @@
+info:
+  name: CreateHero
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/CreateHero"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      // {
+      //   "lastName": "Торшин",
+      //   "firstName": "Юрий",
+      //   "middleName": "Николаевич",
+      //   "nickname": "Тридцатый",
+      //   "rank": "полковник",
+      //   "unit": "Управление «А» ЦСН ФСБ России",
+      //   "position": "начальник 3-го боевого отдела",
+      //   "serviceBranch": "ФСБ России",
+      //   "causeOfDeath": "ДТП во время мотопробега",
+      //   "serviceStartDate": "1982-01-01",
+      //   "memberships": [
+      //     "Ассоциация ветеранов «Альфа»",
+      //     "Редсовет газеты «Спецназ России»"
+      //   ],
+      //   "status": "PUBLICATION_STATUS_PUBLISHED"
+      // }
+      {
+        "lastName": "Шпунтенко",
+        "firstName": "Андрей",
+        "middleName": "Александрович",
+        "nickname": "Михей",
+        "birthDateInfo": {
+          "precision": 2,
+          "anchorDate": "1994-02-01T00:00:00Z",
+          "displayText": "Февраль 1994"
+        },
+        "deathDateInfo": {
+          "precision": 5,
+          "displayText": "28 июля"
+        },
+        "serviceStartDateInfo": {
+          "precision": 3,
+          "anchorDate": "1989-01-01T00:00:00Z",
+          "displayText": "1989"
+        },
+        "rank": "лейтенант",
+        "unit": "Управление «А» ЦСН ФСБ России",
+        "position": "начальник 3-го боевого отдела",
+        "serviceBranch": "ФСБ России",
+        "causeOfDeath": "ДТП во время мотопробега",
+        "shortBio": "Шпунтенко Андрей Александрович по позывному \"Михей\" 30.01.1979 - 20.04.2015 г.р.\n\nОн успел побывать помощником снайпера, снайпером, стрелком РПК, механиком-водителем БМП.\n\nПогиб \"Михей\" 20 апреля 2015 года при выезде на позицию на своём БМП, в результате подрыва на вражеском фугасе.\n\nСпи спокойно, Андрюха, твоя война окончена. Завершать её - нам.",
+        "fullBio": "Шпунтенко Андрей Александрович по позывному \"Михей\" 30.01.1979 - 20.04.2015 г.р.\n\nОн успел побывать помощником снайпера, снайпером, стрелком РПК, механиком-водителем БМП.\n\nПогиб \"Михей\" 20 апреля 2015 года при выезде на позицию на своём БМП, в результате подрыва на вражеском фугасе.\n\nСпи спокойно, Андрюха, твоя война окончена. Завершать её - нам.",
+        "memberships": [
+          "Ассоциация ветеранов «Альфа»",
+          "Редсовет газеты «Спецназ России»"
+        ],
+        "status": "PUBLICATION_STATUS_PUBLISHED"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

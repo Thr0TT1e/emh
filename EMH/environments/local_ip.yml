@@ -1,0 +1,12 @@
+name: local_ip
+color: "#B83D7F"
+variables:
+  - name: baseUrl
+    value: localhost:3480/
+    description: ""
+  - name: token
+    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRocmVldCIsInJvbGUiOiJhZG1pbiIsImlzcyI6ImVtaCIsInN1YiI6InRocmVldCIsImV4cCI6MTc4NzEyNDI4NywiaWF0IjoxNzg3MTIzMzg3fQ.q_8y3Ea1kNwHH5yTs3ZzBrpksFRNVD1QksyC5TFYvOY
+    description: ""
+  - name: heroId
+    value: 01a018dd-edb4-7a2b-b176-e8664d368cf1
+    description: ""

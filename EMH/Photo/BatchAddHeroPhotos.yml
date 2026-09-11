@@ -1,0 +1,39 @@
+info:
+  name: BatchAddHeroPhotos
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/BatchAddHeroPhotos"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "019fb447-78d3-79dd-ba51-b235f9663820",
+        "photos": [
+          {
+            "url": "https://minio.example.com/heroes/p1.jpg",
+            "description": "Фото 1",
+            "isMain": true
+          },
+          {
+            "url": "https://minio.example.com/heroes/p2.jpg",
+            "description": "Фото 2"
+          },
+          {
+            "url": "https://minio.example.com/heroes/p3.jpg",
+            "description": "Фото 3"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

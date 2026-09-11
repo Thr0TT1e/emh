@@ -1,0 +1,37 @@
+# Этап компиляции
+FROM docker.io/golang:latest AS development
+
+# Определяем рабочий каталог /app
+WORKDIR /app
+
+# Устанавливаем `air` и `goose`
+RUN go install github.com/air-verse/air@latest && \
+    go install github.com/pressly/goose/v3/cmd/goose@latest
+
+# Копируем SSL сертификаты
+# COPY ../certs /app/certs
+
+# Скопируем файлы `go.mod` и `go.sum` в каталог /app
+COPY go.mod go.sum ./
+
+# Устанавливаем зависимости
+RUN go mod download
+
+# Создаем скрипт entrypoint
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Запускаем миграции\n\
+echo "Running migrations..."\n\
+goose -dir /app/migrations postgres "$DATABASE_URL" up\n\
+\n\
+# Запускаем air\n\
+exec air -c .air.toml\n\
+' > /entrypoint.sh && chmod +x /entrypoint.sh
+
+# Открываем порт
+EXPOSE 3480/tcp
+EXPOSE 3443/tcp
+
+# Запускаем entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

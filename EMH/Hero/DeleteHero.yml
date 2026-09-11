@@ -1,0 +1,25 @@
+info:
+  name: DeleteHero
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/DeleteHero"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "019fab29-30dd-7b1a-b041-63087322d91c",
+        "hardDelete": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

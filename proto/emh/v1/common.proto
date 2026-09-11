@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// PaginationRequest параметры cursor-based пагинации для списков.
+message PaginationRequest {
+  // cursor - непрозрачный курсор из предыдущего ответа. Пустая строка для первой страницы.
+  string cursor = 1;
+  // page_size - количество элементов на странице. Максимум 100, по умолчанию 20.
+  int32 page_size = 2;
+}
+
+// PaginationResponse метаданные пагинации для навигации по спискам.
+message PaginationResponse {
+  // next_cursor - курсор следующей страницы. Пустая строка означает конец списка.
+  string next_cursor = 1;
+  // total_count - общее количество найденных записей (опционально, может быть 0 если подсчет отключен).
+  int64 total_count = 2;
+}
+
+// AuditInfo системные метаданные записи для аудита и отслеживания изменений.
+message AuditInfo {
+  // created_at - дата и время создания записи в UTC.
+  google.protobuf.Timestamp created_at = 1;
+  // updated_at - дата и время последнего обновления записи в UTC.
+  google.protobuf.Timestamp updated_at = 2;
+  // created_by - идентификатор пользователя или системы, создавшей запись.
+  string created_by = 3;
+}
+
+// FlexibleDate представляет гибкую дату с уровнем точности и текстовым представлением.
+message FlexibleDate {
+  // anchor_date - опорная дата для сортировки и фильтрации.
+  // Для точной даты это YYYY-MM-DD.
+  // Для месяца - первое число месяца.
+  // Для года - 1 января.
+  // Для сезона - условная дата начала сезона.
+  // Для DAY_MONTH и UNKNOWN должно быть пустым.
+  google.protobuf.Timestamp anchor_date = 1;
+  // precision - уровень точности даты.
+  DatePrecision precision = 2 [(buf.validate.field).enum.not_in = 0];
+  // display_text - человекочитаемое представление даты из источника.
+  // Например: "28 июля", "Февраль 1994", "Лето 1989".
+  string display_text = 3 [(buf.validate.field).string.max_len = 200];
+}

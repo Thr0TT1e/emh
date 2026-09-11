@@ -1,0 +1,59 @@
+// Справочник наград. Необходим для отображения названий и изображений наград в карточке героя.
+
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/common.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// Award представляет государственную или ведомственную награду.
+message Award {
+  // id - уникальный идентификатор награды (UUID).
+  string id = 1;
+  // name - официальное название награды.
+  string name = 2;
+  // description - краткое описание или статут награды.
+  string description = 3;
+  // image_url - URL изображения ленты или знака награды.
+  string image_url = 4;
+  // sort_order - приоритет отображения (старшие награды выше).
+  int32 sort_order = 5;
+}
+
+// GetAwardRequest запрос на получение награды по ID.
+message GetAwardRequest {
+  // id - UUID награды.
+  string id = 1;
+}
+
+// GetAwardResponse ответ с данными награды.
+message GetAwardResponse {
+  // award - объект награды.
+  Award award = 1;
+}
+
+// ListAwardsRequest параметры выборки списка наград.
+message ListAwardsRequest {
+  // search_query - поиск по названию награды.
+  string search_query = 1;
+  // pagination - параметры курсорной пагинации.
+  PaginationRequest pagination = 2;
+}
+
+// ListAwardsResponse список доступных наград.
+message ListAwardsResponse {
+  // awards - массив объектов наград.
+  repeated Award awards = 1;
+  // pagination - метаданные для перехода к следующей странице.
+  PaginationResponse pagination = 2;
+}
+
+// AwardService публичный сервис для чтения справочника наград.
+service AwardService {
+  // GetAward возвращает награду по ID.
+  rpc GetAward(GetAwardRequest) returns (GetAwardResponse);
+  // ListAwards возвращает список всех наград (справочник обычно небольшой).
+  rpc ListAwards(ListAwardsRequest) returns (ListAwardsResponse);
+}

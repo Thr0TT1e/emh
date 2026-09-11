@@ -1,0 +1,12 @@
+# Вежливые.рус — книга памяти
+# Канонический домен проекта «Вечная память героям»
+
+User-agent: *
+Allow: /
+
+# Закрываем служебные разделы
+Disallow: /admin
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://вежливые.рус/sitemap.xml

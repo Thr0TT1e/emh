@@ -1,0 +1,21 @@
+info:
+  name: GetHero
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroService/GetHero"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "019feba5-9851-7c67-8627-1548c6f00008"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/common.proto";
+import "emh/v1/conflict.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// CreateConflictRequest данные для создания нового конфликта. Даты в формате RFC3339.
+message CreateConflictRequest {
+  // name - обязательное название конфликта.
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  // description - опциональное описание.
+  string description = 2;
+  // type - обязательный тип конфликта.
+  ConflictType type = 3 [(buf.validate.field).enum.not_in = 0];
+  // start_date - дата начала в формате RFC3339.
+  string start_date = 4 [(buf.validate.field).string.pattern = "^\\d{4}-\\d{2}-\\d{2}$"];
+  // end_date - дата окончания в формате RFC3339. Может быть пустой.
+  string end_date = 5 [(buf.validate.field).string.pattern = "^(\\d{4}-\\d{2}-\\d{2}|)$"];
+  // parent_conflict_id - ID родительского конфликта.
+  string parent_conflict_id = 6 [
+      (buf.validate.field).string.uuid = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // start_date_info - гибкая дата начала конфликта.
+  // Если заполнено, имеет приоритет над start_date.
+  FlexibleDate start_date_info = 7;
+  // end_date_info - гибкая дата окончания конфликта.
+  // Если заполнено, имеет приоритет над end_date.
+  FlexibleDate end_date_info = 8;
+}
+
+// CreateConflictResponse результат успешного создания конфликта.
+message CreateConflictResponse {
+  // id - UUID созданного конфликта.
+  string id = 1;
+}
+
+// UpdateConflictRequest данные для частичного обновления конфликта.
+message UpdateConflictRequest {
+  // id - UUID обновляемого конфликта (обязательно).
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  // name - новое название.
+  string name = 2 [
+      (buf.validate.field).string.min_len = 1,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // description - новое описание.
+  string description = 3;
+  // type - новый тип.
+  ConflictType type = 4 [
+      (buf.validate.field).enum.not_in = 0,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // start_date - новая дата начала.
+  string start_date = 5 [
+      (buf.validate.field).string.pattern = "^\\d{4}-\\d{2}-\\d{2}$",
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // end_date - новая дата окончания.
+  string end_date = 6 [
+      (buf.validate.field).string.pattern = "^(\\d{4}-\\d{2}-\\d{2}|)$",
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // parent_conflict_id - новый родительский конфликт.
+  string parent_conflict_id = 7 [
+      (buf.validate.field).string.uuid = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // field_mask - список полей для обновления.
+  repeated string field_mask = 8;
+  // start_date_info - новая гибкая дата начала.
+  FlexibleDate start_date_info = 9 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+  // end_date_info - новая гибкая дата окончания.
+  FlexibleDate end_date_info = 10 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+}
+
+// UpdateConflictResponse обновленный объект конфликта.
+message UpdateConflictResponse {
+  // conflict - актуальное состояние конфликта после обновления.
+  Conflict conflict = 1;
+}
+
+// DeleteConflictRequest запрос на удаление конфликта.
+message DeleteConflictRequest {
+  // id - UUID удаляемого конфликта.
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+// DeleteConflictResponse подтверждение удаления.
+message DeleteConflictResponse {
+  // success - true если удаление прошло успешно.
+  bool success = 1;
+}
+
+// ConflictAdminService защищенный сервис для управления справочником конфликтов.
+service ConflictAdminService {
+  // CreateConflict создает новую запись о конфликте.
+  rpc CreateConflict(CreateConflictRequest) returns (CreateConflictResponse);
+  // UpdateConflict частично обновляет существующий конфликт по field_mask.
+  rpc UpdateConflict(UpdateConflictRequest) returns (UpdateConflictResponse);
+  // DeleteConflict удаляет конфликт. При наличии связанных героев вернет ошибку.
+  rpc DeleteConflict(DeleteConflictRequest) returns (DeleteConflictResponse);
+}

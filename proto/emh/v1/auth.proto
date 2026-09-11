@@ -1,0 +1,72 @@
+// Сервис аутентификации администраторов.
+syntax = "proto3";
+
+package emh.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// LoginRequest запрос на аутентификацию администратора.
+message LoginRequest {
+    // username - имя пользователя (обязательно).
+    string username = 1 [(buf.validate.field).string.min_len = 1];
+    // password - пароль (обязательно).
+    string password = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+// LoginResponse результат успешной аутентификации.
+message LoginResponse {
+    // access_token - JWT для запросов к админским сервисам.
+    string access_token = 1;
+    // token_type - тип токена (Bearer).
+    string token_type = 2;
+    // expires_at - время истечения access-токена (RFC3339).
+    string expires_at = 3;
+    // refresh_token - токен для получения новой пары access/refresh.
+    string refresh_token = 4;
+    // expires_in - время жизни access-токена в секундах.
+    int64 expires_in = 5;
+}
+
+// RefreshTokenRequest запрос на обновление токенов.
+message RefreshTokenRequest {
+    // refresh_token - действующий refresh-токен.
+    string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+// RefreshTokenResponse новая пара токенов после ротации.
+message RefreshTokenResponse {
+    // access_token - новый JWT.
+    string access_token = 1;
+    // token_type - тип токена (Bearer).
+    string token_type = 2;
+    // expires_at - время истечения access-токена (RFC3339).
+    string expires_at = 3;
+    // refresh_token - новый refresh-токен (старый отозван).
+    string refresh_token = 4;
+    // expires_in - время жизни access-токена в секундах.
+    int64 expires_in = 5;
+}
+
+// LogoutRequest запрос на отзыв refresh-токена.
+message LogoutRequest {
+    // refresh_token - токен для отзыва.
+    string refresh_token = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+// LogoutResponse результат выхода из системы.
+message LogoutResponse {
+    // success - true если токен успешно отозван.
+    bool success = 1;
+}
+
+// AuthService публичный сервис аутентификации (точка входа, не защищён).
+service AuthService {
+    // Login выдаёт пару access/refresh токенов при успешной проверке учётных данных.
+    rpc Login(LoginRequest) returns (LoginResponse);
+    // Refresh обменивает действующий refresh-токен на новую пару access/refresh.
+    rpc Refresh(RefreshTokenRequest) returns (RefreshTokenResponse);
+    // Logout отзывает refresh-токен (выход из системы).
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+}

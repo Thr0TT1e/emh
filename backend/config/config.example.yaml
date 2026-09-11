@@ -1,0 +1,222 @@
+# Конфигурация проекта "Вечная память героям" (EMH)
+#
+app:
+  name: "emh-backend"
+  addr: ":3480"
+  log_level: "info"
+  cors_origins:
+    - "http://localhost:3000"
+
+db:
+  url: "postgres://<db_user>:<db_pass>@localhost:5432/<db_name>?sslmode=disable"
+  max_conns: 20
+  min_conns: 2
+
+s3:
+  # Внутренний адрес — для реальных TCP-соединений (доступен из контейнера)
+  endpoint: "emh-minio:9000"
+  # Внешний адрес — для host в presigned URL (доступен браузеру/curl)
+  public_endpoint: "localhost:4443"
+  public_base_url: "http://localhost:4443"
+  # Секреты подставляются из env, здесь оставляем пустыми
+  access_key: ""
+  secret_key: ""
+  # CA-сертификат для доверия самоподписанному TLS MinIO (dev).
+  # В контейнере сертификаты монтируются в /app/certs.
+  ca_cert: ""
+  bucket: "bucket_name"
+  use_ssl: false
+  presign_expiry: "15m"
+
+auth:
+  # Секрет подписи JWT (минимум 32 символа). ОБЯЗАТЕЛЬНО через env AUTH_JWT_SECRET.
+  jwt_secret: ""
+  jwt_expiry: "15m"          # access token: 15m
+  refresh_expiry: "168h"     # refresh token: 168h
+  # Статические API-ключи (через env AUTH_API_KEYS, через запятую).
+  # Также используются MCP-сервером в --transport=http режиме
+  # без них HTTP-режим MCP откажется запускаться.
+  api_keys: []
+  # Администраторы. password_hash = вывод `go run ./cmd/hashpassword <password>`.
+  admins:
+    - username: ""
+      password_hash: ""
+      role: ""
+  # Доверенные прокси: точные IP или CIDR-диапазоны.
+  # Только для них учитываются заголовки X-Forwarded-For / X-Real-IP.
+  # В проде: адрес контейнера Caddy в podman-сети.
+  # Генерация не требуется, это адрес из `podman inspect emh-caddy`.
+  trusted_proxies:
+    # Локальная разработка
+    - "127.0.0.1"
+    - "::1"
+    # Podman bridge-сеть (Caddy и backend в одной сети)
+    - "10.88.0.0/16"
+    # Альтернатива: конкретный IP Caddy в podman-сети
+    # - "10.88.0.5"
+
+auth_audit:
+  enabled: true
+  queue_size: 1000
+  retention: "2160h"          # 90 дней (можно переопределить через EMH_AUTH_AUDIT_RETENTION)
+  cleanup_interval: "24h"     # раз в сутки (можно переопределить через EMH_AUTH_AUDIT_CLEANUP_INTERVAL)
+
+auth_alerts:
+  enabled: true
+  threshold: 10
+  window: 5m
+  queue_size: 100  # размер очереди асинхронных алертов
+
+# Алерты через Telegram
+telegram:
+  enabled: false
+  bot_token: ""     # env EMH_TELEGRAM_BOT_TOKEN
+  chat_id: ""       # env EMH_TELEGRAM_CHAT_ID
+  timeout: "10s"
+
+rate_limit:
+  enabled: true
+  # AuthService: защита от brute force
+  auth_limit: 5
+  auth_interval: "1m"
+  # SubmissionService: анти-спам краудсорсинга
+  submission_limit: 10
+  submission_interval: "1h"
+  # MediaService: генерация presigned URL
+  media_limit: 20
+  media_interval: "1m"
+  # Публичные Get/List: чтение
+  read_limit: 120
+  read_interval: "1m"
+  # *AdminService: защищённые JWT/API-ключом, но CPU (bcrypt) и брутфорс
+  # секрета всё равно нужно ограничивать — лимит выше, чем у публичных
+  # read, но не бесконечный.
+  admin_limit: 60
+  admin_interval: "1m"
+  # Очистка in-memory записей
+  entry_ttl: "30m"
+  cleanup_interval: "10m"
+
+thumbnails:
+  width: 480
+  height: 600
+  quality: 80
+  original_quality: 90
+  workers: 2
+  queue_size: 100
+
+orphan_cleanup:
+  enabled: true
+  interval: 24h
+  grace_period: 48h
+  dry_run: false
+
+# Сервис обратной связи и SMTP-уведомления.
+# Секреты (username, password, ip_pepper) — только через env.
+contact:
+  smtp_enabled: false
+  smtp_host: ""
+  smtp_port: 587
+  smtp_username: ""
+  smtp_password: ""
+  smtp_from_name: "Вечная память героям"
+  smtp_from_email: "no-reply@neverforgotten.ru"
+  smtp_to: "info@neverforgotten.ru"
+  smtp_timeout: "10s"
+  # Секрет для хеширования клиентских IP (HMAC-SHA256).
+  # ОБЯЗАТЕЛЬНО: минимум 16 символов. Генерация: `just ip-pepper`
+  # При пустом значении сервер не запустится.
+  ip_pepper: ""
+  # Rate limiting (на IP и email).
+  rate_limit_hour: 5
+  rate_limit_day: 20
+  # Анти-дубликат.
+  dedupe_window: "5m"
+  # Очистка in-memory rate limiter'а.
+  entry_ttl: "24h"
+  cleanup_interval: "10m"
+  smtp_max_retries: 3
+  smtp_base_delay: "5s"
+  smtp_max_delay: "60s"
+
+submission_emails:
+  enabled: false
+  from_name: "Вечная память героям"
+  approve_subject: "Ваша заявка одобрена"
+  reject_subject: "Ваша заявка отклонена"
+  queue_size: 100
+  approve_template: |
+    Здравствуйте, {{.SubmitterName}}!
+
+    Ваша заявка на добавление данных о герое одобрена модератором.
+
+    ID заявки: {{.SubmissionID}}
+    Дата: {{.Timestamp}}
+
+    Спасибо за ваш вклад в сохранение памяти о героях!
+
+    С уважением,
+    Команда проекта "Вечная память героям"
+  reject_template: |
+    Здравствуйте, {{.SubmitterName}}!
+
+    К сожалению, ваша заявка на добавление данных о герое отклонена.
+
+    Причина: {{.ModeratorComment}}
+
+    ID заявки: {{.SubmissionID}}
+    Дата: {{.Timestamp}}
+
+    Если вы считаете, что это ошибка, свяжитесь с нами через форму обратной связи.
+
+    С уважением,
+    Команда проекта "Вечная память героям"
+
+llm:
+  enabled: true
+  default_provider: "ollama_local"
+  providers:
+    - name: "ollama_local"
+      type: "ollama"
+      endpoint: "http://localhost:11434"
+      model: "llama3.1:8b"
+      timeout: "60s"
+      max_tokens: 4096
+      temperature: 0.1
+      api_key_env: "" # Не нужен для локальной Ollama
+
+    - name: "openrouter"
+      type: "openai_compatible"
+      endpoint: "https://openrouter.ai/api/v1"
+      model: "meta-llama/llama-3.1-70b-instruct"
+      timeout: "90s"
+      max_tokens: 4096
+      temperature: 0.1
+      api_key_env: "OPENROUTER_API_KEY"
+
+    - name: "gptunnel"
+      type: "openai_compatible"
+      endpoint: "https://api.gptunnel.ru/v1"
+      model: "gpt-4o-mini"
+      timeout: "90s"
+      max_tokens: 4096
+      temperature: 0.1
+      api_key_env: "GPTUNNEL_API_KEY"
+
+    - name: "polza"
+      type: "openai_compatible"
+      endpoint: "https://api.polza.ai/v1"
+      model: "gpt-4o-mini"
+      timeout: "90s"
+      max_tokens: 4096
+      temperature: 0.1
+      api_key_env: "POLZA_API_KEY"
+
+    - name: "anthropic"
+      type: "anthropic"
+      endpoint: "https://api.anthropic.com"
+      model: "claude-3-5-sonnet-20241022"
+      timeout: "120s"
+      max_tokens: 4096
+      temperature: 0.1
+      api_key_env: "ANTHROPIC_API_KEY"

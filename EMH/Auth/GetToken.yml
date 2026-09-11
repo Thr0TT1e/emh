@@ -1,0 +1,27 @@
+info:
+  name: GetToken
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.AuthService/Login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "threet",
+        "password": ")$=\"pr\"D7N.)Qt/*"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: hero_id
+      value: localhost:3480/
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

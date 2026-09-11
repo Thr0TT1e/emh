@@ -1,0 +1,32 @@
+# ==========================================
+# ЭТАП 1: Сборка (ISR)
+# ==========================================
+FROM docker.io/node:22.23.1-alpine AS builder
+
+WORKDIR /app
+
+ENV CI=true
+
+RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+# ISR-сборка: генерирует .output со статикой + Nitro-сервером
+RUN pnpm build
+
+# ==========================================
+# ЭТАП 2: Рантайм (Node.js)
+# ==========================================
+FROM docker.io/node:22.23.1-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/.output ./.output
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]

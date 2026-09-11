@@ -1,0 +1,26 @@
+info:
+  name: RemoveHeroLocation
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/RemoveHeroLocation"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "heroId": "$HERO_ID",
+        "locationId": "<LOCATION_ID>",
+        "type": "HERO_LOCATION_TYPE_BURIAL"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

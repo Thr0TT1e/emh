@@ -1,0 +1,35 @@
+[Unit]
+Description=EMH Prometheus - monitoring and metrics
+After=network-online.target emh-backend.service
+Wants=network-online.target
+
+[Container]
+ContainerName=emh-prometheus
+Image=docker.io/prom/prometheus:v2.53.0
+
+# Сеть
+Network=emh-net.network
+
+# Конфигурация (только чтение)
+Volume=%h/emh/infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z
+
+# Данные (30 дней ретенции)
+Volume=%h/emh/volumes/prometheus:/prometheus:Z
+
+# Параметры запуска
+Exec=--config.file=/etc/prometheus/prometheus.yml
+Exec=--storage.tsdb.path=/prometheus
+Exec=--storage.tsdb.retention.time=30d
+
+# Порт только на localhost (доступ через Caddy или SSH-туннель)
+PublishPort=127.0.0.1:9090:9090
+
+# Безопасность
+SecurityLabelDisable=true
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

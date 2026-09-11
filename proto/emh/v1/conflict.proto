@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package emh.v1;
+
+import "emh/v1/enums_emh.proto";
+import "emh/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
+
+// Conflict представляет военный конфликт или отдельную операцию.
+message Conflict {
+  // id - уникальный идентификатор конфликта (UUID).
+  string id = 1;
+  // name - официальное название конфликта (например, "Великая Отечественная война").
+  string name = 2;
+  // description - краткое историческое описание конфликта.
+  string description = 3;
+  // type - категория конфликта для фильтрации.
+  ConflictType type = 4;
+  // start_date - дата начала конфликта.
+  google.protobuf.Timestamp start_date = 5;
+  // end_date - дата окончания конфликта. Может быть пустой для текущих конфликтов.
+  google.protobuf.Timestamp end_date = 6;
+  // parent_conflict_id - ID родительского конфликта для иерархии (например, битва внутри войны).
+  string parent_conflict_id = 7;
+  // start_date_info - гибкая дата начала конфликта.
+  // Если заполнено, имеет приоритет над start_date.
+  FlexibleDate start_date_info = 8;
+  // end_date_info - гибкая дата окончания конфликта.
+  // Если заполнено, имеет приоритет над end_date.
+  FlexibleDate end_date_info = 9;
+}
+
+// GetConflictRequest запрос на получение детальной информации о конфликте.
+message GetConflictRequest {
+  // id - UUID конфликта.
+  string id = 1;
+}
+
+// GetConflictResponse содержит полную информацию о запрошенном конфликте.
+message GetConflictResponse {
+  // conflict - объект конфликта.
+  Conflict conflict = 1;
+}
+
+// ListConflictsRequest параметры фильтрации и выборки списка конфликтов.
+message ListConflictsRequest {
+  // type - фильтр по типу конфликта. UNSPECIFIED возвращает все типы.
+  ConflictType type = 1;
+  // parent_conflict_id - фильтр по родительскому конфликту для получения подчиненных операций.
+  string parent_conflict_id = 2;
+  // pagination - параметры курсорной пагинации.
+  PaginationRequest pagination = 3;
+}
+
+// ListConflictsResponse список конфликтов без пагинации (справочник обычно небольшой).
+message ListConflictsResponse {
+  // conflicts - массив объектов конфликтов.
+  repeated Conflict conflicts = 1;
+  // pagination - метаданные для перехода к следующей странице.
+  PaginationResponse pagination = 2;
+}
+
+// ConflictService публичный сервис для чтения справочника конфликтов.
+service ConflictService {
+  // GetConflict возвращает детальную информацию о конкретном конфликте по ID.
+  rpc GetConflict(GetConflictRequest) returns (GetConflictResponse);
+  // ListConflicts возвращает отфильтрованный список всех конфликтов.
+  rpc ListConflicts(ListConflictsRequest) returns (ListConflictsResponse);
+}

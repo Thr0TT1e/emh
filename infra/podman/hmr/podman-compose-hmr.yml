@@ -1,0 +1,122 @@
+services:
+  emh-backend:
+    container_name: emh-backend
+    build:
+      dockerfile: ../infra/podman/hmr/Podmanfile.hmr
+      context: ../../../backend/
+      target: "development"
+    volumes:
+      - ../../../backend/:/app
+      # - ../../../certs:/app/certs
+    ports:
+      - 3480:3480
+      - 3443:3443 # HTTPS порт
+    environment:
+      TZ: Europe/Moscow
+      AIR_WORKSPACE_ROOT: /app
+      AIR_FULL_BUILD_BEFORE_RUN: "true"
+    env_file:
+      - ../.env.local
+    networks:
+      - back-end
+    depends_on:
+      emh-postgres:
+        condition: service_healthy
+      emh-minio:
+        condition: service_started
+    restart: unless-stopped
+
+  emh-postgres:
+    container_name: emh-postgres
+    # image: registry.altlinux.org/p11/postgresql:latest # 17.10
+    image: docker.io/postgres:18.4-bookworm
+    # build:
+    #   dockerfile: postgresql_alt_sp/Dockerfile
+    #   context: ../
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    env_file:
+      - ../.env.local
+    volumes:
+      - pg_data_emh:/var/lib/postgresql/data
+      # - ../../../certs:/app/certs
+      - ../../postgresql_alt_sp/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ../../postgresql_alt_sp/postgresql-entrypoint.sh:/docker-entrypoint.sh
+    ports:
+      - 5443:5432
+      - 5432:5432
+    networks:
+      - back-end
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "db_hero", "-d", "heroes"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      # start_period: 30s
+
+  emh-minio:
+    container_name: emh-minio
+    image: docker.io/minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      # данную переменную подсмотрел где-то на стаковерфлоу, фиксит некоторые падения
+      MINIO_SKIP_CLIENT: yes
+      # указываем явное использование https
+      MINIO_SCHEME: http
+      MINIO_SERVER_URL: http://emh-minio:9000
+      # MINIO_DOMAIN: minio.domain.ltd
+      # указывает порт, по которому можем попасть на web-ui
+      MINIO_CONSOLE_PORT_NUMBER: 9001
+      # promertheus
+      # MINIO_PROMETHEUS_AUTH_TYPE: public
+      # MINIO_PROMETHEUS_URL: http://prometheus-1:9090
+      # MINIO_PROMETHEUS_JOB_ID: minio
+      MINIO_API_CORS_ALLOW_ORIGIN: "http://localhost:3000,http://neverforgotten.ru,https://neverforgotten.ru"
+    env_file:
+      - ../.env.local
+    volumes:
+      - minio_data_emh:/data
+      # - ../../../certs/localhost+6.pem:/root/.minio/certs/public.crt
+      # - ../../../certs/localhost+6-key.pem:/root/.minio/certs/private.key
+    ports:
+      - 4443:9000 # API порт
+      - 4401:9001 # Консоль управления
+    networks:
+      - back-end
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://emh-minio:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  emh-prometheus:
+    container_name: emh-prometheus
+    image: docker.io/prom/prometheus:v2.53.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    volumes:
+      - ../../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_emh:/prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - back-end
+    depends_on:
+      emh-backend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  pg_data_emh:
+  minio_data_emh:
+  prometheus_data_emh:
+
+networks:
+  back-end:
+    driver: bridge
+  # traefik:
+  #   external: true

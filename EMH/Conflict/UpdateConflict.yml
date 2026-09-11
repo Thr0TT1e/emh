@@ -1,0 +1,30 @@
+info:
+  name: UpdateConflict
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.ConflictAdminService/UpdateConflict"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "019fb443-5cd7-7112-829f-bd6d34dade91",
+        "description": "СВО",
+        "name": "СВО",
+        "fieldMask": [
+          "description",
+          "name"
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

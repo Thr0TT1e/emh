@@ -1,0 +1,87 @@
+# Глобальные настройки (email для Let's Encrypt)
+{
+    email info@noble24.ru
+}
+
+# ==========================================================================
+# Канонический домен: вежливые.рус
+# Punycode: xn--b1aaibdmu4k.xn--p1acf
+# ==========================================================================
+xn--b1aaibdmu4k.xn--p1acf {
+    reverse_proxy emh-frontend:3000
+}
+
+# ==========================================================================
+# 301 редиректы со всех зеркал на канонический домен
+# ==========================================================================
+neverforgotten.ru, xn--80aaeghd1ccdpgqx8d4dzbdg.xn--p1acf, emh.su {
+    redir https://xn--b1aaibdmu4k.xn--p1acf{uri} 301
+}
+
+# ==========================================================================
+# API (Backend) — остаётся на neverforgotten.ru (технический поддомен)
+# ==========================================================================
+api.neverforgotten.ru {
+    @metrics path /metrics
+    respond @metrics 403
+
+    reverse_proxy emh-backend:3480
+}
+
+# ==========================================================================
+# S3 API для Presigned URL (загрузка и чтение файлов) с CORS заголовками
+# ==========================================================================
+s3.neverforgotten.ru {
+    # Ограничение размера загружаемого тела: presigned PUT не позволяет
+    # включить Content-Length в подпись, поэтому размер ограничиваем на прокси.
+    request_body {
+        max_size 50MB
+    }
+
+    @allowed_origin header_regexp Origin ^https://(xn--b1aaibdmu4k\.xn--p1acf|neverforgotten\.ru|localhost:3000|xn--80aaeghd1ccdpgqx8d4dzbdg\.xn--p1acf|emh\.su)$
+
+    # CORS middleware
+    @cors_preflight {
+        method OPTIONS
+    }
+
+    # Preflight с разрешённого Origin — отдаём CORS-заголовки.
+    handle @cors_preflight {
+        header @allowed_origin {
+            Access-Control-Allow-Origin "{http.request.header.Origin}"
+            Access-Control-Allow-Methods "GET, PUT, POST, DELETE, HEAD, OPTIONS"
+            Access-Control-Allow-Headers "Content-Type, Authorization, X-Amz-Date, X-Amz-Content-Sha256, X-Amz-Security-Token"
+            Access-Control-Max-Age "3600"
+            Access-Control-Expose-Headers "ETag"
+        }
+        respond "OK" 204
+    }
+
+    # Для остальных запросов (PUT, GET) — CORS-заголовки только для разрешённых Origin.
+    header @allowed_origin {
+        Access-Control-Allow-Origin "{http.request.header.Origin}"
+        Access-Control-Allow-Methods "GET, PUT, POST, DELETE, HEAD, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization, X-Amz-Date, X-Amz-Content-Sha256, X-Amz-Security-Token"
+        Access-Control-Expose-Headers "ETag, x-amz-request-id, x-amz-id-2"
+        Vary "Origin"
+    }
+
+    reverse_proxy emh-minio:9000
+}
+
+# ==========================================================================
+# MinIO Web Console (админка)
+# ==========================================================================
+# TODO: заменить/дополнить на remote_ip allowlist или VPN, если есть
+# фиксированный IP администратора:
+#   @not_allowed not remote_ip 203.0.113.10
+#   respond @not_allowed 403
+console.minio.neverforgotten.ru {
+    basicauth {
+        # Замените на реальный хеш: caddy hash-password --plaintext '<пароль>'
+        # Логин/пароль НЕ должны совпадать с учётками MinIO/админки.
+        admin $2a$14$REPLACE_WITH_REAL_BCRYPT_HASH_BEFORE_DEPLOY
+    }
+
+    reverse_proxy emh-minio:9001
+}

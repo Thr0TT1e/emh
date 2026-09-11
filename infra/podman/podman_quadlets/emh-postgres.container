@@ -1,0 +1,35 @@
+# ~/.config/containers/systemd/emh-postgres.container
+
+[Unit]
+Description=EMH PostgreSQL Database
+After=network-online.target
+
+[Container]
+Image=docker.io/postgres:18.4-alpine
+ContainerName=emh-postgres
+EnvironmentFile=%h/emh/.env
+Volume=pg_data:/var/lib/postgresql
+Network=emh-net.network
+# keep-id маппит пользователя контейнера на хостового
+# Это решает проблему прав доступа в rootless режиме
+UserNS=keep-id
+
+# Увеличиваем лимит памяти для PostgreSQL
+#MemoryHigh=2G
+#MemoryMax=3G
+
+HealthCmd=pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+HealthInterval=10s
+HealthRetries=5
+
+[Service]
+Restart=always
+RestartSec=10
+# Увеличиваем лимит рестартов, чтобы не падало от transient ошибок
+StartLimitIntervalSec=300
+StartLimitBurst=10
+# Даем больше времени на первый старт (инициализация БД может занять 30-60 сек)
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target

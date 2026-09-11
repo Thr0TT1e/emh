@@ -1,0 +1,21 @@
+info:
+  name: ListConflicts
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.ConflictService/ListConflicts"
+  body:
+    type: json
+    data: |-
+      {
+        "type": "CONFLICT_TYPE_LOCAL"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

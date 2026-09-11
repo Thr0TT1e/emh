@@ -1,0 +1,32 @@
+info:
+  name: UpdateHero
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}emh.v1.HeroAdminService/UpdateHero"
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+  body:
+    type: json
+    data: |-
+      {
+        "id": "{{heroId}}",
+        "birthDateInfo": {
+          "precision": 3,
+          "anchorDate": "1995-01-01T00:00:00Z",
+          "displayText": "1995"
+        },
+        "fieldMask": [
+          "birth_date_info"
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
