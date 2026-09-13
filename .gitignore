@@ -2,6 +2,7 @@ backend/tmp
 certs/*
 backend/config/config.yaml
 */**/.env.local
+tmp_test
 
 # Тестовые артефакты
 backend/coverage.out

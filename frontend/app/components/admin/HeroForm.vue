@@ -528,7 +528,7 @@
     font-size: 0.8rem;
     padding: 0.25rem 0.6rem;
     border: 1px solid var(--emh-bronze);
-    color: #8a6a3c;
+    color: #7a5c2e;
     background: rgba(176, 141, 87, 0.08);
   }
 

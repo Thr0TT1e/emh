@@ -25,7 +25,7 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
   ],
 
-  css: ['~/assets/css/main.css', '~/assets/css/admin.css', 'primeicons/primeicons.css'],
+  css: ['~/assets/css/main.css'],
 
   primevue: {
     importTheme: { from: '@/themes/mytheme.ts' },
@@ -44,6 +44,9 @@ export default defineNuxtConfig({
     // LightningCSS для ускорения сборки
     css: {
       transformer: 'lightningcss',
+    },
+    build: {
+      target: 'es2024', // или 'esnext'
     },
     optimizeDeps: {
       include: [
@@ -143,7 +146,7 @@ export default defineNuxtConfig({
     apiInternalBaseUrl: process.env.NUXT_API_INTERNAL_BASE_URL || '',
     public: {
       // Адрес бэкенда, доступный из браузера.
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3480',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL ?? 'https://api.neverforgotten.ru',
     },
   },
 
@@ -248,7 +251,7 @@ export default defineNuxtConfig({
         const apiBaseUrl =
           process.env.NUXT_API_INTERNAL_BASE_URL ||
           process.env.NUXT_PUBLIC_API_BASE_URL ||
-          'http://localhost:3480';
+          'https://api.neverforgotten.ru';
 
         const heroUrls: SitemapUrlInput[] = [];
         let cursor = '';
@@ -326,50 +329,52 @@ export default defineNuxtConfig({
       crawlLinks: false,
     },
     routeRules: {
-      // ISR для списка героев с защитой от cache poisoning
+      // ВРЕМЕННО ОТКЛЮЧЕНО ДЛЯ ОТЛАДКИ ПРОДА
+      // После стабилизации вернуть ISR с expiration.
+
       '/heroes': {
-        isr: {
-          expiration: 300, // 5 минут
-          passQuery: true,
-          // Разрешаем только валидные параметры из ListHeroesRequest (hero.proto)
-          allowQuery: [
-            'search_query',
-            'conflict_id',
-            'location_id',
-            'cursor',
-            'date_from',
-            'date_to',
-          ],
-        },
+        isr: false,
+        // isr: {
+        //   expiration: 60,
+        //   passQuery: true,
+        //   allowQuery: [
+        //     'search_query',
+        //     'conflict_id',
+        //     'location_id',
+        //     'cursor',
+        //     'date_from',
+        //     'date_to',
+        //   ],
+        // },
       },
       '/heroes/': {
-        isr: {
-          expiration: 300,
-          passQuery: true,
-          allowQuery: [
-            'search_query',
-            'conflict_id',
-            'location_id',
-            'cursor',
-            'date_from',
-            'date_to',
-          ],
-        },
+        isr: false,
+        // isr: {
+        //   expiration: 60,
+        //   passQuery: true,
+        //   allowQuery: [
+        //     'search_query',
+        //     'conflict_id',
+        //     'location_id',
+        //     'cursor',
+        //     'date_from',
+        //     'date_to',
+        //   ],
+        // },
       },
-      // ISR для детальной страницы героя
       '/heroes/**': {
-        isr: {
-          expiration: 3600, // 1 час
-        },
+        isr: false,
+        // isr: { expiration: 60 },
       },
-      // Справочники — редкое обновление
-      '/conflicts': { isr: 3600 },
-      '/locations': { isr: 3600 },
-      // Статические страницы
+      '/conflicts': { isr: false },
+      '/locations': { isr: false },
+
+      // Статические страницы — можно оставить как есть
       '/': { prerender: true },
       '/contacts': { prerender: true },
       '/about': { prerender: true },
-      // Никогда не индексировать
+
+      // Админка не индексируется
       '/admin/': { robots: false },
     },
   },

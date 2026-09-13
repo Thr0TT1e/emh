@@ -102,6 +102,7 @@
   </div>
 </template>
 
+<style src="~/assets/css/admin.css"></style>
 <style scoped>
 
   /* ========================================================================= */

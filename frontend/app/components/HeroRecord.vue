@@ -132,7 +132,7 @@
     letter-spacing: 0.05em;
     padding: 0.22rem 0.55rem;
     border: 1px solid var(--emh-bronze);
-    color: #8a6a3c;
+    color: #7a5c2e;
     background: rgba(176, 141, 87, 0.08);
   }
 

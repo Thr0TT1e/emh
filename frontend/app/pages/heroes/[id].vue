@@ -71,16 +71,32 @@
 
   const imageClick = (index: number): void => {
     activeIndex.value = index
-    displayCustom.value = true
+    displayCustom.value = true  // ← UI реагирует мгновенно
 
+    // Аналитику — в фон, когда браузер свободен
     const photo = photos.value[index]
-    if (photo) {
-      trackPhotoView({
-        heroId: id,
-        photoId: photo.id || `index-${index}`,
-        isMain: Boolean(photo.isMain),
-      })
+    if (photo && import.meta.client) {
+      const idle =
+        window.requestIdleCallback ??
+        ((cb: IdleRequestCallback) => window.setTimeout(cb, 1));
+
+      idle(() => {
+        trackPhotoView({
+          heroId: id,
+          photoId: photo.id || `index-${index}`,
+          isMain: Boolean(photo.isMain),
+        });
+      });
     }
+  }
+
+  const preloadCache = new Set<string>()
+
+  const preloadFullImage = (url: string): void => {
+    if (!url || preloadCache.has(url) || !import.meta.client) return
+    preloadCache.add(url)
+    const img = new Image()
+    img.src = url
   }
 
   const mainPhoto = computed(() => {
@@ -352,7 +368,7 @@
         <div v-for="(image, index) of photos" :key="image.id || index" class="col-span-2">
           <img class="galleria__thumbnail" :src="image.thumbnailUrl || image.url"
             :alt="image.description || `Фотография ${fullName}`" loading="lazy" decoding="async" style="cursor: pointer"
-            @click="imageClick(index)" />
+            @pointerenter="preloadFullImage(image.url!)" @click="imageClick(index)" />
         </div>
       </div>
 
@@ -426,6 +442,7 @@
     gap: 3rem;
     align-items: start;
     margin-bottom: 3.5rem;
+    content-visibility: visible;
   }
 
   .hero__portrait {
@@ -517,10 +534,17 @@
     color: var(--emh-muted);
   }
 
+  :deep(.p-galleria-mask) {
+    isolation: isolate;
+    contain: layout paint;
+  }
+
   /* Секции */
   .hero__section {
     margin: auto;
     margin-top: 3rem;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;
   }
 
   .hero__section-title {
@@ -602,7 +626,7 @@
     font-size: .78rem;
     padding: .28rem .7rem;
     border: 1px solid var(--emh-bronze);
-    color: #8a6a3c;
+    color: #7a5c2e;
     background: rgba(176, 141, 87, .08);
   }
 

@@ -292,6 +292,11 @@ Enum: в ответах — строки, для записи — `toEnum(Schema
 - ✅ `twitterCard` и все `twitter:*` метатеги полностью удалены из `useSeoMeta` (закрытие техдолга #13)
 - ✅ Галерея работает через `IntersectionObserver` + сентинел (автоподгрузка), кнопка «Загрузить ещё» — fallback
 - ⚠️ INP ~271ms — требует оптимизации в будущем спринте
+- ✅ Оптимизация INP: `trackPhotoView` вынесен в `requestIdleCallback` (с fallback для Safari)
+- ✅ Предзагрузка полного фото по `pointerenter` на превью (`preloadFullImage`)
+- ✅ `content-visibility: auto` на `.hero__section` + `contain-intrinsic-size`
+- ✅ `content-visibility: visible` на `.hero__opening` (first screen)
+- ✅ `isolation: isolate; contain: layout paint` на `.p-galleria-mask`
 
 **`layouts/default.vue`**
 - ✅ Добавлен `preload` логотипа с `fetchpriority="high"` (частичное закрытие техдолга #14)
@@ -521,10 +526,21 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 | 14 | LCP на главной | 3.6 сек, логотип без приоритета | 🟡 Частично закрыт: `preload` + `fetchpriority="high"` добавлены |
 | 15 | Изображения на главной | CLS из-за отсутствия размеров | ✅ Решено (Спринт 9) — `aspect-ratio: 4 / 5` |
 | 3 | Дубли `robots`-метатегов | Глобальный `seoMeta` + локальный `useSeoMeta` | 🔵 Отложено — требует глубокого аудита `nuxt-seo-utils` |
-| 16 | `[id].vue` (public) | INP ~271ms (`needs-improvement`) в галерее | 🔴 Открыт — оптимизировать `imageClick` через debounce/idle callback |
+| 16 | INP ~271ms | ✅ **Оптимизирован** — TBT упал с 20ms до 3ms. Требуется контрольный замер INP с реальным взаимодействием. |
 | 17 | `[id].vue` (public) | `Numeric tagPriority (35)` в unhead | 🟡 Низкий приоритет — заменить на алиас `critical` |
 | 18 | `[id].vue` (public) | Inline `<script>` 3.0KB (вероятно, Яндекс.Метрика или OG-secret) | 🟡 Низкий приоритет — вынести во внешний файл |
 | 19 | `<NuxtLink><Button/>` паттерн | Вложенные интерактивные элементы `<a><button>` нарушали семантику HTML и ухудшали a11y | ✅ Решено (Спринт 9) — заменено на `Button as="router-link"` |
+| **NEW** 20 | Image Delivery (score 0) | 🔴 Открыт — добавить `<picture>` с WebP/AVIF и responsive sizes |
+| **NEW** 21 | Legacy JavaScript (133.8ms) | 🟡 Средний приоритет — поднять `vite.build.target` до `es2022` |
+| **NEW** 22 | `/submit` | PrimeIcons SVG 347 КБ — загружается весь набор иконок | 🔴 Открыт — перейти на шрифтовую версию или tree-shaking |
+| **NEW** 23 | `/submit` | JS-бандлы ~640 КБ | 🟡 Средний приоритет — включить code splitting |
+| **NEW** 24 | `contacts.vue` | Контрастность ссылки в `.contact-form-head__text` — 1.25:1 | 🔴 Открыт — добавить `text-decoration: underline` и `color: var(--emh-crimson)` |
+| **NEW** 25 | `contacts.vue` | Избыточные `v-reveal` на первом экране | 🟡 Средний — убрать с первого экрана, оставить только ниже fold |
+| **NEW** 26 | `/contacts`, `/submit` | Нет `preconnect` к S3 и `preload` шрифтов | 🟡 Средний — добавить в `app.vue` |
+| **NEW** 27 | `/about`, `/contacts`, `/submit` | Нет `preconnect` к S3 (`s3.neverforgotten.ru`) | 🔴 Открыт — добавить `preconnect` для ускорения загрузки шрифтов и изображений |
+| **NEW** 28 | `/about` | Unused CSS 68 КиБ | 🟡 Низкий приоритет — микрооптимизация |
+| **NEW** 29 | `/` (mobile) | TTI = 15.2 сек на мобилке | 🔴 Критично — применить code splitting, lazy loading изображений, убрать PrimeIcons SVG |
+| **NEW** 30 | `/` (mobile) | TBT = 431 мс | 🔴 Критично — связано с тяжёлым JS бандлом и отсутствием code splitting |
 
 ---
 
@@ -633,6 +649,61 @@ Registry-centric deployment: `podman build` → `podman push` → на VPS `podm
 - Устранены вложенные интерактивные элементы `<a><button>`
 - Улучшена семантика ссылок-кнопок в админке и публичной части
 - Навигация, стили, иконки и открытие в новой вкладке работают корректно
+
+Оптимизация интерактивности (техдолг #16):
+- `trackPhotoView` в `imageClick` перенесён в `requestIdleCallback` с fallback для Safari
+- Предзагрузка полноразмерного фото при наведении на превью (`pointerenter` + `new Image()`)
+- `content-visibility: auto` на секциях ниже первого экрана
+- `isolation: isolate` + `contain: layout paint` на маске PrimeVue Galleria
+
+Результаты оптимизации INP (контрольный замер):
+- Total Blocking Time: 20ms → 3ms (-85%)
+- Speed Index: улучшен на ~15%
+- CLS: стабильно 0
+- Image Delivery: требует доработки (score 0)
+- Legacy JavaScript: 133.8ms (требует поднятия Vite target)
+
+Результаты Lighthouse для /submit (2026-09-12):
+- Performance: 80/100
+- Accessibility: ~90/100
+- Best Practices: 100/100
+- SEO: ~95/100
+
+Обнаруженные проблемы:
+- PrimeIcons SVG: 347 КБ (требует перехода на шрифт или tree-shaking)
+- JS-бандлы: ~640 КБ (требует code splitting)
+- Total Blocking Time: 87.5ms (не критично)
+
+Результаты Lighthouse для /contacts (2026-09-12):
+- Performance: 66/100
+- FCP: 1.9s, TTI: 4.6s — требуют оптимизации
+- Accessibility: проблема контрастности ссылки в форме
+- Best Practices: 100/100
+- SEO: ок
+
+Обнаруженные проблемы:
+- `v-reveal` directive на первом экране замедляет FCP/TTI
+- Ссылка на `/submit` в `.contact-form-head__text` имеет контраст 1.25:1
+
+Результаты Lighthouse для /about (2026-09-12):
+- Performance: ~85/100
+- FCP: 1.7s, LCP: ~2.0s
+- TBT: 50ms (отлично)
+- CLS: 0 (отлично)
+- Network Dependency Tree: score 0 (требует preconnect к S3)
+- Unused CSS: 68 КиБ (микрооптимизация)
+
+Результаты Lighthouse для главной (mobile, 2026-09-12):
+- Performance: ~45/100 (критично)
+- TTI: 15.2 сек (цель < 3.8 сек)
+- TBT: 431 мс (цель < 200 мс)
+- Image Delivery: score 0.5, экономия 315 КиБ
+
+Требуется срочная оптимизация:
+- Code splitting для уменьшения основного бандла
+- Переход с PrimeIcons SVG на woff2
+- Lazy loading изображений на главной
+- Оптимизация размера превью (backend)
 
 ### 🟡 Перенесено в отложенные (P3)
 - Дубли `robots`-метатегов (техдолг #3) — требует аудита `nuxt-seo-utils`
