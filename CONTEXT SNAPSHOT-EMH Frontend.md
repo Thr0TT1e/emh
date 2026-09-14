@@ -1,6 +1,6 @@
-# CONTEXT SNAPSHOT — EMH Frontend (Спринт 9+)
+# CONTEXT SNAPSHOT — EMH Frontend (Спринт 9, финальная)
 
-**Технический паспорт проекта «Вечная память героям»**
+Технический паспорт проекта «Вечная память героям»
 
 ---
 
@@ -10,7 +10,7 @@
 |---|---|
 | Проект | Вечная память героям (EMH) |
 | Scope | Только `frontend/` (Nuxt 4) |
-| Фаза | Публичная часть, админка, модерация, SEO-стек завершены. Спринт 9: оптимизация производительности и закрытие техдолга |
+| Фаза | Публичная часть, админка, модерация, SEO завершены. Спринт 9: оптимизация и закрытие техдолга завершены |
 | Дата снимка | 2026-09-14 |
 | Production VPS | 82.202.139.132 |
 | Канонический домен | вежливые.рус (IDN, кириллица) |
@@ -35,7 +35,7 @@
 | Node.js | 22.23.1 | Runtime |
 | Пакетный менеджер | pnpm@12.3.4 | type: module |
 
-### SEO и оптимизация
+### SEO и модули
 
 | Модуль | Назначение |
 |---|---|
@@ -49,36 +49,44 @@
 | @nuxtjs/html-validator | Валидация HTML в dev/CI |
 | @vueuse/nuxt | Composables |
 | @nuxtjs/color-mode | Dark/Light mode с `classSuffix: '-mode'` |
+| eslint-plugin-vuejs-accessibility | A11y-правила для Vue-компонентов |
 
 ---
 
-## 3. Текущее состояние и приоритеты
+## 3. Текущее состояние
 
 ### ✅ Завершено (Спринт 9)
 
-- **Ленивая загрузка**: `loading="lazy"` + `decoding="async"` на превью галереи (`[id].vue`, `HeroPhotos.vue`)
-- **Alt-фолбэк**: `image.description || \`Фотография ${fullName}\``
-- **Twitter-метатеги**: полностью удалены (заменены на Open Graph)
-- **CLS на главной**: `aspect-ratio: 4 / 5` на `.hero-card__photo`
-- **Preload логотипа**: `fetchpriority="high"` + `<link rel="preload">`
-- **Рефакторинг кнопок**: `<NuxtLink><Button/></NuxtLink>` → `Button as="router-link"`
-- **Гибкие даты для конфликтов**: `Conflict` использует `start_date_info` / `end_date_info`
-- **Оптимизация INP**: `trackPhotoView` в `requestIdleCallback`, предзагрузка по `pointerenter`, `content-visibility: auto`
+- Ленивая загрузка: `loading="lazy"` + `decoding="async"` на превью галереи (`[id].vue`, `HeroPhotos.vue`)
+- Alt-фолбэк: `image.description || \`Фотография ${fullName}\``
+- Twitter-метатеги: полностью удалены (заменены на Open Graph)
+- CLS на главной: `aspect-ratio: 4 / 5` на `.hero-card__photo`
+- Preload логотипа: `fetchpriority="high"` + `<link rel="preload">`
+- Рефакторинг кнопок: `<NuxtLink><Button/></NuxtLink>` → `Button as="router-link"`
+- Гибкие даты для конфликтов: `Conflict` использует `start_date_info` / `end_date_info`
+- Оптимизация INP: `trackPhotoView` в `requestIdleCallback`, предзагрузка по `pointerenter`, `content-visibility: auto` на секциях, `isolation: isolate` на маске Galleria
+- Контрастность: `#8a6a3c` → `#7a5c2e` в карточке героя (членство)
+- Замена `Content-Usage` / `Content-Signal` в `robots.txt` на блокировку AI-ботов по `User-Agent` + `/.well-known/ai-policy.json` + `/ai-policy`
 
 ### 🔴 Критичные задачи (следующий спринт)
 
 | # | Задача | Описание |
 |---|---|---|
 | 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: code splitting, lazy loading изображений, переход с PrimeIcons SVG на woff2 |
-| 2 | Замена `Content-Usage` / `Content-Signal` в `robots.txt` | Директивы не являются стандартом. План многоуровневой замены готов, но не реализован |
-| 3 | Image Delivery (score 0) | Добавить `<picture>` с WebP/AVIF и responsive sizes |
+| 2 | Image Delivery (score 0) | Добавить `<picture>` с WebP/AVIF и responsive sizes |
+| 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
 
 ### 🟡 Средний приоритет
 
-- **Дубли `robots`-метатегов**: требует аудита `nuxt-seo-utils`
-- **Legacy JavaScript (133.8ms)**: поднять `vite.build.target` до `es2022`
-- **`Numeric tagPriority (35)` в unhead**: заменить на алиас `critical`
-- **Inline `<script>` 3.0KB**: вынести во внешний файл
+| # | Задача |
+|---|---|
+| 1 | Дубли `robots`-метатегов — аудит `nuxt-seo-utils` |
+| 2 | Legacy JavaScript (133.8ms) — поднять `vite.build.target` до `es2022` |
+| 3 | `Numeric tagPriority (35)` в unhead — заменить на алиас `critical` |
+| 4 | Inline `<script>` 3.0KB — вынести во внешний файл |
+| 5 | Контрастность ссылки в `contacts.vue` (1.25:1) — добавить `text-decoration: underline` |
+| 6 | `v-reveal` на первом экране `contacts.vue` — убрать с первого экрана |
+| 7 | Code splitting для `/submit` (JS-бандлы ~640 КБ) |
 
 ### ⚪ Отложено / Не делается
 
@@ -87,9 +95,6 @@
 - Service Worker для оффлайн-режима админки
 - Grafana-дашборд
 - PWA manifest
-- **Гибкие даты для `HeroConflict`, `Location`, `Photo`, `HeroSource`** — НЕ ДЕЛАТЬ (архитектурное решение)
-- **Контрастность ссылок в карточке героя** — не требуется (`#7a5c2e` = WCAG AA 4.5:1)
-- **Публичный API + OpenAPI** — документация генерируется из `.proto` в `.md`/`.html` в `docs/`
 
 ---
 
@@ -98,11 +103,11 @@
 ### Гибкие даты (FlexibleDate)
 
 **Реализовано и работает:**
-- `Hero` — даты рождения, гибели, начала службы (`birth_date_info`, `death_date_info`, `service_start_date_info`)
-- `HeroAward` — дата награждения (`award_date_info`)
-- `Conflict` — даты начала и окончания (`start_date_info`, `end_date_info`)
+- `Hero` — `birth_date_info`, `death_date_info`, `service_start_date_info`
+- `HeroAward` — `award_date_info`
+- `Conflict` — `start_date_info`, `end_date_info`
 
-**НЕ делаем и не планируем:**
+**НЕ делаем и не планируем (не возвращаться):**
 - `HeroConflict` — даты участия героя в конфликте
 - `Location` — нет временных атрибутов у географии
 - `Photo` — нет даты съёмки в контракте
@@ -113,12 +118,13 @@
 ### Конвертация дат
 
 ```typescript
-// Паттерн: гибкая дата → protobuf Message
-const prepareDateForApi = (fd?: FlexibleDateJson | null) => {
-  const json = (!fd || fd.precision === 'DATE_PRECISION_UNSPECIFIED')
-    ? { precision: 'DATE_PRECISION_UNKNOWN' as const, displayText: '' }
-    : fd;
-  return fromJson(FlexibleDateSchema, json);
+const prepareDateForApi = (fd?: FlexibleDateJson | null, allowEmpty = false) => {
+  if (!fd || fd.precision === 'DATE_PRECISION_UNSPECIFIED') {
+    return allowEmpty
+      ? undefined
+      : fromJson(FlexibleDateSchema, { precision: 'DATE_PRECISION_UNKNOWN', displayText: '' });
+  }
+  return fromJson(FlexibleDateSchema, fd);
 };
 ```
 
@@ -148,29 +154,44 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null) => {
 
 **Критично:** `allowQuery` должен строго соответствовать полям `ListHeroesRequest` из `hero.proto`. Без него — cache poisoning.
 
+### Robots.txt (замена Content-Usage / Content-Signal)
+
+Нестандартные директивы `contentUsage` и `contentSignal` удалены. Заменены на:
+
+```typescript
+robots: {
+  groups: [
+    {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/admin', '/admin/'],
+    },
+    {
+      userAgent: [
+        'GPTBot', 'ChatGPT-User', 'Google-Extended', 'Google-CloudVertexBot',
+        'anthropic-ai', 'ClaudeBot', 'Claude-Web', 'cohere-ai',
+        'FacebookBot', 'Omgilibot', 'Omgili', 'YouBot', 'PerplexityBot',
+        'Bytespider', 'Amazonbot', 'Applebot-Extended', 'Diffbot',
+        'ImagesiftBot', 'meta-externalagent',
+      ],
+      disallow: ['/'],
+    },
+  ],
+},
+```
+
+Дополнительно:
+- `public/.well-known/ai-policy.json` — машиночитаемая политика
+- `app/pages/ai-policy.vue` — человекочитаемая страница (`noindex`)
+
+### Убрано из плана навсегда
+
+- Контрастность ссылок в карточке героя — не требуется (`#7a5c2e` = WCAG AA 4.5:1)
+- Публичный API + OpenAPI — документация генерируется из `.proto` в `.md`/`.html` в `docs/`
+
 ---
 
-## 5. Техдолг и открытые задачи
-
-| # | Область | Проблема | Статус |
-|---|---|---|---|
-| 3 | Дубли `robots`-метатегов | Глобальный `seoMeta` + локальный `useSeoMeta` | 🔵 Отложено |
-| 17 | `[id].vue` | `Numeric tagPriority (35)` в unhead | 🟡 Низкий приоритет |
-| 18 | `[id].vue` | Inline `<script>` 3.0KB | 🟡 Низкий приоритет |
-| 20 | Image Delivery | score 0, требуется `<picture>` с WebP/AVIF | 🔴 Открыт |
-| 21 | Legacy JavaScript | 133.8ms, поднять `vite.build.target` до `es2022` | 🟡 Средний |
-| 22 | `/submit` | PrimeIcons SVG 347 КБ | 🔴 Открыт |
-| 23 | `/submit` | JS-бандлы ~640 КБ, требуется code splitting | 🟡 Средний |
-| 24 | `contacts.vue` | Контрастность ссылки 1.25:1 | 🔴 Открыт |
-| 25 | `contacts.vue` | Избыточные `v-reveal` на первом экране | 🟡 Средний |
-| 26 | `/contacts`, `/submit` | Нет `preconnect` к S3 и `preload` шрифтов | 🟡 Средний |
-| 27 | `/about`, `/contacts`, `/submit` | Нет `preconnect` к `s3.neverforgotten.ru` | 🔴 Открыт |
-| 29 | `/` (mobile) | TTI = 15.2 сек | 🔴 Критично |
-| 30 | `/` (mobile) | TBT = 431 мс | 🔴 Критично |
-
----
-
-## 6. Точки входа в код (эталоны)
+## 5. Точки входа в код (эталоны)
 
 | Паттерн | Файл |
 |---|---|
@@ -180,25 +201,41 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null) => {
 | Face Box Editor | `app/components/admin/FaceBoxEditor.vue` |
 | Auto-refresh при 401 | `app/plugins/connect.ts` |
 | Обработка 403/429 | `app/lib/errors.ts` |
-| SEO карточки героя | `app/pages/heroes/[id].vue` |
+| Краудсорсинг (заявки от пользователей) | `app/pages/submit.vue` |
+| SEO карточки героя (без Twitter) | `app/pages/heroes/[id].vue` |
+| Форма обратной связи | `app/pages/contacts.vue` + `app/composables/useContactForm.ts` |
 | OG-карточка | `app/components/OgImage/HeroCard.takumi.vue` |
+| Пагинация галерей (composable) | `app/composables/useHeroPhotos.ts` |
 | ISR invalidation | `app/composables/useCachePurge.ts` + `server/api/cache/purge.post.ts` |
+| LLM извлечение данных | `app/components/admin/ExtractionPanel.vue` |
+| Авто-привязка связей из извлечения | `app/composables/useExtractionLinks.ts` |
+| Модерация через LLM | `app/pages/admin/submissions/index.vue` |
+| Передача данных между страницами | `sessionStorage` + проп `initial-extraction` |
+| Проверка размера текста для LLM | `app/components/admin/ExtractionPanel.vue` (`MAX_TEXT_SIZE`) |
+| Управление LLM-провайдерами | `app/pages/admin/llm/index.vue` |
+| История модерации заявок | `app/components/admin/SubmissionReviewHistory.vue` |
 | Гибкие даты для наград | `app/components/admin/HeroAwards.vue` + `AdminFlexibleDateInput.vue` |
-| Гибкие даты для конфликтов | `app/pages/admin/conflicts/index.vue` |
-| Синхронизация темы | `app/composables/useThemeSync.ts` + `app.vue` |
+| Гибкие даты для конфликтов | `app/pages/admin/conflicts/index.vue` + `AdminFlexibleDateInput.vue` |
+| Клиентская проверка дубликатов | `app/composables/useDuplicateCheck.ts` |
+| Синхронизация темы (color-mode + PrimeVue) | `app/composables/useThemeSync.ts` + `app.vue` |
+| Парсинг дат из извлечения | `app/components/admin/HeroForm.vue` → `parseExtractedDate` |
+| Конвертация `FlexibleDateJson` → protobuf | `app/components/admin/HeroForm.vue` → `prepareDateForApi` + `fromJson` |
 | Семантическая ссылка-кнопка | `app/pages/admin/index.vue` (`Button as="router-link"`) |
+| Оптимизация галереи (INP) | `app/pages/heroes/[id].vue` (`requestIdleCallback`, `preloadFullImage`, `content-visibility`) |
+| Политика AI / robots | `nuxt.config.ts` (robots) + `public/.well-known/ai-policy.json` + `app/pages/ai-policy.vue` |
 
 ---
 
-## 7. Критичные предупреждения для агента
+## 6. Критичные предупреждения для агента
 
 ### НЕ ДЕЛАТЬ
 
 - ❌ Не подключай `@nuxt/fonts` повторно — уже настроен с `provider: 'local'`
-- ❌ Не подключай `@nuxt/a11y` — рантайм-проверки замедляют сборку и дают ложные срабатывания на PrimeVue. Для статического анализа достаточно `eslint-plugin-vuejs-accessibility` (уже в devDependencies).
+- ❌ Не подключай `@nuxt/a11y` — рантайм-проверки замедляют сборку и дают ложные срабатывания на PrimeVue. Для статического анализа достаточно `eslint-plugin-vuejs-accessibility` (уже в devDependencies)
 - ❌ Не используй паттерн `<NuxtLink><Button/></NuxtLink>` — только `Button as="router-link"`
 - ❌ Не добавляй гибкие даты для `HeroConflict`, `Location`, `Photo`, `HeroSource` — архитектурное решение
 - ❌ Не добавляй `twitterCard` или `twitter:*` метатеги — полностью удалены
+- ❌ Не добавляй `manualChunks` в `vite.build.rollupOptions` — ломает сборку Nitro
 
 ### КРИТИЧНО ПРОВЕРЯТЬ
 
@@ -207,47 +244,95 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null) => {
 - ✅ `allowQuery` в `routeRules` — должен строго соответствовать полям `ListHeroesRequest` из `hero.proto`
 - ✅ После полного отказа от вложенных `<a><button>` можно рассмотреть повторное включение правила `element-permitted-content` в `htmlValidator`
 
-### КОНТРАСТНОСТЬ
+### КОНТРАСТНОСТЬ (закрыто, не трогать)
 
-Контрастность полностью соответствует WCAG AA. Не менять цвета без необходимости.
+- `#b08d57` → `#7a5c2e` (глобальная замена, Спринт 8)
+- `#8a6a3c` → `#7a5c2e` в карточке героя (Спринт 9)
+- Контрастность ссылок в карточке героя — НЕ требуется исправлять
 
 ---
 
-## 8. Деплой
+## 7. Деплой
 
-**Registry-centric deployment:**
-```bash
+Registry-centric deployment:
+
+```
 podman build → podman push → на VPS: podman pull → systemctl --user restart emh-frontend.service
 ```
 
-**Multi-stage build:** `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runtime. Порт 3000.
+Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runtime. Порт 3000.
 
 ---
 
-## 9. Результаты Lighthouse (контрольные замеры)
+## 8. Результаты Lighthouse (сводка)
 
-### `/heroes/[id]` (после оптимизации)
+| Страница | Performance | Ключевые проблемы |
+|---|---|---|
+| `/heroes/[id]` | ~86/100 | Image Delivery (score 0), Legacy JS 133.8ms |
+| `/submit` | 80/100 | PrimeIcons SVG 347 КБ, JS-бандлы ~640 КБ |
+| `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s, контрастность ссылки 1.25:1, `v-reveal` |
+| `/about` | ~85/100 | Нет `preconnect` к S3, Unused CSS 68 КиБ |
+| `/` (mobile) | ~45/100 | **TTI 15.2 сек, TBT 431 мс — критично** |
 
-- **Total Blocking Time:** 20ms → 3ms (-85%)
-- **Speed Index:** улучшен на ~15%
-- **CLS:** стабильно 0
-- **Image Delivery:** требует доработки (score 0)
-- **Legacy JavaScript:** 133.8ms
+---
 
-### `/submit`
+## 9. Примечания для следующего агента
 
-- **Performance:** 80/100
-- **PrimeIcons SVG:** 347 КБ (требует перехода на шрифт или tree-shaking)
-- **JS-бандлы:** ~640 КБ (требует code splitting)
+1. **Главная проблема** — мобильная производительность главной страницы (TTI 15.2 сек). Начинать с code splitting и замены PrimeIcons SVG на woff2.
+2. **Гибкие даты закрыты** — не трогать архитектуру, только использовать существующие компоненты.
+3. **Кнопки-ссылки** — только через `Button as="router-link"`, никаких вложенных элементов.
+4. **Контрастность** — не трогать, всё исправлено и соответствует WCAG AA.
+5. **Документация** — генерируется из `.proto` в `.md`/`.html` в `docs/`, отдельный OpenAPI не нужен.
+6. **`robots.txt`** — `Content-Usage` / `Content-Signal` заменены на блокировку по `User-Agent`. Не возвращать старые директивы.
+7. **`requestIdleCallback`** — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
+8. **`contain: strict`** на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
 
-### `/contacts`
+---
 
-- **Performance:** 66/100
-- **FCP:** 1.9s, TTI: 4.6s — требуют оптимизации
-- **Контрастность ссылки в форме:** 1.25:1
+## 10. Changelog сессий (краткий)
 
-### `/` (mobile)
+### Спринт 9 (2026-09-12/14)
 
-- **Performance:** ~45/100 (критично)
-- **TTI:** 15.2 сек (цель < 3.8 сек)
-- **TBT:** 431 мс (цель < 200 мс)
+**Производительность:**
+- `loading="lazy"` + `decoding="async"` на превью галереи
+- `aspect-ratio: 4 / 5` на карточках главной
+- `preload` + `fetchpriority="high"` для логотипа
+- `requestIdleCallback` для аналитики, `preloadFullImage` по `pointerenter`, `content-visibility` на секциях
+- TBT: 20ms → 3ms (-85%)
+
+**SEO:**
+- `twitterCard` и `twitter:*` полностью удалены
+- `Content-Usage` / `Content-Signal` заменены на блокировку AI-ботов
+
+**Качество кода:**
+- Рефакторинг `<NuxtLink><Button/>` → `Button as="router-link"`
+- Контрастность `#8a6a3c` → `#7a5c2e`
+- Гибкие даты для конфликтов
+
+**Закрыто навсегда:**
+- Контрастность ссылок в карточке героя
+- Публичный API + OpenAPI
+- Гибкие даты для `HeroConflict`, `Location`, `Photo`, `HeroSource`
+
+### Спринт 8 (2026-09-11)
+
+- `@nuxt/fonts` с `provider: 'local'`
+- `@nuxtjs/color-mode` + `useThemeSync.ts`
+- `@nuxtjs/html-validator`
+- `@vueuse/nuxt`
+- `eslint-plugin-vuejs-accessibility`
+- Контрастность `#b08d57` → `#7a5c2e`
+- ISR с `allowQuery`
+- OpenSearch
+- `ogImage.security` (HMAC)
+- LightningCSS
+
+### Спринт 7 (2026-08-30)
+
+- Обработка ошибок 401/403/429
+- Проверка размера текста для LLM
+- `LlmAdminService`
+- История модерации
+- Гибкие даты для наград
+- Уникальные заявки
+- Уведомления заявителям
