@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "updated": "2026-09-13",
+  "project": {
+    "name": "Вечная память героям",
+    "url": "https://вежливые.рус",
+    "description": "Книга памяти о героях, погибших в глобальных и локальных конфликтах: ВОВ, Афган, Чечня, Вьетнам, Сирия, Африка, Новороссия, спецоперации."
+  },
+  "permissions": {
+    "search_indexing": true,
+    "search_snippets": true,
+    "content_retrieval_user_requested": false,
+    "ai_model_training": false,
+    "dataset_creation": false,
+    "commercial_model_training": false,
+    "content_redistribution": false
+  },
+  "blocked_user_agents": [
+    "GPTBot",
+    "OAI-SearchBot",
+    "ChatGPT-User",
+    "Google-Extended",
+    "Google-CloudVertexBot",
+    "anthropic-ai",
+    "ClaudeBot",
+    "Claude-Web",
+    "cohere-ai",
+    "PerplexityBot",
+    "Bytespider",
+    "Amazonbot",
+    "Applebot-Extended",
+    "Meta-ExternalAgent",
+    "FacebookBot",
+    "Omgilibot",
+    "Omgili",
+    "ImagesiftBot",
+    "Diffbot",
+    "YouBot"
+  ],
+  "enforcement": "robots.txt",
+  "contact": {
+    "email": "info@neverforgotten.ru"
+  }
+}

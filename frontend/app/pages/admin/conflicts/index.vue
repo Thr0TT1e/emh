@@ -1,16 +1,10 @@
 <script setup lang="ts">
-    /**
-     * /admin/conflicts — CRUD справочника конфликтов.
-     * Чтение — публичный ConflictService (conflict), мутации — ConflictAdminService (conflictAdmin).
-     * Особенности:
-     *  - в мутациях даты — строки YYYY-MM-DD (не Timestamp);
-     *  - search_query в контракте нет → текстовый фильтр клиентский;
-     *  - endDate пустая = конфликт продолжается («н.в.»).
-     */
+    import { fromJson } from '@bufbuild/protobuf'
     import { useConfirm } from 'primevue/useconfirm'
     import { useToast } from 'primevue/usetoast'
-    import { conflictTypeLabel, formatYear } from '~/lib/format'
+    import { conflictTypeLabel, formatFlexibleDate } from '~/lib/format'
     import { toPlain } from '~/lib/pb'
+    import { FlexibleDateSchema, type FlexibleDateJson } from '~/sdk/emh/v1/common_pb'
     import type { ConflictJson } from '~/sdk/emh/v1/conflict_pb'
     import { ConflictSchema } from '~/sdk/emh/v1/conflict_pb'
     import type { ConflictTypeJson } from '~/sdk/emh/v1/enums_emh_pb'
@@ -44,7 +38,6 @@
         CONFLICT_TYPE_SPECIAL_OPERATION: 'success',
     }
 
-    // JSON-имя enum → число (toEnum полные имена не резолвит)
     const TYPE_JSON_TO_NUM: Record<ConflictTypeJson, ConflictType> = {
         CONFLICT_TYPE_UNSPECIFIED: ConflictType.UNSPECIFIED,
         CONFLICT_TYPE_GLOBAL: ConflictType.GLOBAL,
@@ -58,18 +51,31 @@
         !t || t === 'CONFLICT_TYPE_UNSPECIFIED' ? '—' : conflictTypeLabel(t)
 
     // ---------------------------------------------------------------------------
+    // Хелпер: конвертация гибкой даты в protobuf Message перед отправкой.
+    // Паттерн идентичен prepareAwardDateForApi из HeroAwards: пустую/неуказанную
+    // дату отправляем как UNKNOWN, чтобы бэкенд корректно её обработал.
+    // ---------------------------------------------------------------------------
+    const prepareDateForApi = (fd?: FlexibleDateJson | null, allowEmpty = false) => {
+        if (!fd || fd.precision === 'DATE_PRECISION_UNSPECIFIED') {
+            return allowEmpty ? undefined : fromJson(FlexibleDateSchema, { precision: 'DATE_PRECISION_UNKNOWN', displayText: '' });
+        }
+
+        return fromJson(FlexibleDateSchema, fd);
+    };
+
+    // ---------------------------------------------------------------------------
     // Список + фильтры (ЧТЕНИЕ — публичный сервис)
     // ---------------------------------------------------------------------------
-    const conflicts = ref<ConflictJson[]>([])      // серверный список (фильтр по типу)
-    const allConflicts = ref<ConflictJson[]>([])   // полный список: lookup родителей + селекты
+    const conflicts = ref<ConflictJson[]>([])
+    const allConflicts = ref<ConflictJson[]>([])
     const loading = ref(false)
     const typeFilter = ref<ConflictType>(ConflictType.UNSPECIFIED)
-    const searchQuery = ref('')                    // клиентский поиск (в RPC его нет)
+    const searchQuery = ref('')
 
     async function load() {
         loading.value = true
         try {
-            const res = await conflict.listConflicts({ type: typeFilter.value }) // 0 = все типы
+            const res = await conflict.listConflicts({ type: typeFilter.value })
             conflicts.value = (res.conflicts ?? []).map((c) => toPlain(ConflictSchema, c))
         } catch (e: any) {
             toast.add({ severity: 'error', summary: 'Ошибка', detail: e?.message ?? 'Не удалось загрузить конфликты', life: 5000 })
@@ -100,10 +106,12 @@
     const hasChildren = (id?: string) =>
         !!id && allConflicts.value.some((c) => c.parentConflictId === id)
 
-    // «1941 — 1945» или «2022 — н.в.»
+    // «1941 — 1945» или «2022 — н.в.» — через гибкие даты
     const periodLabel = (c: ConflictJson) => {
-        const start = formatYear(c.startDate)
-        const end = c.endDate ? formatYear(c.endDate) : 'н.в.'
+        const start = formatFlexibleDate(c.startDateInfo, c.startDate)
+        const end = (c.endDateInfo || c.endDate)
+            ? formatFlexibleDate(c.endDateInfo, c.endDate)
+            : 'н.в.'
         return `${start} — ${end}`
     }
 
@@ -136,8 +144,8 @@
         name: '',
         description: '',
         type: ConflictType.UNSPECIFIED as ConflictType,
-        startDate: '', // YYYY-MM-DD, обязательна
-        endDate: '',   // пусто = конфликт продолжается
+        startDateInfo: undefined as FlexibleDateJson | undefined,
+        endDateInfo: undefined as FlexibleDateJson | undefined,
         parentConflictId: '',
     })
 
@@ -152,7 +160,7 @@
         editingId.value = null
         Object.assign(form, {
             name: '', description: '', type: ConflictType.UNSPECIFIED,
-            startDate: '', endDate: '', parentConflictId: '',
+            startDateInfo: undefined, endDateInfo: undefined, parentConflictId: '',
         })
         dialogVisible.value = true
     }
@@ -163,9 +171,8 @@
             name: c.name ?? '',
             description: c.description ?? '',
             type: TYPE_JSON_TO_NUM[c.type ?? 'CONFLICT_TYPE_UNSPECIFIED'] ?? ConflictType.UNSPECIFIED,
-            // TimestampJson → YYYY-MM-DD для input[type=date] (паттерн HeroForm.vue)
-            startDate: c.startDate?.slice(0, 10) ?? '',
-            endDate: c.endDate?.slice(0, 10) ?? '',
+            startDateInfo: c.startDateInfo ?? undefined,
+            endDateInfo: c.endDateInfo ?? undefined,
             parentConflictId: c.parentConflictId ?? '',
         })
         dialogVisible.value = true
@@ -180,7 +187,7 @@
             toast.add({ severity: 'warn', summary: 'Проверьте форму', detail: 'Выберите тип конфликта', life: 3000 })
             return
         }
-        if (!form.startDate) {
+        if (!form.startDateInfo || form.startDateInfo.precision === 'DATE_PRECISION_UNSPECIFIED') {
             toast.add({ severity: 'warn', summary: 'Проверьте форму', detail: 'Дата начала обязательна', life: 3000 })
             return
         }
@@ -190,15 +197,27 @@
                 name: form.name,
                 description: form.description,
                 type: form.type,
-                startDate: form.startDate,
-                endDate: form.endDate, // пустая строка валидна: текущий конфликт
+                // startDate/endDate оставляем пустыми — приоритет у *_date_info (контракт)
+                startDate: '',
+                endDate: '',
+                startDateInfo: prepareDateForApi(form.startDateInfo),
+                endDateInfo: prepareDateForApi(form.endDateInfo, true),
                 parentConflictId: form.parentConflictId,
             }
             if (editingId.value) {
                 await conflictAdmin.updateConflict({
                     id: editingId.value,
                     ...payload,
-                    fieldMask: ['name', 'description', 'type', 'start_date', 'end_date', 'parent_conflict_id'],
+                    fieldMask: [
+                        'name',
+                        'description',
+                        'type',
+                        'start_date',
+                        'end_date',
+                        'parent_conflict_id',
+                        'start_date_info',
+                        'end_date_info',
+                    ],
                 })
                 toast.add({ severity: 'success', summary: 'Сохранено', detail: form.name, life: 3000 })
             } else {
@@ -239,7 +258,6 @@
                 await Promise.all([load(), loadAll()])
             }
         } catch (e: any) {
-            // «При наличии связанных героев вернёт ошибку» — показываем текст бэкенда
             toast.add({ severity: 'error', summary: 'Ошибка', detail: e?.message ?? 'Не удалось удалить', life: 5000 })
         }
     }
@@ -248,14 +266,12 @@
 <template>
     <Card>
         <template #title>Справочник конфликтов</template>
-
         <template #content>
             <div class="apanel__toolbar">
                 <InputText v-model="searchQuery" placeholder="Поиск по названию…" />
                 <Select v-model="typeFilter" :options="TYPE_OPTIONS" option-label="label" option-value="value" />
                 <Button label="Добавить конфликт" icon="pi pi-plus" @click="openCreate" />
             </div>
-
             <!-- Создание / редактирование -->
             <Dialog v-model:visible="dialogVisible" modal
                 :header="editingId ? 'Редактирование конфликта' : 'Новый конфликт'" style="width: 680px">
@@ -265,38 +281,25 @@
                         <InputText v-model="form.name" class="w-full"
                             placeholder="Например: Великая Отечественная война" />
                     </label>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 1.2rem">
-                        <label>
-                            <span class="afield__label">Тип *</span>
-                            <Select v-model="form.type" :options="TYPE_OPTIONS.slice(1)" option-label="label"
-                                option-value="value" class="w-full" />
-                        </label>
-
-                        <label>
-                            <span class="afield__label">Дата начала *</span>
-                            <input v-model="form.startDate" type="date" class="afield__input" />
-                        </label>
-
-                        <label>
-                            <span class="afield__label">Дата окончания</span>
-                            <input v-model="form.endDate" type="date" class="afield__input" />
-                            <small class="text-muted" style="font-size:.72rem">пусто = продолжается</small>
-                        </label>
-                    </div>
-
+                    <label>
+                        <span class="afield__label">Тип *</span>
+                        <Select v-model="form.type" :options="TYPE_OPTIONS.slice(1)" option-label="label"
+                            option-value="value" class="w-full" />
+                    </label>
+                    <!-- Гибкая дата начала (обязательна) -->
+                    <AdminFlexibleDateInput v-model="form.startDateInfo" label="Дата начала *" />
+                    <!-- Гибкая дата окончания (пусто = продолжается) -->
+                    <AdminFlexibleDateInput v-model="form.endDateInfo" label="Дата окончания (пусто = продолжается)" />
                     <label>
                         <span class="afield__label">Родительский конфликт (операция внутри войны)</span>
                         <Select v-model="form.parentConflictId" :options="parentOptions" option-label="label"
                             option-value="value" filter show-clear class="w-full" />
                     </label>
-
                     <label>
                         <span class="afield__label">Историческое описание</span>
                         <Textarea v-model="form.description" rows="4" class="w-full" />
                     </label>
                 </div>
-
                 <template #footer>
                     <Button label="Отмена" outlined severity="secondary" @click="dialogVisible = false" />
                     <Button :label="editingId ? 'Сохранить' : 'Создать'" :loading="busy" @click="save" />
@@ -304,7 +307,6 @@
             </Dialog>
         </template>
     </Card>
-
     <DataTable :value="visibleConflicts" :loading="loading" striped-rows class="atable mt-4"
         table-style="min-width: 50rem">
         <Column field="name" header="Название">
@@ -314,33 +316,28 @@
                     style="font-size:.7rem;margin-left:.35rem" />
             </template>
         </Column>
-
         <Column header="Тип">
             <template #body="{ data }">
                 <Tag :value="typeLabel(data.type)"
                     :severity="TYPE_SEVERITY[data.type as ConflictTypeJson] ?? 'secondary'" />
             </template>
         </Column>
-
         <Column header="Период">
             <template #body="{ data }">
                 {{ periodLabel(data) }}
             </template>
         </Column>
-
         <Column header="Родитель">
             <template #body="{ data }">
                 {{ parentName(data.parentConflictId) }}
             </template>
         </Column>
-
         <Column header="" style="width: 150px">
             <template #body="{ data }">
                 <Button icon="pi pi-pencil" text severity="secondary" title="Редактировать" @click="openEdit(data)" />
                 <Button icon="pi pi-trash" text severity="danger" title="Удалить" @click="remove(data)" />
             </template>
         </Column>
-
         <template #empty>
             <div class="p-4 text-center">Конфликтов не найдено</div>
         </template>

@@ -570,7 +570,6 @@ Add localized Russian messages in delivery/v1/errors.go.
 ## 📚 Полезные ссылки
 
 - [README.md](./README.md) — обзор проекта
-- [TECHNICAL PASSPORT - EMH Backend.md](../docs/TECHNICAL_PASSPORT-EMH_Backend.md) — технический паспорт
 - [ARCHITECTURE.md](../docs/ARCHITECTURE.md) — детальная архитектура
 
 ---

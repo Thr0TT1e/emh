@@ -222,18 +222,37 @@ export default defineNuxtConfig({
   // ═══════════════════════════════════════════════════════════
   robots: {
     groups: [
+      // Поисковики и обычные пользователи — доступ разрешён
       {
         userAgent: '*',
         allow: '/',
         disallow: ['/admin', '/admin/'],
-        contentUsage: {
-          bots: 'y',
-          'train-ai': 'n',
-        },
-        contentSignal: {
-          'ai-train': 'no',
-          search: 'yes',
-        },
+      },
+      // AI-скрейперы и боты для обучения моделей — полный запрет
+      {
+        userAgent: [
+          'GPTBot',
+          'OAI-SearchBot',
+          'ChatGPT-User',
+          'Google-Extended',
+          'Google-CloudVertexBot',
+          'anthropic-ai',
+          'ClaudeBot',
+          'Claude-Web',
+          'cohere-ai',
+          'PerplexityBot',
+          'Bytespider',
+          'Amazonbot',
+          'Applebot-Extended',
+          'Meta-ExternalAgent',
+          'FacebookBot',
+          'Omgilibot',
+          'Omgili',
+          'ImagesiftBot',
+          'Diffbot',
+          'YouBot',
+        ],
+        disallow: ['/'],
       },
     ],
   },

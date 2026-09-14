@@ -1368,7 +1368,6 @@ func runWorkerWithRecovery(
 
 - [README.md](../backend/README.md) — обзор проекта
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — правила участия
-- [CONTEXT SNAPSHOT-EMH Backend.md](./TECHNICAL_PASSPORT-EMH_Backend.md) — технический паспорт
 
 ---
 
