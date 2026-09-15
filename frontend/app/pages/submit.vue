@@ -213,7 +213,7 @@
     ogUrl: canonical,
     ogSiteName: site.name,
     ogLocale: 'ru_RU',
-    robots: 'noindex, follow', // ← страница-форма, не индексируем
+    robots: 'index, follow', // ← страница-форма, не индексируем
   });
 
   useHead({
