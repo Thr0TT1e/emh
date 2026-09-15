@@ -4,14 +4,16 @@
   import { useAnalytics } from '~/composables/useAnalytics';
   import { useDuplicateCheck } from '~/composables/useDuplicateCheck';
   import { isAlreadyExists, isRateLimited } from '~/lib/errors';
-  import { formatFlexibleYear } from "~/lib/format";
-  import { toPlain } from "~/lib/pb";
   import type { FlexibleDateJson } from "~/sdk/emh/v1/common_pb";
-  import { HeroSummarySchema, type HeroSummaryJson } from "~/sdk/emh/v1/hero_pb";
-  import { UploadType } from "~/sdk/emh/v1/media_pb";
   import SendAltIcon from '~icons/carbon/send-alt?width=1.25em&height=1.25em';
-  import AttachmentIcon from '~icons/mdi/attachment?width=1.25em&height=1.25em';
-  import FileOutlineIcon from '~icons/mdi/file-outline?width=1.25em&height=1.25em';
+
+  // Async components for code splitting
+  const HeroSearchPicker = defineAsyncComponent(() =>
+    import('~/components/submit/HeroSearchPicker.vue')
+  )
+  const AttachmentUpload = defineAsyncComponent(() =>
+    import('~/components/submit/AttachmentUpload.vue')
+  )
 
   const { hero, submission, media } = useApi();
   const { trackSubmissionCreate } = useAnalytics();
@@ -58,85 +60,9 @@
   const narrative = ref("");
 
   // ---------------------------------------------------------------------------
-  // Поиск героя (для supplement без предзаполненного героя)
-  // ---------------------------------------------------------------------------
-  const heroSearch = ref("");
-  const heroResults = ref<HeroSummaryJson[]>([]);
-  const searching = ref(false);
-  const showHeroPicker = ref(false);
-
-  let searchTimer: ReturnType<typeof setTimeout> | undefined;
-
-  watch(heroSearch, () => {
-    clearTimeout(searchTimer);
-    if (!heroSearch.value.trim()) {
-      heroResults.value = [];
-      showHeroPicker.value = false;
-      return;
-    }
-    searchTimer = setTimeout(async () => {
-      searching.value = true;
-      try {
-        const res = await hero.listHeroes({
-          pagination: { pageSize: 10 },
-          searchQuery: heroSearch.value,
-        });
-        heroResults.value = (res.heroes ?? []).map((h) => toPlain(HeroSummarySchema, h));
-        showHeroPicker.value = true;
-      } finally {
-        searching.value = false;
-      }
-    }, 400);
-  });
-
-  const selectHero = (h: HeroSummaryJson) => {
-    targetHeroId.value = h.id ?? "";
-    targetHeroName.value = [h.lastName, h.firstName, h.middleName].filter(Boolean).join(" ");
-    showHeroPicker.value = false;
-    heroSearch.value = "";
-  };
-
-  const clearHero = () => {
-    targetHeroId.value = "";
-    targetHeroName.value = "";
-  };
-
-  // ---------------------------------------------------------------------------
   // Вложения (presigned URL → MinIO)
   // ---------------------------------------------------------------------------
   const attachments = ref<{ name: string; url: string }[]>([]);
-  const uploading = ref(false);
-  const fileInput = ref<HTMLInputElement | null>(null);
-
-  const onFiles = async (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const files = Array.from(input.files ?? []);
-    if (!files.length) return;
-    input.value = ""; // сбрасываем, чтобы повторный выбор того же файла сработал
-    uploading.value = true;
-    try {
-      for (const file of files) {
-        const { uploadUrl, publicUrl } = await media.getUploadUrl({
-          type: UploadType.SUBMISSION_ATTACHMENT,
-          filename: file.name,
-          contentType: file.type || "application/octet-stream",
-        });
-        const put = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type || "application/octet-stream" },
-          body: file,
-        });
-        if (!put.ok) throw new Error("MinIO: " + put.status);
-        attachments.value.push({ name: file.name, url: publicUrl });
-      }
-    } catch (err: any) {
-      toast.add({ severity: "error", summary: "Ошибка загрузки", detail: err?.message ?? "", life: 5000 });
-    } finally {
-      uploading.value = false;
-    }
-  };
-
-  const removeAttachment = (i: number) => attachments.value.splice(i, 1);
 
   // ---------------------------------------------------------------------------
   // Отправка заявки
@@ -352,34 +278,8 @@
         </div>
 
         <!-- Выбор героя (режим supplement) -->
-        <div v-if="mode === 'supplement'" class="submit__block">
-          <div v-if="targetHeroId" class="submit__selected-hero">
-            <span class="submit__selected-label">Выбранный герой:</span>
-            <strong>{{ targetHeroName || targetHeroId }}</strong>
-            <button type="button" class="submit__clear-hero" @click="clearHero">изменить</button>
-          </div>
-
-          <div v-else>
-            <label class="afield">
-              <span class="afield__label">Найдите героя по ФИО *</span>
-              <InputText v-model="heroSearch" placeholder="Иванов Иван Иванович" class="w-full" />
-            </label>
-
-            <div v-if="showHeroPicker && heroResults.length" class="submit__hero-results">
-              <button v-for="h in heroResults" :key="h.id" type="button" class="submit__hero-result"
-                @click="selectHero(h)">
-                <span class="submit__hero-name">{{ h.lastName }} {{ h.firstName }} {{ h.middleName }}</span>
-                <span class="submit__hero-dates">
-                  {{ formatFlexibleYear(h.birthDateInfo, h.birthDate) }} —
-                  {{ formatFlexibleYear(h.deathDateInfo, h.deathDate) }}
-                </span>
-              </button>
-            </div>
-            <p v-else-if="showHeroPicker && !heroResults.length && !searching" class="submit__no-results">
-              Никого не нашли. Уточните написание или выберите «Добавить нового героя».
-            </p>
-          </div>
-        </div>
+        <HeroSearchPicker v-if="mode === 'supplement'" v-model:hero-id="targetHeroId"
+          v-model:hero-name="targetHeroName" />
 
         <!-- Данные нового героя (режим new) -->
         <div v-if="mode === 'new'" class="submit__block">
@@ -426,24 +326,7 @@
         <div class="afield">
           <span class="afield__label">Документы и фотографии</span>
 
-          <input ref="fileInput" type="file" multiple class="submit__file-input" :disabled="uploading"
-            @change="onFiles" />
-
-          <Button outlined severity="secondary" :loading="uploading" @click="fileInput?.click()">
-            <AttachmentIcon />
-            <span v-if="uploading">Загружаем…</span>
-            <span v-else>Прикрепить файлы</span>
-          </Button>
-
-          <ul v-if="attachments.length" class="submit__attachment-list">
-            <li v-for="(a, i) in attachments" :key="a.url" class="submit__attachment">
-              <FileOutlineIcon />
-              <span class="submit__attachment-name">{{ a.name }}</span>
-
-              <button type="button" class="submit__attachment-remove" aria-label="Удалить"
-                @click="removeAttachment(i)">×</button>
-            </li>
-          </ul>
+          <AttachmentUpload v-model:attachments="attachments" />
         </div>
 
         <!-- Контакты отправителя -->
