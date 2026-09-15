@@ -13,6 +13,10 @@
     import { LocationType } from '~/sdk/emh/v1/enums_emh_pb'
     import type { LocationJson } from '~/sdk/emh/v1/location_pb'
     import { LocationSchema } from '~/sdk/emh/v1/location_pb'
+    import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em'
+    import LocationIcon from '~icons/carbon/location?width=1.25em&height=1.25em'
+    import TrashCanIcon from '~icons/carbon/trash-can?width=1.25em&height=1.25em'
+    import TreeViewIcon from '~icons/carbon/tree-view?width=1.25em&height=1.25em'
 
     definePageMeta({ layout: 'admin', middleware: 'admin' })
     useHead({ title: 'Локации — Вечная память героям' })
@@ -274,6 +278,7 @@
                 acceptClass: 'p-button-danger',
                 accept: () => openReparent(loc, true),
             })
+
             return
         }
         confirm.require({
@@ -307,8 +312,13 @@
         <template #content>
             <div class="apanel__toolbar">
                 <InputText v-model="searchQuery" placeholder="Поиск по названию…" />
+
                 <Select v-model="typeFilter" :options="TYPE_OPTIONS" option-label="label" option-value="value" />
-                <Button label="Добавить локацию" icon="pi pi-plus" @click="openCreate" />
+
+                <Button @click="openCreate">
+                    <LocationIcon />
+                    <span>Добавить локацию</span>
+                </Button>
             </div>
 
             <!-- Создание / редактирование -->
@@ -382,9 +392,10 @@
     <DataTable :value="locations" :loading="loading" striped-rows class="atable mt-4">
         <Column field="name" header="Название">
             <template #body="{ data }">
-                {{ data.name }}
-                <i v-if="hasChildren(data.id)" class="pi pi-sitemap text-muted" title="Есть дочерние локации"
-                    style="font-size:.7rem;margin-left:.35rem" />
+                <div class="location__text-img">
+                    {{ data.name }}
+                    <TreeViewIcon v-if="hasChildren(data.id)" class="ml-1 text-muted location__icon" />
+                </div>
             </template>
         </Column>
 
@@ -415,10 +426,18 @@
 
         <Column header="" style="width: 180px">
             <template #body="{ data }">
-                <Button icon="pi pi-pencil" text severity="secondary" title="Редактировать" @click="openEdit(data)" />
-                <Button v-if="hasChildren(data.id)" icon="pi pi-sitemap" text severity="secondary"
-                    title="Перепривязать дочерние" @click="openReparent(data)" />
-                <Button icon="pi pi-trash" text severity="danger" title="Удалить" @click="remove(data)" />
+                <Button text severity="secondary" title="Редактировать" @click="openEdit(data)">
+                    <EditIcon />
+                </Button>
+
+                <Button v-if="hasChildren(data.id)" text severity="secondary" title="Перепривязать дочерние"
+                    @click="openReparent(data)">
+                    <TreeViewIcon />
+                </Button>
+
+                <Button text severity="danger" title="Удалить" @click="remove(data)">
+                    <TrashCanIcon />
+                </Button>
             </template>
         </Column>
 
@@ -427,3 +446,14 @@
         </template>
     </DataTable>
 </template>
+
+<style scoped>
+    .location__text-img {
+        display: flex;
+        align-items: center;
+    }
+
+    .location__icon {
+        font-size: .8rem
+    }
+</style>

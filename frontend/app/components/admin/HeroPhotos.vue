@@ -4,6 +4,9 @@
   import { useHeroPhotos } from '~/composables/useHeroPhotos'
   import type { FaceBoxJson, PhotoJson } from '~/sdk/emh/v1/hero_pb'
   import { UploadType } from '~/sdk/emh/v1/media_pb'
+  import AccountIcon from '~icons/mdi/account?width=1.5em&height=1.5em'
+  import StarOutlineIcon from '~icons/mdi/star-outline?width=1.5em&height=1.5em'
+  import StarIcon from '~icons/mdi/star?width=1.5em&height=1.5em'
 
   const props = defineProps<{ heroId: string }>()
   const emit = defineEmits<{ changed: [] }>()
@@ -274,14 +277,16 @@
     <div v-if="photos.length" class="ph-grid">
       <figure v-for="(p, i) in photos" :key="p.id" class="ph" :class="{ 'is-selected': selected.includes(p.id!) }">
         <div class="ph__top-actions">
-          <button type="button" class="ph__icon-btn" :class="{ 'is-active': p.isMain }" :disabled="settingMain !== null"
+          <Button class="ph__icon-btn" :class="{ 'is-active': p.isMain }" :disabled="settingMain !== null"
             v-tooltip.bottom="p.isMain ? 'Это главное фото' : 'Сделать главным'" @click="setMain(p.id!)">
-            <i :class="p.isMain ? 'pi pi-star-fill' : 'pi pi-star'" />
-          </button>
+            <StarIcon v-if="p.isMain" />
+            <StarOutlineIcon v-else />
+          </Button>
 
-          <Button icon="pi pi-arrow-up-right-and-arrow-down-left-from-center" size="small" severity="secondary"
-            aria-label="Выделить лицо (face box)" v-tooltip.bottom="'Выделить лицо (face box)'"
-            @click="openEditFaceBox(p)" />
+          <Button size="small" severity="secondary" aria-label="Выделить лицо (face box)"
+            v-tooltip.bottom="'Выделить лицо (face box)'" @click="openEditFaceBox(p)">
+            <AccountIcon />
+          </Button>
         </div>
 
         <label class="ph__check">
@@ -393,6 +398,7 @@
 
   .ph__icon-btn {
     background: rgba(255, 255, 255, 0.85);
+    color: rgba(0, 0, 0, 0.6);
     border: 1px solid var(--emh-line);
     border-radius: 4px;
     padding: 4px 6px;

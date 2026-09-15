@@ -1,4 +1,11 @@
 <script setup lang="ts">
+  import AccountPlusOutlineIcon from '~icons/mdi/account-plus-outline?width=1.25em&height=1.25em';
+  import BookOpenBlankVariantOutlineIcon from '~icons/mdi/book-open-blank-variant-outline?width=1.25em&height=1.25em';
+  import EnvelopeOutlineIcon from '~icons/mdi/envelope-outline?width=1.25em&height=1.25em';
+  import HamburgerMenuIcon from '~icons/mdi/hamburger-menu?width=2em&height=2em';
+  import InformationSlabCircleOutlineIcon from '~icons/mdi/information-slab-circle-outline?width=1.25em&height=1.25em';
+  import ShieldAccountOutlineIcon from '~icons/mdi/shield-account-outline?width=1.25em&height=1.25em';
+
   const route = useRoute();
 
   const { data: conflicts } = await useConflictsCatalog();
@@ -30,26 +37,13 @@
         <img src="/logo_v5_full_gor_rwb.svg" alt="logo" class="shell_logo" fetchpriority="high">
       </NuxtLink>
 
-      <!-- Десктоп: счётчики и навигация -->
-      <div class="site-header__status site-header__status--desktop">
-        <div>
-          <span class="site-header__name">имён в реестре: </span>
-          <Badge :value="total ?? 0"></Badge>
-        </div>
-
-        <div>
-          <span class="site-header__name">конфликтов: </span>
-          <Badge :value="conflicts?.length ?? 0"></Badge>
-        </div>
-      </div>
-
       <nav class="site-header__nav site-header__nav--desktop">
         <NuxtLink to="/">Книга памяти</NuxtLink>
 
         <NuxtLink to="/about">О проекте</NuxtLink>
 
         <NuxtLink to="/submit" class="site-header__submit">
-          <i class="pi pi-user-plus" />
+          <AccountPlusOutlineIcon />
           Сообщить о герое
         </NuxtLink>
 
@@ -59,9 +53,9 @@
       </nav>
 
       <!-- Мобилка: бургер -->
-      <button class="site-header__burger" type="button" aria-label="Открыть меню" @click="drawerVisible = true">
-        <i class="pi pi-bars" />
-      </button>
+      <Button class="site-header__burger" aria-label="Открыть меню" @click="drawerVisible = true">
+        <HamburgerMenuIcon />
+      </Button>
     </header>
 
     <!-- Мобильное меню (Drawer) -->
@@ -80,27 +74,27 @@
 
       <nav class="site-drawer__nav">
         <NuxtLink to="/" class="site-drawer__link" @click="closeDrawer">
-          <i class="pi pi-book" />
+          <BookOpenBlankVariantOutlineIcon />
           Книга памяти
         </NuxtLink>
 
-        <NuxtLink to="/about" class="site-drawer__link" @click="closeDrawer">
-          <i class="pi pi-info-circle" />
-          О проекте
-        </NuxtLink>
-
         <NuxtLink to="/submit" class="site-drawer__link" @click="closeDrawer">
-          <i class="pi pi-user-plus" />
+          <AccountPlusOutlineIcon />
           Сообщить о герое
         </NuxtLink>
 
+        <NuxtLink to="/about" class="site-drawer__link" @click="closeDrawer">
+          <InformationSlabCircleOutlineIcon />
+          О проекте
+        </NuxtLink>
+
         <NuxtLink to="/contacts" class="site-drawer__link" @click="closeDrawer">
-          <i class="pi pi-envelope" />
+          <EnvelopeOutlineIcon />
           Контакты
         </NuxtLink>
 
         <NuxtLink to="/admin" class="site-drawer__link" @click="closeDrawer">
-          <i class="pi pi-lock" />
+          <ShieldAccountOutlineIcon />
           Служебный вход
         </NuxtLink>
       </nav>
@@ -110,8 +104,26 @@
 
     <footer class="site-footer">
       <hr class="rule" />
-      <p class="site-footer__motto">Никто не забыт, ничто не забыто</p>
-      <p class="site-footer__years">Глобальные и локальные конфликты · Спецоперации</p>
+
+      <div class="site-footer__block">
+        <div>
+          <p class="site-footer__motto">Никто не забыт, ничто не забыто</p>
+          <p class="site-footer__years">Глобальные и локальные конфликты · Спецоперации</p>
+        </div>
+
+        <!-- Десктоп: счётчики и навигация -->
+        <div class="site-footer__status site-footer__status--desktop">
+          <div>
+            <span class="site-footer__name">имён в реестре: </span>
+            <Badge :value="total ?? 0"></Badge>
+          </div>
+
+          <div>
+            <span class="site-footer__name">конфликтов: </span>
+            <Badge :value="conflicts?.length ?? 0"></Badge>
+          </div>
+        </div>
+      </div>
     </footer>
   </div>
 
@@ -150,13 +162,16 @@
     color: var(--emh-ink);
   }
 
-  .site-header__status {
+  .site-footer__status {
     display: grid;
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: max-content;
     gap: 0.5rem;
+    justify-self: end;
+    justify-items: end;
+    align-content: end;
   }
 
-  .site-header__name {
+  .site-footer__name {
     font-family: var(--font-display);
     font-size: 0.92rem;
     font-weight: 700;
@@ -200,6 +215,12 @@
     background: var(--emh-bg);
     border-color: var(--emh-bronze);
     color: var(--emh-crimson);
+  }
+
+  .site-header__submit {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
   }
 
   /* ========================================================================= */
@@ -286,6 +307,11 @@
     color: var(--emh-bronze);
   }
 
+  .site-footer__block {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   /* ========================================================================= */
   /* Мобильная адаптация (< 768px)                                             */
   /* ========================================================================= */
@@ -297,7 +323,7 @@
     }
 
     /* Скрываем десктопные блоки */
-    .site-header__status--desktop,
+    .site-footer__status--desktop,
     .site-header__nav--desktop {
       display: none;
     }

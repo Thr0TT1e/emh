@@ -9,6 +9,9 @@
   import type { FlexibleDateJson } from "~/sdk/emh/v1/common_pb";
   import { HeroSummarySchema, type HeroSummaryJson } from "~/sdk/emh/v1/hero_pb";
   import { UploadType } from "~/sdk/emh/v1/media_pb";
+  import SendAltIcon from '~icons/carbon/send-alt?width=1.25em&height=1.25em';
+  import AttachmentIcon from '~icons/mdi/attachment?width=1.25em&height=1.25em';
+  import FileOutlineIcon from '~icons/mdi/file-outline?width=1.25em&height=1.25em';
 
   const { hero, submission, media } = useApi();
   const { trackSubmissionCreate } = useAnalytics();
@@ -422,14 +425,21 @@
         <!-- Вложения -->
         <div class="afield">
           <span class="afield__label">Документы и фотографии</span>
+
           <input ref="fileInput" type="file" multiple class="submit__file-input" :disabled="uploading"
             @change="onFiles" />
-          <Button outlined severity="secondary" icon="pi pi-paperclip"
-            :label="uploading ? 'Загружаем…' : 'Прикрепить файлы'" :loading="uploading" @click="fileInput?.click()" />
+
+          <Button outlined severity="secondary" :loading="uploading" @click="fileInput?.click()">
+            <AttachmentIcon />
+            <span v-if="uploading">Загружаем…</span>
+            <span v-else>Прикрепить файлы</span>
+          </Button>
+
           <ul v-if="attachments.length" class="submit__attachment-list">
             <li v-for="(a, i) in attachments" :key="a.url" class="submit__attachment">
-              <i class="pi pi-file" />
+              <FileOutlineIcon />
               <span class="submit__attachment-name">{{ a.name }}</span>
+
               <button type="button" class="submit__attachment-remove" aria-label="Удалить"
                 @click="removeAttachment(i)">×</button>
             </li>
@@ -448,7 +458,10 @@
         </div>
 
         <div class="submit__footer">
-          <Button type="submit" :loading="busy" label="Отправить заявку" icon="pi pi-send" />
+          <Button type="submit" :loading="busy">
+            <SendAltIcon />
+            <span>Отправить заявку</span>
+          </Button>
           <p class="submit__note">
             Заявка попадёт на модерацию. Публикуются только проверенные данные из достоверных источников.
           </p>

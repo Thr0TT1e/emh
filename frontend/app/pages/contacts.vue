@@ -1,5 +1,10 @@
 <script setup lang="ts">
   import { useAnalytics } from '~/composables/useAnalytics';
+  import ClockTimeThreeOutlineIcon from '~icons/mdi/clock-time-three-outline?width=1em&height=1em';
+  import CodeIcon from '~icons/mdi/code?width=1.25em&height=1.25em';
+  import EnvelopeOutlineIcon from '~icons/mdi/envelope-outline?width=1.25em&height=1.25em';
+  import ReloadIcon from '~icons/mdi/reload?width=1.25em&height=1.25em';
+  import SendAltIcon from '~icons/carbon/send-alt?width=1.25em&height=1.25em';
 
   const site = useSiteConfig();
   const canonical = `${site.url}/contacts`;
@@ -91,12 +96,12 @@
             </p>
 
             <a class="contacts-button" :href="mailtoHref">
-              <i class="pi pi-envelope" aria-hidden="true" />
+              <EnvelopeOutlineIcon aria-hidden="true" />
               {{ contact.email }}
             </a>
 
             <p class="contacts-card__note">
-              <i class="pi pi-clock" style="font-size: 0.85rem; margin-right: 0.3rem;" />
+              <ClockTimeThreeOutlineIcon class="mr-1" />
               Стараюсь отвечать в кратчайшие сроки.
             </p>
           </article>
@@ -111,7 +116,7 @@
             </p>
 
             <a class="contacts-button" :href="contact.codeberg" target="_blank" rel="noopener noreferrer">
-              <i class="pi pi-code" aria-hidden="true" />
+              <CodeIcon aria-hidden="true" />
               codeberg.org/Thr0TT1e/emh
             </a>
           </article>
@@ -166,6 +171,7 @@
           <p class="contacts-card__eyebrow">Обратная связь</p>
           <h2 class="contact-form-head__title">Написать сообщение</h2>
         </div>
+
         <p class="contact-form-head__text">
           Форма предназначена для сотрудничества, предложений по проекту и
           общих вопросов. Для дополнения книги памяти используйте
@@ -179,12 +185,18 @@
               <Message severity="success" :closable="false">
                 Сообщение отправлено. Спасибо за обращение.
               </Message>
+
               <p class="contact-form-success__text">
                 Если ваш вопрос требует ответа, он будет направлен на указанный
                 вами email. Телефон не используется.
               </p>
-              <Button label="Отправить ещё одно сообщение" icon="pi pi-refresh" outlined @click="reset" />
+
+              <Button outlined @click="reset">
+                <ReloadIcon />
+                <span>Отправить ещё одно сообщение</span>
+              </Button>
             </div>
+
             <form v-else novalidate @submit.prevent="submit">
               <!-- Honeypot: скрытое поле от простых ботов -->
               <div class="contact-form__hp" aria-hidden="true">
@@ -193,6 +205,7 @@
                   <input v-model="form.honeypot" type="text" tabindex="-1" autocomplete="off" maxlength="200" />
                 </label>
               </div>
+
               <div class="contact-form__grid">
                 <label class="contact-form__field">
                   <span class="contact-form__label">Имя *</span>
@@ -202,6 +215,7 @@
                     {{ errors.name }}
                   </small>
                 </label>
+
                 <label class="contact-form__field">
                   <span class="contact-form__label">Email *</span>
                   <InputText v-model="form.email" type="email" placeholder="you@example.ru" class="w-full"
@@ -210,26 +224,31 @@
                     {{ errors.email }}
                   </small>
                 </label>
+
                 <label class="contact-form__field contact-form__field--full">
                   <span class="contact-form__label">Тема обращения</span>
                   <Select v-model="form.subject" :options="subjectOptions" option-label="label" option-value="value"
                     placeholder="Выберите тему" class="w-full" />
                 </label>
+
                 <label class="contact-form__field contact-form__field--full">
                   <span class="contact-form__label">Сообщение *</span>
                   <Textarea v-model="form.message" rows="6" auto-resize
                     placeholder="Опишите вопрос, предложение или тему сотрудничества" class="w-full" maxlength="5000"
                     :invalid="Boolean(errors.message)" />
+
                   <div class="contact-form__meta">
                     <small v-if="errors.message" class="contact-form__error">
                       {{ errors.message }}
                     </small>
+
                     <small class="contact-form__counter">
                       {{ form.message.length }} / 5000
                     </small>
                   </div>
                 </label>
               </div>
+
               <div class="contact-form__consent">
                 <Checkbox inputId="contact-consent" v-model="form.consent" :binary="true"
                   :invalid="Boolean(errors.consent)" />
@@ -238,15 +257,22 @@
                   сообщения — для целей обратной связи. *
                 </label>
               </div>
+
               <small v-if="errors.consent" class="contact-form__error">
                 {{ errors.consent }}
               </small>
+
               <Message v-if="globalError" severity="error" :closable="false" class="contact-form__global-error">
                 {{ globalError }}
               </Message>
+
               <div class="contact-form__actions">
-                <Button type="submit" label="Отправить сообщение" icon="pi pi-send" :loading="status === 'submitting'"
-                  :disabled="status === 'submitting' || retryAfter > 0" />
+                <Button type="submit" :loading="status === 'submitting'"
+                  :disabled="status === 'submitting' || retryAfter > 0">
+                  <SendAltIcon />
+                  <span>Отправить сообщение</span>
+                </Button>
+
                 <p class="contact-form__note">
                   Ответ придёт на email. Телефон не используется.
                 </p>
@@ -262,10 +288,12 @@
                   <span class="contact-form__label">Имя *</span>
                   <div class="contact-form__skeleton" />
                 </div>
+
                 <div class="contact-form__field">
                   <span class="contact-form__label">Email *</span>
                   <div class="contact-form__skeleton" />
                 </div>
+
                 <div class="contact-form__field contact-form__field--full">
                   <span class="contact-form__label">Сообщение *</span>
                   <div class="contact-form__skeleton contact-form__skeleton--tall" />

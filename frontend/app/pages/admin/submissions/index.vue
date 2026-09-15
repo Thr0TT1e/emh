@@ -12,6 +12,16 @@
     import type { ExtractFromSubmissionResponseJson } from '~/sdk/emh/v1/extraction_pb'
     import type { SubmissionJson } from '~/sdk/emh/v1/submission_pb'
     import { SubmissionReviewDecision, SubmissionSchema } from '~/sdk/emh/v1/submission_pb'
+    import ChevronLeftIcon from '~icons/carbon/chevron-left?width=1.25em&height=1.25em'
+    import ChevronRightIcon from '~icons/carbon/chevron-right?width=1.25em&height=1.25em'
+    import CloseIcon from '~icons/carbon/close?width=1.25em&height=1.25em'
+    import CopyToClipboardIcon from '~icons/carbon/copy-to-clipboard?width=1.25em&height=1.25em'
+    import HistoryIcon from '~icons/carbon/history?width=1.25em&height=1.25em'
+    import RestartIcon from '~icons/carbon/restart?width=1em&height=1em'
+    import ThumbsUpIcon from '~icons/carbon/thumbs-up?width=1.25em&height=1.25em'
+    import AccountPlusOutlineIcon from '~icons/mdi/account-plus-outline?width=1.25em&height=1.25em'
+    import ExternalLinkIcon from '~icons/mdi/external-link?width=1.25em&height=1.25em'
+    import SparklesOutlineIcon from '~icons/mdi/sparkles-outline?width=1.25em&height=1.25em'
 
     definePageMeta({ layout: 'admin', middleware: 'admin' })
     useHead({ title: 'Модерация заявок — Вечная память героям' })
@@ -200,7 +210,9 @@
             <div class="apanel_toolbar">
                 <Select v-model="statusFilter" :options="STATUS_OPTIONS" option-label="label" option-value="value"
                     placeholder="Статус" class="w-50" />
-                <Button icon="pi pi-refresh" severity="secondary" text @click="load(currentCursor)" />
+                <Button severity="secondary" text @click="load(currentCursor)">
+                    <RestartIcon />
+                </Button>
             </div>
 
             <Dialog v-model:visible="reviewVisible" modal header="Заявка" style="width: 720px">
@@ -217,8 +229,10 @@
 
                         <div class="flex items-center gap-2">
                             <strong>Данные заявки (payload):</strong>
-                            <Button type="button" size="small" text icon="pi pi-copy" label="Копировать"
-                                @click="copyPayload" />
+                            <Button type="button" size="small" text @click="copyPayload">
+                                <CopyToClipboardIcon />
+                                <span>Копировать</span>
+                            </Button>
                         </div>
 
                         <div v-if="active.attachmentUrls?.length">
@@ -232,8 +246,12 @@
 
                         <!-- LLM-извлечение: только для заявок на нового героя (нет целевого героя) -->
                         <div v-if="!active.targetHeroId" class="flex flex-col gap-2">
-                            <Button icon="pi pi-sparkles" :label="extracting ? 'Извлекаем…' : 'Извлечь через LLM'"
-                                :loading="extracting" outlined @click="extractFromSubmission" />
+                            <Button :loading="extracting" outlined @click="extractFromSubmission">
+                                <SparklesOutlineIcon />
+                                <span v-if="extracting">Извлекаем…</span>
+                                <span v-else>Извлечь через LLM</span>
+                            </Button>
+
                             <AdminExtractionResultPreview v-if="extractionResult" :data="extractionResult" />
                         </div>
 
@@ -243,16 +261,26 @@
                 </template>
 
                 <template #footer>
-                    <Button v-if="extractionResult" label="Создать героя" icon="pi pi-user-plus" severity="success"
-                        @click="createHeroFromExtraction" />
+                    <Button v-if="extractionResult" severity="success" @click="createHeroFromExtraction">
+                        <AccountPlusOutlineIcon />
+                        <span>Создать героя</span>
+                    </Button>
 
                     <Button v-if="active?.targetHeroId" as="router-link" :to="`/admin/heroes/${active.targetHeroId}`"
-                        label="Открыть героя" outlined icon="pi pi-external-link" />
+                        outlined>
+                        <ExternalLinkIcon />
+                        <span>Открыть героя</span>
+                    </Button>
 
-                    <Button label="Отклонить" severity="danger" icon="pi pi-times" :loading="reviewing"
-                        @click="review(SubmissionReviewDecision.REJECT)" />
-                    <Button label="Одобрить" severity="success" icon="pi pi-check" :loading="reviewing"
-                        @click="review(SubmissionReviewDecision.APPROVE)" />
+                    <Button severity="danger" :loading="reviewing" @click="review(SubmissionReviewDecision.REJECT)">
+                        <CloseIcon />
+                        <span>Отклонить</span>
+                    </Button>
+
+                    <Button severity="success" :loading="reviewing" @click="review(SubmissionReviewDecision.APPROVE)">
+                        <ThumbsUpIcon />
+                        <span>Одобрить</span>
+                    </Button>
                 </template>
             </Dialog>
         </template>
@@ -310,8 +338,11 @@
             <template #body="{ data }">
                 <div class="flex gap-1">
                     <Button label="Рассмотреть" size="small" @click="openReview(data)" />
-                    <Button label="История" size="small" severity="secondary" outlined icon="pi pi-clock"
-                        @click="openHistory(data)" />
+
+                    <Button size="small" severity="secondary" outlined @click="openHistory(data)">
+                        <HistoryIcon />
+                        <span>История</span>
+                    </Button>
                 </div>
             </template>
         </Column>
@@ -322,10 +353,15 @@
     </DataTable>
 
     <footer class="mt-3 flex gap-3">
-        <Button outlined label="Назад" icon="pi pi-chevron-left" severity="secondary" :disabled="!hasPrev || loading"
-            @click="goPrev" />
-        <Button outlined label="Вперёд" icon="pi pi-chevron-right" icon-pos="right" severity="secondary"
-            :disabled="!nextCursor || loading" @click="goNext" />
+        <Button outlined severity="secondary" :disabled="!hasPrev || loading" @click="goPrev">
+            <ChevronLeftIcon />
+            <span>Назад</span>
+        </Button>
+
+        <Button outlined icon-pos="right" severity="secondary" :disabled="!nextCursor || loading" @click="goNext">
+            <ChevronRightIcon />
+            <span>Вперёд</span>
+        </Button>
     </footer>
 
     <AdminSubmissionReviewHistory v-if="historySubmissionId" v-model:visible="historyVisible"

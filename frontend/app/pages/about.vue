@@ -1,5 +1,8 @@
 <script setup lang="ts">
     import { defineBreadcrumb, defineOrganization, defineWebPage } from 'nuxt-schema-org/schema';
+    import AccountPlusOutlineIcon from '~icons/mdi/account-plus-outline?width=1.25em&height=1.25em';
+    import CodeIcon from '~icons/mdi/code?width=1.25em&height=1.25em';
+    import EnvelopeOutlineIcon from '~icons/mdi/envelope-outline?width=1.25em&height=1.25em';
 
     // SEO через nuxt-seo-utils: site.url и site.name читаем из runtimeConfig
     const site = useSiteConfig();
@@ -225,21 +228,21 @@
                     <ul class="about-links">
                         <li>
                             <NuxtLink to="/submit">
-                                <i class="pi pi-user-plus" aria-hidden="true" />
+                                <AccountPlusOutlineIcon />
                                 Сообщить о герое
                             </NuxtLink>
                         </li>
 
                         <li>
                             <NuxtLink to="/contacts">
-                                <i class="pi pi-envelope" aria-hidden="true" />
+                                <EnvelopeOutlineIcon />
                                 Дополнить или исправить сведения
                             </NuxtLink>
                         </li>
 
                         <li>
                             <a href="https://codeberg.org/Thr0TT1e/emh" target="_blank" rel="noopener noreferrer">
-                                <i class="pi pi-code" aria-hidden="true" />
+                                <CodeIcon />
                                 Открытый код проекта
                             </a>
                         </li>

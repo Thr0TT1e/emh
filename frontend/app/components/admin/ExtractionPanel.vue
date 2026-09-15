@@ -2,6 +2,9 @@
     import { useToast } from 'primevue/usetoast';
     import { isPermissionDenied, isRateLimited } from '~/lib/errors';
     import type { ExtractHeroDataResponseJson } from '~/sdk/emh/v1/extraction_pb';
+    import CheckIcon from '~icons/mdi/check?width=1em&height=1em';
+    import LinkIcon from '~icons/mdi/link?width=1em&height=1em';
+    import SparklesOutlineIcon from '~icons/mdi/sparkles-outline?width=1em&height=1em';
 
     const emit = defineEmits<{
         apply: [data: ExtractHeroDataResponseJson];
@@ -113,7 +116,7 @@
     <Card class="extraction-panel">
         <template #title>
             <div class="extraction-panel__header">
-                <i class="pi pi-sparkles" />
+                <SparklesOutlineIcon />
                 <span>Извлечение данных через LLM</span>
             </div>
         </template>
@@ -175,7 +178,7 @@
                 <div v-if="result && (result.conflicts?.length || result.awards?.length || result.locations?.length)"
                     class="extraction-panel__links-info">
                     <p class="extraction-panel__links-hint">
-                        <i class="pi pi-link" /> После создания героя будут автоматически привязаны:
+                        <LinkIcon /> После создания героя будут автоматически привязаны:
                         <template v-if="result.conflicts?.length">конфликты ({{ result.conflicts.length }})</template>
                         <template v-if="result.awards?.length"> · награды ({{ result.awards.length }})</template>
                         <template v-if="result.locations?.length"> · локации ({{ result.locations.length }})</template>
@@ -184,7 +187,11 @@
 
                 <!-- Кнопка применения -->
                 <div class="extraction-panel__apply">
-                    <Button label="Применить к форме" icon="pi pi-check" @click="applyToForm" />
+                    <Button label="Применить к форме" @click="applyToForm">
+                        <template #icon>
+                            <CheckIcon />
+                        </template>
+                    </Button>
                     <Button outlined label="Отмена" @click="showResult = false" />
                 </div>
             </div>

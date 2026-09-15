@@ -18,7 +18,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -40,7 +40,6 @@
     "nuxt-schema-org": "^6.3.1",
     "nuxt-seo-utils": "^8.5.0",
     "ol": "^10.10.0",
-    "primeicons": "^8.0.1",
     "primevue": "4.5.5",
     "tailwindcss": "^4.3.3",
     "tailwindcss-primeui": "^0.6.1",
@@ -51,6 +50,8 @@
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-es": "^2.15.0",
+    "@iconify-json/carbon": "^1.2.27",
+    "@iconify-json/mdi": "^1.2.3",
     "@nuxt/fonts": "^0.14.0",
     "@nuxtjs/color-mode": "^4.0.1",
     "@nuxtjs/html-validator": "^2.1.0",
@@ -60,7 +61,9 @@
     "eslint-plugin-vuejs-accessibility": "^2.6.0",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.82.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "unplugin-icons": "^24.0.0",
+    "unplugin-vue-components": "^32.1.0"
   },
   "browserslist": [
     "> 0.5%",

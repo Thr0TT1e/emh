@@ -5,6 +5,8 @@
   import type { PublicationStatusJson } from "~/sdk/emh/v1/enums_emh_pb";
   import type { HeroDetailJson } from "~/sdk/emh/v1/hero_pb";
   import { HeroDetailSchema } from "~/sdk/emh/v1/hero_pb";
+  import RestartIcon from '~icons/carbon/restart?width=1em&height=1em';
+  import ExternalLinkIcon from '~icons/mdi/external-link?width=1.25em&height=1.25em';
 
   definePageMeta({ layout: "admin", middleware: "admin" });
 
@@ -75,7 +77,11 @@
       <Message severity="error" :closable="false">
         {{ error.message || "Не удалось загрузить карточку героя" }}
       </Message>
-      <Button icon="pi pi-refresh" label="Повторить" class="mt-3" @click="refresh()" />
+
+      <Button class="mt-3" @click="refresh()">
+        <RestartIcon />
+        <span>Повторить</span>
+      </Button>
     </template>
   </Card>
 
@@ -96,6 +102,7 @@
           <div class="flex items-center gap-4">
             <Image v-if="data.summary.mainThumbnailUrl" :src="data.summary.mainThumbnailUrl" :alt="fullBio"
               class="h-20 w-16 border object-cover grayscale-60" style="border-color: var(--emh-bronze)" />
+
             <Avatar v-else :label="initials" shape="circle" size="large" />
 
             <div class="flex flex-col gap-1">
@@ -114,7 +121,10 @@
             </div>
           </div>
 
-          <Button as="router-link" :to="`/heroes/${id}`" outlined icon="pi pi-external-link" label="Открыть на сайте" />
+          <Button as="router-link" :to="`/heroes/${id}`" outlined>
+            <ExternalLinkIcon />
+            <span>Открыть на сайте</span>
+          </Button>
         </div>
       </template>
     </Card>

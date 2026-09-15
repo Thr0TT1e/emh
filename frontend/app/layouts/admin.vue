@@ -10,8 +10,9 @@
    * Содержимое панели вынесено в AdminSidebarContent.vue, чтобы не дублировать
    * разметку между <aside> и Drawer.
    */
-  import AdminSidebarContent from '~/components/admin/AdminSidebarContent.vue'
-  import { PublicationStatus } from '~/sdk/emh/v1/enums_emh_pb'
+  import AdminSidebarContent from '~/components/admin/AdminSidebarContent.vue';
+  import { PublicationStatus } from '~/sdk/emh/v1/enums_emh_pb';
+  import HamburgerMenuIcon from '~icons/mdi/hamburger-menu?width=2em&height=2em';
 
   const { submissionAdmin } = useApi()
 
@@ -86,8 +87,10 @@
     <!-- ================================================================== -->
     <main class="admin-main">
       <header class="admin-header">
-        <Button icon="pi pi-bars" text severity="secondary" class="admin-header__burger" aria-label="Меню"
-          @click="drawerVisible = true" />
+        <Button severity="secondary" class="admin-header__burger" aria-label="Меню" @click="drawerVisible = true">
+          <HamburgerMenuIcon />
+        </Button>
+
         <h1 class="admin-header__title">Панель управления</h1>
       </header>
 

@@ -3,6 +3,8 @@
     import "vue-advanced-cropper/dist/style.css";
     import "vue-advanced-cropper/dist/theme.classic.css";
     import type { FaceBoxJson } from "~/sdk/emh/v1/hero_pb";
+    import AccountCancelIcon from '~icons/mdi/account-cancel?width=1.5em&height=1.5em';
+    import CheckIcon from '~icons/mdi/check?width=1.25em&height=1.25em';
 
     const props = withDefaults(
         defineProps<{
@@ -122,8 +124,10 @@
                         <span>w {{ coords.width }}</span>
                         <span>h {{ coords.height }}</span>
                     </div>
-                    <Button outlined severity="secondary" label="Сбросить выделение" icon="pi pi-refresh" size="small"
-                        @click="resetSelection" />
+                    <Button outlined severity="secondary" size="small" @click="resetSelection">
+                        <AccountCancelIcon />
+                        <span>Сбросить выделение</span>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -131,7 +135,10 @@
         <template #footer>
             <Button v-if="allowCancel" label="Отмена" outlined severity="secondary" @click="cancel" />
             <Button :label="skipLabel" outlined severity="secondary" @click="skip" />
-            <Button label="Сохранить" icon="pi pi-check" @click="save" />
+            <Button @click="save">
+                <CheckIcon />
+                <span>Сохранить</span>
+            </Button>
         </template>
     </Dialog>
 </template>

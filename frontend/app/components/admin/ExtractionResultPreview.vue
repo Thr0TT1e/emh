@@ -3,6 +3,7 @@
     ExtractFromSubmissionResponseJson,
     ExtractHeroDataResponseJson,
   } from '~/sdk/emh/v1/extraction_pb';
+  import LinkIcon from '~icons/mdi/link?width=1em&height=1em';
 
   type ExtractionData = ExtractHeroDataResponseJson | ExtractFromSubmissionResponseJson;
 
@@ -74,7 +75,7 @@
     <!-- Подсказка об авто-привязке связей -->
     <p v-if="data.conflicts?.length || data.awards?.length || data.locations?.length"
       class="extraction-preview__links-hint">
-      <i class="pi pi-link" /> После создания героя будут автоматически привязаны:
+      <LinkIcon /> После создания героя будут автоматически привязаны:
       <template v-if="data.conflicts?.length">конфликты ({{ data.conflicts.length }})</template>
       <template v-if="data.awards?.length"> · награды ({{ data.awards.length }})</template>
       <template v-if="data.locations?.length"> · локации ({{ data.locations.length }})</template>

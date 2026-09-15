@@ -3,6 +3,8 @@
   import { formatFlexibleYear } from "~/lib/format";
   import { toPlain } from "~/lib/pb";
   import { HeroSummarySchema, type HeroSummaryJson } from "~/sdk/emh/v1/hero_pb";
+  import AccountTieHatOutlineIcon from '~icons/mdi/account-tie-hat-outline?width=1.25em&height=1.25em';
+  import ChevronDownIcon from '~icons/mdi/chevron-down?width=1.25em&height=1.25em';
 
   const { trackSearch } = useAnalytics();
   const { hero } = useApi();
@@ -169,7 +171,7 @@
               <Image class="hero-card__photo-img" v-if="h.mainThumbnailUrl" :src="h.mainThumbnailUrl" :alt="fullName(h)"
                 loading="lazy" />
               <span v-else class="hero-card__photo-empty">
-                <i class="pi pi-user" />
+                <AccountTieHatOutlineIcon />
               </span>
             </div>
 
@@ -204,7 +206,10 @@
         </p>
 
         <div v-if="hasMore && !loading" class="registry__more-wrap">
-          <Button outlined label="Показать ещё" icon="pi pi-chevron-down" @click="fetchPage(true)" />
+          <Button outlined @click="fetchPage(true)">
+            <ChevronDownIcon />
+            <span>Показать ещё</span>
+          </Button>
         </div>
       </div>
     </section>

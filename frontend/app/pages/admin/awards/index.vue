@@ -12,6 +12,10 @@
     import type { AwardJson } from '~/sdk/emh/v1/award_pb'
     import { AwardSchema } from '~/sdk/emh/v1/award_pb'
     import { UploadType } from '~/sdk/emh/v1/media_pb'
+    import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em'
+    import ImageIcon from '~icons/carbon/image?width=1.25em&height=1.25em'
+    import TrashCanIcon from '~icons/carbon/trash-can?width=1.25em&height=1.25em'
+    import MedalOutlineIcon from '~icons/mdi/medal-outline?width=1.25em&height=1.25em'
 
     definePageMeta({ layout: 'admin', middleware: 'admin' })
     useHead({ title: 'Награды — Вечная память героям' })
@@ -175,7 +179,10 @@
         <template #content>
             <div class="award_general">
                 <InputText v-model="searchQuery" placeholder="Поиск по названию…" />
-                <Button label="Добавить награду" icon="pi pi-plus" @click="openCreate" />
+                <Button @click="openCreate">
+                    <MedalOutlineIcon />
+                    <span>Добавить награду</span>
+                </Button>
             </div>
 
             <!-- Создание / редактирование -->
@@ -220,7 +227,9 @@
         <Column header="Изображение" style="width: 90px">
             <template #body="{ data }">
                 <img v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" class="award-thumb" />
-                <span v-else class="award-thumb award-thumb--empty"><i class="pi pi-image" /></span>
+                <span v-else class="award-thumb award-thumb--empty">
+                    <ImageIcon />
+                </span>
             </template>
         </Column>
 
@@ -238,8 +247,13 @@
 
         <Column header="" style="width: 150px">
             <template #body="{ data }">
-                <Button icon="pi pi-pencil" text severity="secondary" title="Редактировать" @click="openEdit(data)" />
-                <Button icon="pi pi-trash" text severity="danger" title="Удалить" @click="remove(data)" />
+                <Button text severity="secondary" title="Редактировать" @click="openEdit(data)">
+                    <EditIcon />
+                </Button>
+
+                <Button text severity="danger" title="Удалить" @click="remove(data)">
+                    <TrashCanIcon />
+                </Button>
             </template>
         </Column>
 

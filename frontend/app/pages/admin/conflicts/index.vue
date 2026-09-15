@@ -9,6 +9,10 @@
     import { ConflictSchema } from '~/sdk/emh/v1/conflict_pb'
     import type { ConflictTypeJson } from '~/sdk/emh/v1/enums_emh_pb'
     import { ConflictType } from '~/sdk/emh/v1/enums_emh_pb'
+    import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em'
+    import TrashCanIcon from '~icons/carbon/trash-can?width=1.25em&height=1.25em'
+    import TreeViewIcon from '~icons/carbon/tree-view?width=1.25em&height=1.25em'
+    import GunIcon from '~icons/mdi/gun?width=1.25em&height=1.25em'
 
     definePageMeta({ layout: 'admin', middleware: 'admin' })
     useHead({ title: 'Конфликты — Вечная память героям' })
@@ -266,12 +270,19 @@
 <template>
     <Card>
         <template #title>Справочник конфликтов</template>
+
         <template #content>
             <div class="apanel__toolbar">
                 <InputText v-model="searchQuery" placeholder="Поиск по названию…" />
+
                 <Select v-model="typeFilter" :options="TYPE_OPTIONS" option-label="label" option-value="value" />
-                <Button label="Добавить конфликт" icon="pi pi-plus" @click="openCreate" />
+
+                <Button @click="openCreate">
+                    <GunIcon />
+                    <span>Добавить конфликт</span>
+                </Button>
             </div>
+
             <!-- Создание / редактирование -->
             <Dialog v-model:visible="dialogVisible" modal
                 :header="editingId ? 'Редактирование конфликта' : 'Новый конфликт'" style="width: 680px">
@@ -281,65 +292,94 @@
                         <InputText v-model="form.name" class="w-full"
                             placeholder="Например: Великая Отечественная война" />
                     </label>
+
                     <label>
                         <span class="afield__label">Тип *</span>
                         <Select v-model="form.type" :options="TYPE_OPTIONS.slice(1)" option-label="label"
                             option-value="value" class="w-full" />
                     </label>
+
                     <!-- Гибкая дата начала (обязательна) -->
                     <AdminFlexibleDateInput v-model="form.startDateInfo" label="Дата начала *" />
+
                     <!-- Гибкая дата окончания (пусто = продолжается) -->
                     <AdminFlexibleDateInput v-model="form.endDateInfo" label="Дата окончания (пусто = продолжается)" />
+
                     <label>
                         <span class="afield__label">Родительский конфликт (операция внутри войны)</span>
                         <Select v-model="form.parentConflictId" :options="parentOptions" option-label="label"
                             option-value="value" filter show-clear class="w-full" />
                     </label>
+
                     <label>
                         <span class="afield__label">Историческое описание</span>
                         <Textarea v-model="form.description" rows="4" class="w-full" />
                     </label>
                 </div>
+
                 <template #footer>
                     <Button label="Отмена" outlined severity="secondary" @click="dialogVisible = false" />
+
                     <Button :label="editingId ? 'Сохранить' : 'Создать'" :loading="busy" @click="save" />
                 </template>
             </Dialog>
         </template>
     </Card>
+
     <DataTable :value="visibleConflicts" :loading="loading" striped-rows class="atable mt-4"
         table-style="min-width: 50rem">
         <Column field="name" header="Название">
             <template #body="{ data }">
-                {{ data.name }}
-                <i v-if="hasChildren(data.id)" class="pi pi-sitemap text-muted" title="Есть дочерние операции"
-                    style="font-size:.7rem;margin-left:.35rem" />
+                <div class="location__text-img">
+                    {{ data.name }}
+                    <TreeViewIcon v-if="hasChildren(data.id)" class="ml-1 text-muted location__icon" />
+                </div>
             </template>
         </Column>
+
         <Column header="Тип">
             <template #body="{ data }">
                 <Tag :value="typeLabel(data.type)"
                     :severity="TYPE_SEVERITY[data.type as ConflictTypeJson] ?? 'secondary'" />
             </template>
         </Column>
+
         <Column header="Период">
             <template #body="{ data }">
                 {{ periodLabel(data) }}
             </template>
         </Column>
+
         <Column header="Родитель">
             <template #body="{ data }">
                 {{ parentName(data.parentConflictId) }}
             </template>
         </Column>
+
         <Column header="" style="width: 150px">
             <template #body="{ data }">
-                <Button icon="pi pi-pencil" text severity="secondary" title="Редактировать" @click="openEdit(data)" />
-                <Button icon="pi pi-trash" text severity="danger" title="Удалить" @click="remove(data)" />
+                <Button text severity="secondary" title="Редактировать" @click="openEdit(data)">
+                    <EditIcon />
+                </Button>
+                <Button text severity="danger" title="Удалить" @click="remove(data)">
+                    <TrashCanIcon />
+                </Button>
             </template>
         </Column>
+
         <template #empty>
             <div class="p-4 text-center">Конфликтов не найдено</div>
         </template>
     </DataTable>
 </template>
+
+<style scoped>
+    .location__text-img {
+        display: flex;
+        align-items: center;
+    }
+
+    .location__icon {
+        font-size: .8rem
+    }
+</style>

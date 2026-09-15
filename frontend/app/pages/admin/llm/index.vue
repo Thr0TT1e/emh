@@ -6,6 +6,9 @@
     import { toPlain } from '~/lib/pb';
     import type { LlmProviderInfoJson } from '~/sdk/emh/v1/llm_admin_pb';
     import { ListLlmProvidersResponseSchema } from '~/sdk/emh/v1/llm_admin_pb';
+    import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em';
+    import PlayIcon from '~icons/carbon/play?width=1.25em&height=1.25em';
+    import RestartIcon from '~icons/carbon/restart?width=1em&height=1em';
 
     definePageMeta({ layout: 'admin', middleware: 'admin' });
     useHead({ title: 'LLM-провайдеры — канцелярия' });
@@ -147,9 +150,14 @@
 <template>
     <Card class="mb-4">
         <template #title>LLM-провайдеры</template>
+
         <template #subtitle>Управление провайдерами для извлечения данных: активация, приоритет, тестирование</template>
+
         <template #content>
-            <Button icon="pi pi-refresh" severity="secondary" text label="Обновить" @click="load" />
+            <Button severity="secondary" text @click="load">
+                <RestartIcon />
+                <span>Обновить</span>
+            </Button>
         </template>
     </Card>
 
@@ -162,30 +170,44 @@
                 </div>
             </template>
         </Column>
+
         <Column field="type" header="Тип" />
+
         <Column field="model" header="Модель" />
+
         <Column header="Приоритет" style="width: 100px">
             <template #body="{ data }">{{ data.priority }}</template>
         </Column>
+
         <Column header="Заметки">
             <template #body="{ data }">
                 <span v-if="data.notes">{{ data.notes }}</span>
                 <span v-else class="text-muted">—</span>
             </template>
         </Column>
+
         <Column header="Обновлён" style="width: 140px">
             <template #body="{ data }">{{ formatDate(data.updatedAt) }}</template>
         </Column>
+
         <Column header="" style="width: 280px">
             <template #body="{ data }">
                 <div class="flex justify-end gap-1 whitespace-nowrap">
                     <Button v-if="!data.isActive" size="small" severity="success" outlined label="Активировать"
                         @click="activateProvider(data)" />
-                    <Button size="small" outlined icon="pi pi-play" label="Тест" @click="openTest(data)" />
-                    <Button size="small" text icon="pi pi-pencil" label="Изменить" @click="openEdit(data)" />
+
+                    <Button size="small" outlined @click="openTest(data)">
+                        <PlayIcon />
+                        <span>Тест</span>
+                    </Button>
+
+                    <Button size="small" text @click="openEdit(data)">
+                        <EditIcon />
+                    </Button>
                 </div>
             </template>
         </Column>
+
         <template #empty>
             <div class="p-4 text-center">Провайдеры не настроены</div>
         </template>
@@ -199,8 +221,11 @@
                 <Textarea v-model="testPrompt" rows="3" class="w-full"
                     placeholder="Введите запрос для проверки модели…" />
             </label>
-            <Button :loading="testing" :disabled="!testPrompt.trim()" icon="pi pi-play"
-                :label="testing ? 'Отправляем…' : 'Запустить тест'" @click="runTest" />
+            <Button :loading="testing" :disabled="!testPrompt.trim()" @click="runTest">
+                <PlayIcon />
+                <span v-if="testing">Отправляем…</span>
+                <span v-else>Запустить тест</span>
+            </Button>
 
             <template v-if="testResult">
                 <Message v-if="testResult.success" severity="success" :closable="false">

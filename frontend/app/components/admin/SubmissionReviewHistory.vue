@@ -8,6 +8,8 @@
     import { toPlain } from '~/lib/pb';
     import type { SubmissionReviewJson } from '~/sdk/emh/v1/submission_pb';
     import { SubmissionReviewSchema } from '~/sdk/emh/v1/submission_pb';
+    import CheckmarkOutlineIcon from '~icons/carbon/checkmark-outline?width=1em&height=1em';
+    import CloseOutlineIcon from '~icons/carbon/close-outline?width=1.25em&height=1.25em';
 
     const props = defineProps<{ submissionId: string }>();
     const visible = defineModel<boolean>('visible', { default: false });
@@ -49,21 +51,26 @@
         <div v-if="loading" class="flex justify-center py-6">
             <ProgressSpinner style="width: 36px; height: 36px" />
         </div>
+
         <div v-else-if="reviews.length === 0" class="p-4 text-center text-muted">
             Заявка ещё не рассматривалась
         </div>
+
         <Timeline v-else :value="reviews" layout="vertical">
             <template #marker="slotProps">
-                <i class="pi" :class="slotProps.item.decision === 'SUBMISSION_REVIEW_DECISION_APPROVE'
-                    ? 'pi-check-circle text-green-600'
-                    : 'pi-times-circle text-red-600'" style="font-size: 1.4rem" />
+                <CheckmarkOutlineIcon v-if="slotProps.item.decision === 'SUBMISSION_REVIEW_DECISION_APPROVE'"
+                    class="text-green-600" />
+                <CloseOutlineIcon v-else class="text-red-600" />
             </template>
+
             <template #content="slotProps">
                 <div class="review-item">
                     <div class="review-item__head">
                         <Tag :value="DECISION_META[slotProps.item.decision ?? '']?.label ?? slotProps.item.decision"
                             :severity="DECISION_META[slotProps.item.decision ?? '']?.severity ?? 'secondary'" />
+
                         <span class="review-item__reviewer">{{ slotProps.item.reviewerName }}</span>
+
                         <span class="review-item__date">{{ formatDate(slotProps.item.createdAt) }}</span>
                     </div>
                     <p v-if="slotProps.item.comment" class="review-item__comment">
@@ -72,6 +79,7 @@
                 </div>
             </template>
         </Timeline>
+
         <template #footer>
             <Button outlined label="Закрыть" @click="visible = false" />
         </template>

@@ -1,6 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import type { SitemapUrlInput } from '@nuxtjs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+// import { FileSystemHMRIconLoader } from 'unplugin-icons/loaders';
+// import IconsResolver from 'unplugin-icons/resolver';
+// import ViteComponents from 'unplugin-vue-components/vite';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-01',
@@ -23,6 +26,14 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     // Dark/Light mode
     '@nuxtjs/color-mode',
+    [
+      'unplugin-icons/nuxt',
+      {
+        // customCollections: {
+        //   ...FileSystemHMRIconLoader('app/custom-a', 'custom'),
+        // },
+      },
+    ],
   ],
 
   css: ['~/assets/css/main.css'],
@@ -40,7 +51,19 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      // ViteComponents({
+      //   resolvers: [
+      //     IconsResolver({
+      //       prefix: '',
+      //       strict: true,
+      //       customCollections: ['custom'],
+      //     }),
+      //   ],
+      //   dts: true,
+      // }),
+    ],
     // LightningCSS для ускорения сборки
     css: {
       transformer: 'lightningcss',
@@ -75,6 +98,15 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  // components: {
+  //   dirs: [
+  //     {
+  //       path: '~/components',
+  //       pathPrefix: false,
+  //     },
+  //   ],
+  // },
 
   // Локальные шрифты (конфигурация)
   fonts: {
