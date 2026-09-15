@@ -5,6 +5,11 @@
   import { toPlain } from "~/lib/pb";
   import { HeroDetailSchema } from "~/sdk/emh/v1/hero_pb";
 
+  // Ленивая загрузка карты (не блокирует основной поток)
+  const HeroLocationMap = defineAsyncComponent(() =>
+    import('~/components/heroes/HeroLocationMap.vue')
+  )
+
   const route = useRoute()
   const { hero } = useApi()
   const site = useSiteConfig()
@@ -411,6 +416,16 @@
         </li>
       </ul>
     </section>
+
+    <!-- Карта локаций (лениво, только клиент) -->
+    <ClientOnly>
+      <HeroLocationMap v-if="data?.locations?.length" :locations="data.locations" />
+
+      <template #fallback>
+        <div class="hero-map-skeleton"
+          style="height: 320px; border-radius: 8px; background: var(--emh-surface, #f5f5f5)" />
+      </template>
+    </ClientOnly>
   </main>
 
   <main v-else-if="error" class="hero hero--error">
@@ -426,7 +441,7 @@
   }
 
   .hero {
-    max-width: 60rem;
+    max-width: 80rem;
     margin: 0 auto;
     padding: 3.5rem 2rem 5rem;
   }
@@ -557,8 +572,8 @@
   .hero__bio {
     font-size: 1.06rem;
     line-height: 1.8;
-    max-width: 44rem;
     white-space: pre-line;
+    text-align: justify;
   }
 
   .hero__bio::first-letter {

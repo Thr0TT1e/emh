@@ -10,8 +10,8 @@
 |---|---|
 | Проект | Вечная память героям (EMH) |
 | Scope | Только `frontend/` (Nuxt 4) |
-| Фаза | Публичная часть, админка, модерация, SEO завершены. Спринт 9: оптимизация и закрытие техдолга завершены |
-| Дата снимка | 2026-09-14 |
+| Фаза | **Спринт 10 в процессе: Code splitting `/submit` завершён, ISR временно отключен для отладки прода** |
+| Дата снимка | 2026-09-16 |
 | Production VPS | 82.202.139.132 |
 | Канонический домен | вежливые.рус (IDN, кириллица) |
 | Зеркала (301 → канонический) | вечнаяпамятьгероям.рус, emh.su, neverforgotten.ru |
@@ -28,12 +28,14 @@
 | Nuxt | ^4.5.2 | Фреймворк (структура `app/`) |
 | Vue | ^3.5.47 | UI |
 | PrimeVue | 4.5.5 (зафиксирована) | UI-кит + `@primeuix/themes` |
+| **unplugin-icons** | **^24.0.0** | **Tree-shaking иконок (полная замена PrimeIcons SVG)** |
+| **@iconify-json/carbon, mdi** | **^1.2.x** | **Наборы иконок для unplugin-icons** |
 | @bufbuild/protobuf | ^2.16.0 | protobuf-es v2 (рантайм) |
 | @connectrpc/connect-web | ^2.2.1 | Connect RPC транспорт |
 | vue-advanced-cropper | ^2.8.9 | Face Box UI |
 | OpenLayers (ol) | ^10.10.0 | Карты (локации героев) |
 | Node.js | 22.23.1 | Runtime |
-| Пакетный менеджер | pnpm@12.3.4 | type: module |
+| Пакетный менеджер | pnpm@12.4.1 | type: module |
 
 ### SEO и модули
 
@@ -55,38 +57,34 @@
 
 ## 3. Текущее состояние
 
-### ✅ Завершено (Спринт 9)
+### ✅ Завершено (Спринт 10 (2026-09-15/16)`)
 
-- Ленивая загрузка: `loading="lazy"` + `decoding="async"` на превью галереи (`[id].vue`, `HeroPhotos.vue`)
-- Alt-фолбэк: `image.description || \`Фотография ${fullName}\``
-- Twitter-метатеги: полностью удалены (заменены на Open Graph)
-- CLS на главной: `aspect-ratio: 4 / 5` на `.hero-card__photo`
-- Preload логотипа: `fetchpriority="high"` + `<link rel="preload">`
-- Рефакторинг кнопок: `<NuxtLink><Button/></NuxtLink>` → `Button as="router-link"`
-- Гибкие даты для конфликтов: `Conflict` использует `start_date_info` / `end_date_info`
-- Оптимизация INP: `trackPhotoView` в `requestIdleCallback`, предзагрузка по `pointerenter`, `content-visibility: auto` на секциях, `isolation: isolate` на маске Galleria
-- Контрастность: `#8a6a3c` → `#7a5c2e` в карточке героя (членство)
-- Замена `Content-Usage` / `Content-Signal` в `robots.txt` на блокировку AI-ботов по `User-Agent` + `/.well-known/ai-policy.json` + `/ai-policy`
+| # | Задача | Статус | Описание |
+|---|--------|--------|----------|
+| 1 | **Code splitting `/submit`** | ✅ Завершено | `AttachmentUpload.vue` и `HeroSearchPicker.vue` вынесены в `defineAsyncComponent`. **TBT 87.5ms → 0ms**, **TTI 2.5s → 1.7s** |
+| 2 | **Замена PrimeIcons → unplugin-icons** | ✅ Завершено | Полный отказ от тяжелого SVG-бандла (347 КБ). Миграция на `~icons/carbon/...` и `~icons/mdi/...` с tree-shaking |
+| 3 | **Legacy JavaScript** | ✅ Завершено | `vite.build.target` поднят до `es2024`. Удален полифилл для ES2022 |
+| 4 | **AI Policy** | ✅ Завершено | Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json` |
+| 5 | **Локальные шрифты** | ✅ Завершено | Добавлены TTF-файлы (Golos Text, Playfair Display) в `public/fonts/` |
 
 ### 🔴 Критичные задачи (следующий спринт)
 
 | # | Задача | Описание |
 |---|---|---|
-| 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: code splitting, lazy loading изображений, переход с PrimeIcons SVG на woff2 |
-| 2 | Image Delivery (score 0) | Добавить `<picture>` с WebP/AVIF и responsive sizes |
-| 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
+| 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: lazy loading изображений, оптимизация LCP |
+| 2 | Image Delivery (score 0) | Добавить  <picture>  с WebP/AVIF и responsive sizes |
+| 3 | `preconnect`  к S3 | Нет  `preconnect`  к  `s3.neverforgotten.ru`  на  `/about`, `/contacts`, `/submit` |
+| 4 | Robots.txt кэш | ⚠️ Внимание | Lighthouse (15.09) видит устаревшую директиву `Content-Usage`. Проверить `public/_robots.txt` и кэш на сервере |
 
 ### 🟡 Средний приоритет
 
 | # | Задача |
 |---|---|
-| 1 | Дубли `robots`-метатегов — аудит `nuxt-seo-utils` |
-| 2 | Legacy JavaScript (133.8ms) — поднять `vite.build.target` до `es2022` |
-| 3 | `Numeric tagPriority (35)` в unhead — заменить на алиас `critical` |
-| 4 | Inline `<script>` 3.0KB — вынести во внешний файл |
-| 5 | Контрастность ссылки в `contacts.vue` (1.25:1) — добавить `text-decoration: underline` |
-| 6 | `v-reveal` на первом экране `contacts.vue` — убрать с первого экрана |
-| 7 | Code splitting для `/submit` (JS-бандлы ~640 КБ) |
+| 1 | Дубли  robots-метатегов — аудит `nuxt-seo-utils` |
+| 2 | Numeric tagPriority (35) в unhead — заменить на алиас `critical` |
+| 3 | Inline `<script>` 3.0KB — вынести во внешний файл |
+| 4 | Контрастность ссылки в `contacts.vue` (1.25:1) — добавить `text-decoration: underline` |
+| 5 | v-reveal  на первом экране  contacts.vue  — убрать с первого экрана|
 
 ### ⚪ Отложено / Не делается
 
@@ -142,47 +140,53 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null, allowEmpty = false) => 
 
 ```typescript
 // nuxt.config.ts → nitro.routeRules
-'/heroes': {
-  isr: {
-    expiration: 300,
-    passQuery: true,
-    allowQuery: ['search_query', 'conflict_id', 'location_id', 'cursor', 'date_from', 'date_to'],
-  },
-},
-'/heroes/**': { isr: { expiration: 3600 } },
+
+// ВРЕМЕННО ОТКЛЮЧЕНО ДЛЯ ОТЛАДКИ ПРОДА (15.09.2026)
+// После стабилизации вернуть ISR с expiration и allowQuery.
+'/heroes': { isr: false },
+'/heroes/': { isr: false },
+'/heroes/**': { isr: false },
+'/conflicts': { isr: false },
+'/locations': { isr: false },
 ```
 
 **Критично:** `allowQuery` должен строго соответствовать полям `ListHeroesRequest` из `hero.proto`. Без него — cache poisoning.
 
 ### Robots.txt (замена Content-Usage / Content-Signal)
 
-Нестандартные директивы `contentUsage` и `contentSignal` удалены. Заменены на:
-
 ```typescript
-robots: {
-  groups: [
-    {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin', '/admin/'],
-    },
-    {
-      userAgent: [
-        'GPTBot', 'ChatGPT-User', 'Google-Extended', 'Google-CloudVertexBot',
-        'anthropic-ai', 'ClaudeBot', 'Claude-Web', 'cohere-ai',
-        'FacebookBot', 'Omgilibot', 'Omgili', 'YouBot', 'PerplexityBot',
-        'Bytespider', 'Amazonbot', 'Applebot-Extended', 'Diffbot',
-        'ImagesiftBot', 'meta-externalagent',
-      ],
-      disallow: ['/'],
-    },
-  ],
-},
+// nuxt.config.ts → robots.groups
+{
+  userAgent: ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'Google-Extended', ...],
+  disallow: ['/'],
+}
 ```
+
+⚠️ **Внимание:** В `public/` присутствует файл `_robots.txt`. Если Lighthouse всё ещё видит `Content-Usage`, значит статический файл переопределяет модуль `@nuxtjs/robots` или кэш на сервере не обновлен. Требуется ревизия `public/`.
 
 Дополнительно:
 - `public/.well-known/ai-policy.json` — машиночитаемая политика
 - `app/pages/ai-policy.vue` — человекочитаемая страница (`noindex`)
+
+### Иконки (unplugin-icons)
+
+PrimeIcons полностью удален из-за отсутствия tree-shaking (бандл 347 КБ SVG загружался целиком).
+Используется `unplugin-icons` + `unplugin-vue-components` с коллекциями `carbon` и `mdi`.
+
+```vue
+<!-- ✅ ПРАВИЛЬНО (unplugin-icons) -->
+<IconCarbonSearch />
+<Button>
+    <IconCarbonSearch />
+    <span>Добавить</span>
+</Button>
+
+<!-- ❌ НЕПРАВИЛЬНО (PrimeIcons — больше не работает) -->
+<i class="pi pi-user" />
+<Button icon="pi pi-plus" label="Добавить" />
+```
+
+**Миграция:** Таблица соответствий PrimeIcons → MDI в `docs/migration/primeicons-to-mdi.md`
 
 ### Убрано из плана навсегда
 
@@ -223,6 +227,9 @@ robots: {
 | Семантическая ссылка-кнопка | `app/pages/admin/index.vue` (`Button as="router-link"`) |
 | Оптимизация галереи (INP) | `app/pages/heroes/[id].vue` (`requestIdleCallback`, `preloadFullImage`, `content-visibility`) |
 | Политика AI / robots | `nuxt.config.ts` (robots) + `public/.well-known/ai-policy.json` + `app/pages/ai-policy.vue` |
+| Code splitting `/submit` | `app/pages/submit.vue` + `app/components/submit/*.vue` (async) |
+| AI Policy | `app/pages/ai-policy.vue` + `public/.well-known/ai-policy.json` |
+| Локальные шрифты | `public/fonts/*.ttf` (Golos Text, Playfair Display) |
 
 ---
 
@@ -243,6 +250,9 @@ robots: {
 - ✅ `useThemeSync.ts` — использует `import.meta.client` для защиты от обращения к `document` на сервере
 - ✅ `allowQuery` в `routeRules` — должен строго соответствовать полям `ListHeroesRequest` из `hero.proto`
 - ✅ После полного отказа от вложенных `<a><button>` можно рассмотреть повторное включение правила `element-permitted-content` в `htmlValidator`
+- ⚠️ `ISR` в `nitro.routeRules` временно отключен (`isr: false`). Не включать без согласования — идет отладка прода.
+- ⚠️ PrimeIcons больше нет в проекте. Все иконки брать из `~icons/carbon/...` или `~icons/mdi/...` через `unplugin-icons`.
+- ⚠️ Проверить `public/_robots.txt` — возможно, переопределяет `nuxt.config.ts` модуль `@nuxtjs/robots`.
 
 ### КОНТРАСТНОСТЬ (закрыто, не трогать)
 
@@ -269,7 +279,7 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 | Страница | Performance | Ключевые проблемы |
 |---|---|---|
 | `/heroes/[id]` | ~86/100 | Image Delivery (score 0), Legacy JS 133.8ms |
-| `/submit` | 80/100 | PrimeIcons SVG 347 КБ, JS-бандлы ~640 КБ |
+| `/submit` | **80/100** ✅ | TBT 0ms, TTI 1.7s. **Code splitting и unplugin-icons успешно применены.** Осталось: Image Delivery, preconnect к S3 |
 | `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s, контрастность ссылки 1.25:1, `v-reveal` |
 | `/about` | ~85/100 | Нет `preconnect` к S3, Unused CSS 68 КиБ |
 | `/` (mobile) | ~45/100 | **TTI 15.2 сек, TBT 431 мс — критично** |
@@ -290,6 +300,21 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 ---
 
 ## 10. Changelog сессий (краткий)
+
+### Спринт 10 (2026-09-15/16)
+
+**Производительность:**
+- Code splitting `/submit` через `defineAsyncComponent` (TBT 0ms, TTI 1.7s)
+- Полный отказ от PrimeIcons SVG в пользу `unplugin-icons` (tree-shaking)
+- `vite.build.target` поднят до `es2024` (устранен Legacy JS)
+
+**SEO и Инфраструктура:**
+- Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json`
+- ISR временно отключен (`isr: false`) для отладки продакшена
+- Добавлены локальные TTF-шрифты (Golos Text, Playfair Display)
+
+**Известные проблемы:**
+- Lighthouse (15.09) видит устаревшую директиву `Content-Usage` в robots.txt — проверить `public/_robots.txt`
 
 ### Спринт 9 (2026-09-12/14)
 
