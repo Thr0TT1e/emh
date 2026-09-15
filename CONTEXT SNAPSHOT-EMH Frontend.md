@@ -10,7 +10,7 @@
 |---|---|
 | Проект | Вечная память героям (EMH) |
 | Scope | Только `frontend/` (Nuxt 4) |
-| Фаза | **Спринт 10 в процессе: Code splitting `/submit` завершён, ISR временно отключен для отладки прода** |
+| Фаза | Спринт 10 завершен. Code splitting `/submit` завершен, ISR временно отключен для отладки прода, проблема с `robots.txt` решена |
 | Дата снимка | 2026-09-16 |
 | Production VPS | 82.202.139.132 |
 | Канонический домен | вежливые.рус (IDN, кириллица) |
@@ -24,12 +24,12 @@
 ### Runtime
 
 | Компонент | Версия | Назначение |
-|---|---|---|
+| --- | --- | --- |
 | Nuxt | ^4.5.2 | Фреймворк (структура `app/`) |
 | Vue | ^3.5.47 | UI |
 | PrimeVue | 4.5.5 (зафиксирована) | UI-кит + `@primeuix/themes` |
-| **unplugin-icons** | **^24.0.0** | **Tree-shaking иконок (полная замена PrimeIcons SVG)** |
-| **@iconify-json/carbon, mdi** | **^1.2.x** | **Наборы иконок для unplugin-icons** |
+| unplugin-icons | ^24.0.0 | Tree-shaking иконок (полная замена PrimeIcons SVG) |
+| @iconify-json/carbon, mdi | ^1.2.x | Наборы иконок для unplugin-icons |
 | @bufbuild/protobuf | ^2.16.0 | protobuf-es v2 (рантайм) |
 | @connectrpc/connect-web | ^2.2.1 | Connect RPC транспорт |
 | vue-advanced-cropper | ^2.8.9 | Face Box UI |
@@ -40,7 +40,7 @@
 ### SEO и модули
 
 | Модуль | Назначение |
-|---|---|
+| --- | --- |
 | nuxt-seo-utils | Глобальный site config |
 | @nuxtjs/sitemap | Динамический sitemap |
 | @nuxtjs/robots | Автогенерация `robots.txt` |
@@ -57,34 +57,34 @@
 
 ## 3. Текущее состояние
 
-### ✅ Завершено (Спринт 10 (2026-09-15/16)`)
+### ✅ Завершено (Спринт 10 (2026-09-15/16))
 
 | # | Задача | Статус | Описание |
-|---|--------|--------|----------|
-| 1 | **Code splitting `/submit`** | ✅ Завершено | `AttachmentUpload.vue` и `HeroSearchPicker.vue` вынесены в `defineAsyncComponent`. **TBT 87.5ms → 0ms**, **TTI 2.5s → 1.7s** |
-| 2 | **Замена PrimeIcons → unplugin-icons** | ✅ Завершено | Полный отказ от тяжелого SVG-бандла (347 КБ). Миграция на `~icons/carbon/...` и `~icons/mdi/...` с tree-shaking |
-| 3 | **Legacy JavaScript** | ✅ Завершено | `vite.build.target` поднят до `es2024`. Удален полифилл для ES2022 |
-| 4 | **AI Policy** | ✅ Завершено | Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json` |
-| 5 | **Локальные шрифты** | ✅ Завершено | Добавлены TTF-файлы (Golos Text, Playfair Display) в `public/fonts/` |
+| --- | --- | --- | --- |
+| 1 | Code splitting `/submit` | ✅ Завершено | `AttachmentUpload.vue` и `HeroSearchPicker.vue` вынесены в `defineAsyncComponent`. TBT 87.5ms → 0ms, TTI 2.5s → 1.7s |
+| 2 | Замена PrimeIcons → unplugin-icons | ✅ Завершено | Полный отказ от тяжелого SVG-бандла (347 КБ). Миграция на `~icons/carbon/...` и `~icons/mdi/...` с tree-shaking |
+| 3 | Legacy JavaScript | ✅ Завершено | `vite.build.target` поднят до `es2024`. Удален полифилл для ES2022 |
+| 4 | AI Policy | ✅ Завершено | Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json` |
+| 5 | Локальные шрифты | ✅ Завершено | Добавлены TTF-файлы (Golos Text, Playfair Display) в `public/fonts/` |
+| 6 | Очистка `public/_robots.txt` | ✅ Завершено | Удалена устаревшая нестандартная директива `Content-Usage`, которая вызывала ошибку валидации Lighthouse и переопределяла модуль `@nuxtjs/robots` |
 
 ### 🔴 Критичные задачи (следующий спринт)
 
 | # | Задача | Описание |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: lazy loading изображений, оптимизация LCP |
-| 2 | Image Delivery (score 0) | Добавить  <picture>  с WebP/AVIF и responsive sizes |
-| 3 | `preconnect`  к S3 | Нет  `preconnect`  к  `s3.neverforgotten.ru`  на  `/about`, `/contacts`, `/submit` |
-| 4 | Robots.txt кэш | ⚠️ Внимание | Lighthouse (15.09) видит устаревшую директиву `Content-Usage`. Проверить `public/_robots.txt` и кэш на сервере |
+| 2 | Image Delivery (score 0) | Добавить `<picture>` с WebP/AVIF и responsive sizes |
+| 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
 
 ### 🟡 Средний приоритет
 
 | # | Задача |
-|---|---|
-| 1 | Дубли  robots-метатегов — аудит `nuxt-seo-utils` |
-| 2 | Numeric tagPriority (35) в unhead — заменить на алиас `critical` |
+| --- | --- |
+| 1 | Дубли `robots`-метатегов — аудит `nuxt-seo-utils` |
+| 2 | Numeric `tagPriority` (35) в unhead — заменить на алиас `critical` |
 | 3 | Inline `<script>` 3.0KB — вынести во внешний файл |
 | 4 | Контрастность ссылки в `contacts.vue` (1.25:1) — добавить `text-decoration: underline` |
-| 5 | v-reveal  на первом экране  contacts.vue  — убрать с первого экрана|
+| 5 | `v-reveal` на первом экране `contacts.vue` — убрать с первого экрана |
 
 ### ⚪ Отложено / Не делается
 
@@ -154,7 +154,7 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null, allowEmpty = false) => 
 
 ### Robots.txt (замена Content-Usage / Content-Signal)
 
-```typescript
+```ts
 // nuxt.config.ts → robots.groups
 {
   userAgent: ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'Google-Extended', ...],
@@ -162,7 +162,10 @@ const prepareDateForApi = (fd?: FlexibleDateJson | null, allowEmpty = false) => 
 }
 ```
 
-⚠️ **Внимание:** В `public/` присутствует файл `_robots.txt`. Если Lighthouse всё ещё видит `Content-Usage`, значит статический файл переопределяет модуль `@nuxtjs/robots` или кэш на сервере не обновлен. Требуется ревизия `public/`.
+**Дополнительно:**
+- `public/.well-known/ai-policy.json` — машиночитаемая политика
+- `app/pages/ai-policy.vue` — человекочитаемая страница (`noindex`)
+- Файл `public/_robots.txt` очищен от нестандартных директив (удален `Content-Usage`) и больше не переопределяет/не конфликтует с модулем `@nuxtjs/robots`.
 
 Дополнительно:
 - `public/.well-known/ai-policy.json` — машиночитаемая политика
@@ -186,8 +189,6 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 <Button icon="pi pi-plus" label="Добавить" />
 ```
 
-**Миграция:** Таблица соответствий PrimeIcons → MDI в `docs/migration/primeicons-to-mdi.md`
-
 ### Убрано из плана навсегда
 
 - Контрастность ссылок в карточке героя — не требуется (`#7a5c2e` = WCAG AA 4.5:1)
@@ -198,7 +199,7 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 ## 5. Точки входа в код (эталоны)
 
 | Паттерн | Файл |
-|---|---|
+| --- | --- |
 | Форма с `fieldMask` | `app/components/admin/HeroForm.vue` |
 | Курсорная пагинация + фильтр статуса | `app/pages/admin/heroes/index.vue` |
 | Presigned Upload + пагинация галерей | `app/components/admin/HeroPhotos.vue` |
@@ -252,7 +253,6 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 - ✅ После полного отказа от вложенных `<a><button>` можно рассмотреть повторное включение правила `element-permitted-content` в `htmlValidator`
 - ⚠️ `ISR` в `nitro.routeRules` временно отключен (`isr: false`). Не включать без согласования — идет отладка прода.
 - ⚠️ PrimeIcons больше нет в проекте. Все иконки брать из `~icons/carbon/...` или `~icons/mdi/...` через `unplugin-icons`.
-- ⚠️ Проверить `public/_robots.txt` — возможно, переопределяет `nuxt.config.ts` модуль `@nuxtjs/robots`.
 
 ### КОНТРАСТНОСТЬ (закрыто, не трогать)
 
@@ -277,25 +277,26 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 ## 8. Результаты Lighthouse (сводка)
 
 | Страница | Performance | Ключевые проблемы |
-|---|---|---|
+| --- | --- | --- |
 | `/heroes/[id]` | ~86/100 | Image Delivery (score 0), Legacy JS 133.8ms |
-| `/submit` | **80/100** ✅ | TBT 0ms, TTI 1.7s. **Code splitting и unplugin-icons успешно применены.** Осталось: Image Delivery, preconnect к S3 |
+| `/submit` | 80/100 ✅ | TBT 0ms, TTI 1.7s. Code splitting и unplugin-icons успешно применены. Осталось: Image Delivery, preconnect к S3 |
 | `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s, контрастность ссылки 1.25:1, `v-reveal` |
 | `/about` | ~85/100 | Нет `preconnect` к S3, Unused CSS 68 КиБ |
-| `/` (mobile) | ~45/100 | **TTI 15.2 сек, TBT 431 мс — критично** |
+| `/` (mobile) | ~45/100 | TTI 15.2 сек, TBT 431 мс — критично |
 
 ---
 
 ## 9. Примечания для следующего агента
 
-1. **Главная проблема** — мобильная производительность главной страницы (TTI 15.2 сек). Начинать с code splitting и замены PrimeIcons SVG на woff2.
-2. **Гибкие даты закрыты** — не трогать архитектуру, только использовать существующие компоненты.
-3. **Кнопки-ссылки** — только через `Button as="router-link"`, никаких вложенных элементов.
-4. **Контрастность** — не трогать, всё исправлено и соответствует WCAG AA.
-5. **Документация** — генерируется из `.proto` в `.md`/`.html` в `docs/`, отдельный OpenAPI не нужен.
-6. **`robots.txt`** — `Content-Usage` / `Content-Signal` заменены на блокировку по `User-Agent`. Не возвращать старые директивы.
-7. **`requestIdleCallback`** — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
-8. **`contain: strict`** на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
+- Главная проблема — мобильная производительность главной страницы (TTI 15.2 сек). Начинать с code splitting и lazy loading изображений (оптимизация LCP).
+- PrimeIcons полностью удален (Спринт 10). Все иконки берутся из `~icons/carbon/...` или `~icons/mdi/...` через `unplugin-icons`.
+- Гибкие даты закрыты — не трогать архитектуру, только использовать существующие компоненты.
+- Кнопки-ссылки — только через `Button as="router-link"`, никаких вложенных элементов.
+- Контрастность — не трогать, всё исправлено и соответствует WCAG AA.
+- Документация — генерируется из `.proto` в `.md`/`.html` в `docs/`, отдельный OpenAPI не нужен.
+- `robots.txt` — `Content-Usage` / `Content-Signal` заменены на блокировку по `User-Agent`. Не возвращать старые директивы.
+- `requestIdleCallback` — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
+- `contain: strict` на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
 
 ---
 
@@ -312,9 +313,7 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 - Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json`
 - ISR временно отключен (`isr: false`) для отладки продакшена
 - Добавлены локальные TTF-шрифты (Golos Text, Playfair Display)
-
-**Известные проблемы:**
-- Lighthouse (15.09) видит устаревшую директиву `Content-Usage` в robots.txt — проверить `public/_robots.txt`
+- Очищен `public/_robots.txt` от устаревшей директивы `Content-Usage` (исправлена ошибка валидации Lighthouse, устранен конфликт с `@nuxtjs/robots`)
 
 ### Спринт 9 (2026-09-12/14)
 
