@@ -168,8 +168,9 @@
           <NuxtLink v-for="(h, i) in heroes" :key="h.id" :to="`/heroes/${h.id}`" class="hero-card reveal" v-reveal
             :style="{ transitionDelay: `${(i % 12) * 30}ms` }">
             <div class="hero-card__photo">
-              <Image class="hero-card__photo-img" v-if="h.mainThumbnailUrl" :src="h.mainThumbnailUrl" :alt="fullName(h)"
-                loading="lazy" />
+              <img v-if="h.mainThumbnailUrl" :src="h.mainThumbnailUrl" :alt="fullName(h)" width="480" height="600"
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" loading="lazy" decoding="async"
+                class="hero-card__photo-img" />
               <span v-else class="hero-card__photo-empty">
                 <AccountTieHatOutlineIcon />
               </span>

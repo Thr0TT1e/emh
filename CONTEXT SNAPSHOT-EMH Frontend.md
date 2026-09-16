@@ -73,7 +73,7 @@
 | # | Задача | Описание |
 | --- | --- | --- |
 | 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: lazy loading изображений, оптимизация LCP |
-| 2 | Image Delivery (score 0) | Добавить `<picture>` с WebP/AVIF и responsive sizes |
+| 2 | Image Delivery (score 0) | Фронтенд: выбрать rendition по контексту (`thumbnail_url` для сеток, `url` для деталей). `<picture>` только на асинхронном окне. Без `srcset`, без AVIF (см. [ADR-001](docs/ADR/adr-001-image-delivery.md)) |
 | 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
 
 ### 🟡 Средний приоритет
@@ -194,6 +194,13 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 - Контрастность ссылок в карточке героя — не требуется (`#7a5c2e` = WCAG AA 4.5:1)
 - Публичный API + OpenAPI — документация генерируется из `.proto` в `.md`/`.html` в `docs/`
 
+### Image Delivery (ADR-001)
+
+- **Бэкенд**: два фиксированных rendition (`thumbnail_url` 480×600 q80, `url` оригинал q90), оба WebP после обработки воркером.
+- **Фронтенд**: выбирать rendition по контексту, не строить `srcset`. `<picture>` только на асинхронном окне (1–5 с).
+- **Не делать**: AVIF, imgproxy, Nuxt Image с S3-провайдером, `srcset` из двух rendition.
+- **Контракт**: `thumbnail_url` в `GetUploadUrlResponse` не добавлять.
+
 ---
 
 ## 5. Точки входа в код (эталоны)
@@ -297,6 +304,17 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 - `robots.txt` — `Content-Usage` / `Content-Signal` заменены на блокировку по `User-Agent`. Не возвращать старые директивы.
 - `requestIdleCallback` — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
 - `contain: strict` на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
+- Image Delivery: не строить `srcset`/AVIF. Выбор `thumbnail_url` vs `url` по контексту. `<picture>` только на асинхронном окне. См. [ADR-001](docs/ADR/adr-001-image-delivery.md).
+
+## План работ по Image Delivery
+
+| # | Задача | Приоритет | Оценка |
+|---|---|---|---|
+| 1 | Фронтенд: заменить `<img>` на `<picture>` с fallback на асинхронном окне в карточках `/heroes/[id]` | 🔴 | 2 ч |
+| 2 | Фронтенд: добавить `width`/`height` и `sizes` для адаптивности | 🔴 | 1 ч |
+| 3 | Фронтенд: убедиться, что `loading="lazy"` на всех изображениях ниже fold | 🔴 | 1 ч |
+| 4 | Lighthouse: перезамер `/heroes/[id]` после изменений | 🔴 | 0.5 ч |
+| 5 | Бэкенд: зафиксировать в `docs/architecture/photo-pipeline.md` вердикт по эволюции | 🟡 | 0.5 ч |
 
 ---
 

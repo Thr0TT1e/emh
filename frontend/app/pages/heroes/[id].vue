@@ -240,7 +240,9 @@
     <!-- Шмуцтитул карточки -->
     <header class="hero__opening">
       <figure class="hero__portrait">
-        <Image v-if="mainPhoto" :src="mainPhoto" :alt="fullName" />
+        <img v-if="mainPhoto" :src="mainPhoto" :alt="fullName" width="480" height="600"
+          sizes="(max-width: 768px) 100vw, 340px" loading="eager" fetchpriority="high" decoding="async"
+          class="hero__portrait-img" />
         <div v-else class="hero__portrait-empty">портрет не сохранился</div>
       </figure>
 
@@ -359,12 +361,14 @@
         :responsiveOptions="responsiveOptions" :numVisible="7" containerStyle="max-width: 850px" :circular="true"
         :fullScreen="true" :showItemNavigators="true" :showThumbnails="false">
         <template #item="slotProps">
-          <img :src="slotProps.item.url" :alt="slotProps.item?.description || fullName"
+          <img :src="slotProps.item.url" :alt="slotProps.item?.description || fullName" width="1200" height="1500"
+            sizes="(max-width: 768px) 100vw, 850px" loading="lazy" decoding="async"
             style="width: 100%; display: block" />
         </template>
 
         <template #thumbnail="slotProps">
-          <img :src="slotProps.item.url" :alt="slotProps.item?.description || fullName" style="display: block" />
+          <img :src="slotProps.item.thumbnailUrl || slotProps.item.url" :alt="slotProps.item?.description || fullName"
+            width="480" height="600" loading="lazy" decoding="async" style="display: block" />
           <figcaption v-if="slotProps.item?.description">{{ slotProps.item.description }}</figcaption>
         </template>
       </Galleria>
@@ -372,8 +376,9 @@
       <div ref="galleryGridRef" class="grid grid-cols-12 max-md:grid-cols-2 gap-4" style="max-width: 100%">
         <div v-for="(image, index) of photos" :key="image.id || index" class="col-span-2">
           <img class="galleria__thumbnail" :src="image.thumbnailUrl || image.url"
-            :alt="image.description || `Фотография ${fullName}`" loading="lazy" decoding="async" style="cursor: pointer"
-            @pointerenter="preloadFullImage(image.url!)" @click="imageClick(index)" />
+            :alt="image.description || `Фотография ${fullName}`" width="480" height="600" loading="lazy"
+            decoding="async" style="cursor: pointer" @pointerenter="preloadFullImage(image.url!)"
+            @click="imageClick(index)" />
         </div>
       </div>
 
