@@ -25,6 +25,18 @@ xn--b1aaibdmu4k.xn--p1acf {
         Cache-Control "public, max-age=31536000, immutable"
     }
 
+    # Прокси для Метрики
+    @metrika {
+        path /metrika/tag.js
+        path /metrika/watch/*
+    }
+    handle @metrika {
+        reverse_proxy https://mc.yandex.ru {
+            header_up Host mc.yandex.ru
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
     reverse_proxy emh-frontend:3000
 }
 

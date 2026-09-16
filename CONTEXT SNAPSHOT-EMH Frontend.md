@@ -62,21 +62,29 @@
 | # | Задача | Статус | Описание |
 | --- | --- | --- | --- |
 | 1 | Code splitting `/submit` | ✅ Завершено | `AttachmentUpload.vue` и `HeroSearchPicker.vue` вынесены в `defineAsyncComponent`. TBT 87.5ms → 0ms, TTI 2.5s → 1.7s |
-| 2 | Замена PrimeIcons → unplugin-icons | ✅ Завершено | Полный отказ от тяжелого SVG-бандла (347 КБ). Миграция на `~icons/carbon/...` и `~icons/mdi/...` с tree-shaking |
-| 3 | Legacy JavaScript | ✅ Завершено | `vite.build.target` поднят до `es2024`. Удален полифилл для ES2022 |
-| 4 | AI Policy | ✅ Завершено | Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json` |
-| 5 | Локальные шрифты | ✅ Завершено | Добавлены TTF-файлы (Golos Text, Playfair Display) в `public/fonts/` |
-| 6 | Очистка `public/_robots.txt` | ✅ Завершено | Удалена устаревшая нестандартная директива `Content-Usage`, которая вызывала ошибку валидации Lighthouse и переопределяла модуль `@nuxtjs/robots` |
+| 2 | Замена PrimeIcons → unplugin-icons | ✅ Завершено | Полный отказ от SVG-бандла (347 КБ). Миграция на `~icons/carbon/...` и `~icons/mdi/...` с tree-shaking |
+| 3 | Legacy JavaScript | ✅ Завершено | `vite.build.target` поднят до `es2024` |
+| 4 | AI Policy | ✅ Завершено | Страница `/ai-policy` + `/.well-known/ai-policy.json` |
+| 5 | Локальные шрифты | ✅ Завершено | TTF-файлы (Golos Text, Playfair Display) в `public/fonts/` |
+| 6 | Очистка `public/_robots.txt` | ✅ Завершено | Удалена устаревшая директива `Content-Usage` |
+| 7 | Image Delivery | ✅ Завершено | `width`/`height`/`sizes`/`fetchpriority` на всех изображениях. TBT -97%, CLS -69% (см. ADR-001) |
+| 8 | Карта локаций на публичной странице | ✅ Завершено | `HeroLocationMap.vue` с OpenLayers. ESRI World Topo вместо OSM (заблокирован в РФ). Pre-flight проверка + graceful fallback (см. ADR-004) |
+| 9 | Кэширование шрифтов и статики | ✅ Завершено | Caddy отдаёт `Cache-Control: public, max-age=31536000, immutable` для `/fonts/*` и `/_nuxt/*` |
+| 10 | `font-display: swap` | ✅ Завершено | Явно указан в `@nuxt/fonts` конфигурации |
 
 ### 🔴 Критичные задачи (следующий спринт)
 
 | # | Задача | Описание |
 | --- | --- | --- |
 | 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: lazy loading изображений, оптимизация LCP |
-| 2 | ~~Image Delivery (score 0)~~ | ✅ **Закрыто**: width/height/sizes/fetchpriority добавлены. TBT -97%, CLS -69%. Осталось: замена OSM → Яндекс.Карты (блокировки в РФ), шрифты без cache/font-display |
-| 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
-| 4 | OpenStreetMap таймауты | Заблокирован в РФ → `ERR_TIMED_OUT` в консоли. Мигрировать на Яндекс.Карты (`core-rendered.tiles.maps.yandex.net`) |
-| 5 | Шрифты без кэша | TTF/WOFF2 в `/fonts/` не имеют `Cache-Control` и `font-display: swap`. Добавить в Caddy и CSS |
+| 2 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
+
+### ⚠️ Плавающие проблемы (не трогать — зависят от окружения)
+Следующие проблемы Lighthouse исключены из плана работ — они непостоянны и зависят от расширений браузера, нагрузки на VPS и состояния кэша:
+- Проксирование Яндекс.Метрики (`mc.yandex.ru` — блокировки провайдерами)
+- BFCache "Внутренняя ошибка" (`IgnoreEventAndEvict` — зависит от расширений Chrome)
+- Unused JavaScript (~300-400 КБ) — общий chunk Nuxt, не связан с кодом приложения
+- TBT 70мс — скачет между прогонами (12ms ↔ 70ms) в пределах нормы
 
 ### 🟡 Средний приоритет
 
@@ -87,6 +95,19 @@
 | 3 | Inline `<script>` 3.0KB — вынести во внешний файл |
 | 4 | Контрастность ссылки в `contacts.vue` (1.25:1) — добавить `text-decoration: underline` |
 | 5 | `v-reveal` на первом экране `contacts.vue` — убрать с первого экрана |
+
+### 🔵 Функциональные задачи (приоритет после производительности)
+
+| # | Задача | Компоненты/Контракты | Описание |
+| --- | --- | --- | --- |
+| 1 | Связи между героями | `HeroRelations` (hero.proto) | Публичный рендеринг блока «Связи» с переходами по `toHeroId`. Админская форма `HeroRelations.vue` |
+| 2 | Источники героя | `HeroSource` (hero.proto) | Публичный рендеринг блока «Источники» с `sourceType`, `url`, `excerpt`. Админская форма `HeroSources.vue` |
+| 3 | Краудсорсинг модерация | `SubmissionService` (hero_admin.proto) | Review workflow в админке: `SubmissionReviewHistory.vue`, статусы заявок |
+| 4 | LLM-извлечение данных | `ExtractionService` (hero_admin.proto) | `ExtractionPanel.vue` → авто-заполнение форм, парсинг дат через `parseExtractedDate` |
+| 5 | Конфликты героя | `HeroConflict` (hero.proto) | Привязка героя к конфликтам с `rankAtConflict`, `specificLocation`. `HeroConflicts.vue` |
+| 6 | Награды с гибкими датами | `HeroAward` (hero.proto) | `HeroAwards.vue` + `AdminFlexibleDateInput.vue` для `award_date_info` |
+| 7 | Фото с FaceBox | `Photo` (hero.proto) | Админская разметка `FaceBoxEditor.vue`, превью через `thumbnailUrl \|\| url` (см. ADR-001) |
+| 8 | Управление LLM-провайдерами | `LlmAdminService` (hero_admin.proto) | `app/pages/admin/llm/index.vue` — выбор Ollama/OpenAI/Anthropic |
 
 ### ⚪ Отложено / Не делается
 
@@ -240,7 +261,9 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 | Code splitting `/submit` | `app/pages/submit.vue` + `app/components/submit/*.vue` (async) |
 | AI Policy | `app/pages/ai-policy.vue` + `public/.well-known/ai-policy.json` |
 | Локальные шрифты | `public/fonts/*.ttf` (Golos Text, Playfair Display) |
-| Карта локаций (OpenLayers) | `app/components/heroes/HeroLocationMap.vue` — async import через `<ClientOnly>` |
+| Карта локаций (OpenLayers) | `app/components/heroes/HeroLocationMap.vue` — ESRI World Topo, pre-flight проверка, async import через `<ClientOnly>` |
+| Связи героев | `app/components/admin/HeroRelations.vue` + блок в `app/pages/heroes/[id].vue` |
+| Источники героя | `app/components/admin/HeroSources.vue` + блок в `app/pages/heroes/[id].vue` |
 
 ---
 
@@ -263,6 +286,8 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 - ✅ После полного отказа от вложенных `<a><button>` можно рассмотреть повторное включение правила `element-permitted-content` в `htmlValidator`
 - ⚠️ `ISR` в `nitro.routeRules` временно отключен (`isr: false`). Не включать без согласования — идет отладка прода.
 - ⚠️ PrimeIcons больше нет в проекте. Все иконки брать из `~icons/carbon/...` или `~icons/mdi/...` через `unplugin-icons`.
+- ⚠️ Карта локаций использует ESRI World Topo (`services.arcgisonline.com`), **не OSM** (заблокирован в РФ). Не возвращать OSM без веской причины. Pre-flight проверка `probeTileService()` обязательна.
+- ⚠️ Плавающие проблемы Lighthouse (BFCache, Unused JS, TBT, Яндекс.Метрика) **не трогать** — зависят от окружения, не от кода приложения.
 
 ### КОНТРАСТНОСТЬ (закрыто, не трогать)
 
@@ -288,38 +313,26 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 
 | Страница | Performance | Ключевые проблемы |
 | --- | --- | --- |
-| /heroes/[id] | **88/100** ✅ | Image Delivery оптимизирован: TBT 12ms, CLS 0.00094. Осталось: OSM таймауты (заменить на Яндекс.Карты), font-display/cache для шрифтов |
-| `/submit` | 80/100 ✅ | TBT 0ms, TTI 1.7s. Code splitting и unplugin-icons успешно применены. Осталось: Image Delivery, preconnect к S3 |
-| `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s, контрастность ссылки 1.25:1, `v-reveal` |
-| `/about` | ~85/100 | Нет `preconnect` к S3, Unused CSS 68 КиБ |
-| `/` (mobile) | ~45/100 | TTI 15.2 сек, TBT 431 мс — критично |
+| `/heroes/[id]` | **88/100** | TBT 12-70мс, CLS 0.00094, FCP 1.4с | ✅ Image Delivery закрыт, ESRI карта работает |
+| `/submit` | 80/100 | TBT 0ms, TTI 1.7s | ✅ Code splitting + unplugin-icons применены |
+| `/` (mobile) | ~45/100 | TTI 15.2с, TBT 431мс | 🔴 Требует оптимизации |
+| `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s | 🟡 Средний приоритет |
+| `/about` | ~85/100 | Unused CSS 68 КиБ | 🟡 Средний приоритет |
 
 ---
 
 ## 9. Примечания для следующего агента
 
-- Главная проблема — мобильная производительность главной страницы (TTI 15.2 сек). Начинать с code splitting и lazy loading изображений (оптимизация LCP).
-- PrimeIcons полностью удален (Спринт 10). Все иконки берутся из `~icons/carbon/...` или `~icons/mdi/...` через `unplugin-icons`.
-- Гибкие даты закрыты — не трогать архитектуру, только использовать существующие компоненты.
+- Главная проблема — мобильная производительность главной страницы (TTI 15.2 сек). Начинать с lazy loading изображений и оптимизации LCP.
+- PrimeIcons полностью удален (Спринт 10). Все иконки — через `~icons/carbon/...` или `~icons/mdi/...`.
+- Гибкие даты закрыты — не трогать архитектуру, только использовать существующие компоненты (`AdminFlexibleDateInput.vue`).
 - Кнопки-ссылки — только через `Button as="router-link"`, никаких вложенных элементов.
-- Контрастность — не трогать, всё исправлено и соответствует WCAG AA.
-- Документация — генерируется из `.proto` в `.md`/`.html` в `docs/`, отдельный OpenAPI не нужен.
-- `robots.txt` — `Content-Usage` / `Content-Signal` заменены на блокировку по `User-Agent`. Не возвращать старые директивы.
-- `requestIdleCallback` — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
-- `contain: strict` на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
-- Image Delivery: не строить `srcset`/AVIF. Выбор `thumbnail_url` vs `url` по контексту. `<picture>` только на асинхронном окне. См. [ADR-001](docs/ADR/adr-001-image-delivery.md).
-- Карта локаций использует OpenLayers + OSM тайлы. **OSM заблокирован в РФ** — запланирована миграция на Яндекс.Карты (`core-rendered.tiles.maps.yandex.net`). Компонент `HeroLocationMap.vue` уже вынесен и загружается лениво.
-- Шрифты в `public/fonts/` (Golos Text, Playfair Display) не имеют HTTP-заголовков кэша. Caddy/Nginx должен отдавать `Cache-Control: public, max-age=31536000, immutable`.
-
-## План работ по Image Delivery
-
-| # | Задача | Приоритет | Оценка |
-|---|---|---|---|
-| 1 | Фронтенд: заменить `<img>` на `<picture>` с fallback на асинхронном окне в карточках `/heroes/[id]` | 🔴 | 2 ч |
-| 2 | Фронтенд: добавить `width`/`height` и `sizes` для адаптивности | 🔴 | 1 ч |
-| 3 | Фронтенд: убедиться, что `loading="lazy"` на всех изображениях ниже fold | 🔴 | 1 ч |
-| 4 | Lighthouse: перезамер `/heroes/[id]` после изменений | 🔴 | 0.5 ч |
-| 5 | Бэкенд: зафиксировать в `docs/architecture/photo-pipeline.md` вердикт по эволюции | 🟡 | 0.5 ч |
+- Контрастность — не трогать, всё исправлено (WCAG AA).
+- Image Delivery — не строить `srcset`/AVIF. Выбор `thumbnailUrl` vs `url` по контексту. См. ADR-001.
+- Карта локаций — ESRI World Topo (не OSM!), pre-flight проверка обязательна. См. ADR-004.
+- Плавающие проблемы Lighthouse (BFCache, Unused JS, TBT, Метрика) — **не трогать**, зависят от окружения.
+- `requestIdleCallback` — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`).
+- После закрытия производительности — фокус на функциональных задачах: связи героев, источники, краудсорсинг, LLM-извлечение.
 
 ---
 
@@ -329,14 +342,21 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 
 **Производительность:**
 - Code splitting `/submit` через `defineAsyncComponent` (TBT 0ms, TTI 1.7s)
-- Полный отказ от PrimeIcons SVG в пользу `unplugin-icons` (tree-shaking)
+- Полный отказ от PrimeIcons SVG в пользу `unplugin-icons` (tree-shaking, -347 КБ)
 - `vite.build.target` поднят до `es2024` (устранен Legacy JS)
+- Image Delivery: `width`/`height`/`sizes`/`fetchpriority` на всех изображениях. TBT -97%, CLS -69%
+- Кэширование шрифтов и статики через Caddy (`Cache-Control: immutable`, 1 год)
+- `font-display: swap` для всех шрифтов
+
+**Карты:**
+- Карта локаций на `/heroes/[id]` через OpenLayers + ESRI World Topo (ADR-004)
+- OSM заменён на ESRI (OSM заблокирован в РФ)
+- Pre-flight проверка доступности сервиса тайлов + graceful fallback
 
 **SEO и Инфраструктура:**
-- Добавлена страница `/ai-policy` и `/.well-known/ai-policy.json`
+- Страница `/ai-policy` + `/.well-known/ai-policy.json`
 - ISR временно отключен (`isr: false`) для отладки продакшена
-- Добавлены локальные TTF-шрифты (Golos Text, Playfair Display)
-- Очищен `public/_robots.txt` от устаревшей директивы `Content-Usage` (исправлена ошибка валидации Lighthouse, устранен конфликт с `@nuxtjs/robots`)
+- Очищен `public/_robots.txt` от `Content-Usage`
 
 ### Спринт 9 (2026-09-12/14)
 
