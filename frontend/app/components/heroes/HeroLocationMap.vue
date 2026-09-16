@@ -8,14 +8,16 @@
     import VectorLayer from 'ol/layer/Vector'
     import 'ol/ol.css'
     import { fromLonLat } from 'ol/proj'
-    import OSM from 'ol/source/OSM'
     import VectorSource from 'ol/source/Vector'
+    import XYZ from 'ol/source/XYZ'
     import { Fill, Icon, Stroke, Style, Text } from 'ol/style'
     import type { HeroLocationJson } from '~/sdk/emh/v1/hero_pb'
 
-    const props = defineProps<{
-        locations: HeroLocationJson[]
-    }>()
+    const ESRI_TILE_URL = 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+    const ESRI_PROBE_URL = 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/1/0/0'
+    const PROBE_TIMEOUT_MS = 4000
+
+    const props = defineProps<{ locations: HeroLocationJson[] }>()
 
     const LOCATION_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
         HERO_LOCATION_TYPE_BIRTH: { label: 'Место рождения', color: '#4a90d9' },
@@ -24,7 +26,6 @@
         HERO_LOCATION_TYPE_RESIDENCE: { label: 'Место проживания', color: '#27ae60' },
     }
 
-    // ── Хелпер: безопасное приведение double из protobuf-JSON к number ──
     const toFiniteNumber = (v: number | string | undefined | null): number | null => {
         if (typeof v === 'number') return Number.isFinite(v) ? v : null
         if (typeof v === 'string') {
@@ -37,18 +38,44 @@
     const mapContainer = ref<HTMLElement>()
     let map: OLMap | null = null
 
-    // ── Генерация SVG-пина с нужным цветом ──
+    // ── Состояние доступности карты ──
+    // null = идёт проверка, true = доступна, false = недоступна
+    const mapAvailable = ref<boolean | null>(null)
+
+    // ── Pre-flight проверка доступности сервиса тайлов ──
+    async function probeTileService(): Promise<boolean> {
+        // Safari fallback: AbortSignal.timeout может отсутствовать в старых версиях
+        const createAbortSignal = (ms: number): AbortSignal => {
+            if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+                return AbortSignal.timeout(ms)
+            }
+            const controller = new AbortController()
+            setTimeout(() => controller.abort(), ms)
+            return controller.signal
+        }
+
+        try {
+            const response = await fetch(ESRI_PROBE_URL, {
+                method: 'HEAD',
+                mode: 'cors',
+                signal: createAbortSignal(PROBE_TIMEOUT_MS),
+            })
+            return response.ok
+        } catch {
+            return false
+        }
+    }
+
+    // ── SVG-пин с динамическим цветом ──
     const getSvgIconDataUrl = (color: string): string => {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-            <path d="M0 0h32v32H0z" fill="none" />
-            <path fill="${color}" d="M16 18a5 5 0 1 1 5-5a5.006 5.006 0 0 1-5 5m0-8a3 3 0 1 0 3 3a3.003 3.003 0 0 0-3-3" />
-            <path fill="${color}" d="m16 30l-8.436-9.949a35 35 0 0 1-.348-.451A10.9 10.9 0 0 1 5 13a11 11 0 0 1 22 0a10.9 10.9 0 0 1-2.215 6.597l-.001.003s-.3.394-.345.447ZM8.813 18.395s.233.308.286.374L16 26.908l6.91-8.15c.044-.055.278-.365.279-.366A8.9 8.9 0 0 0 25 13a9 9 0 1 0-18 0a8.9 8.9 0 0 0 1.813 5.395" />
-        </svg>`
-        // encodeURIComponent безопасен как в браузере, так и при SSR
+    <path d="M0 0h32v32H0z" fill="none" />
+    <path fill="${color}" d="M16 18a5 5 0 1 1 5-5a5.006 5.006 0 0 1-5 5m0-8a3 3 0 1 0 3 3a3.003 3.003 0 0 0-3-3" />
+    <path fill="${color}" d="m16 30l-8.436-9.949a35 35 0 0 1-.348-.451A10.9 10.9 0 0 1 5 13a11 11 0 0 1 22 0a10.9 10.9 0 0 1-2.215 6.597l-.001.003s-.3.394-.345.447ZM8.813 18.395s.233.308.286.374L16 26.908l6.91-8.15c.044-.055.278-.365.279-.366A8.9 8.9 0 0 0 25 13a9 9 0 1 0-18 0a8.9 8.9 0 0 0 1.813 5.395" />
+  </svg>`
         return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
     }
 
-    // Кэш иконок, чтобы не пересоздавать base64 и DOM-объекты при каждом вызове style-функции
     const iconCache = new Map<string, Icon>()
 
     function getIcon(color: string): Icon {
@@ -57,9 +84,7 @@
                 color,
                 new Icon({
                     src: getSvgIconDataUrl(color),
-                    scale: 1.2, // Увеличиваем пин для лучшей видимости (38x38px)
-                    // Острие пина находится на y=30 из 32 (30/32 = 0.9375). 
-                    // Привязываем маркер к карте именно за острие.
+                    scale: 1.2,
                     anchor: [0.5, 0.9375],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
@@ -76,7 +101,6 @@
 
             const lat = toFiniteNumber(loc.latitude)
             const lon = toFiniteNumber(loc.longitude)
-            // Пропускаем локации без координат
             if (lat === null || lon === null || (lat === 0 && lon === 0)) return []
 
             const typeStr = (hl.type as string) ?? 'HERO_LOCATION_TYPE_UNSPECIFIED'
@@ -94,7 +118,6 @@
         })
     }
 
-    // ── Стиль маркера и подписи ──
     function createMarkerStyle(feature: FeatureLike): Style {
         const color = feature.get('typeColor') ?? '#7a5c2e'
         const name = feature.get('name') ?? ''
@@ -103,8 +126,8 @@
             image: getIcon(color),
             text: new Text({
                 text: name,
-                offsetY: -42, // Сдвигаем текст выше пина (высота пина ~38px)
-                textBaseline: 'bottom', // Выравниваем низ текста по указанной Y-координате
+                offsetY: -42,
+                textBaseline: 'bottom',
                 font: '12px "Golos Text", sans-serif',
                 fill: new Fill({ color: '#ffffff' }),
                 stroke: new Stroke({ color: '#000000', width: 3 }),
@@ -121,7 +144,20 @@
 
         const vectorSource = new VectorSource({ features })
 
-        const tileLayer = new TileLayer({ source: new OSM(), opacity: 0.85 })
+        const tileLayer = new TileLayer({
+            source: new XYZ({
+                url: ESRI_TILE_URL,
+                attributions: 'Tiles © Esri',
+                crossOrigin: 'anonymous',
+            }),
+        })
+
+        // Fallback: если тайлы начали падать уже во время работы карты — скрываем её
+        tileLayer.getSource()?.on('tileloaderror', () => {
+            console.warn('[HeroLocationMap] tile load failed, hiding map')
+            mapAvailable.value = false
+        })
+
         const vectorLayer = new VectorLayer({ source: vectorSource, style: createMarkerStyle })
 
         const firstFeature = features[0]
@@ -139,11 +175,10 @@
             }),
         })
 
-        // Подгоняем вид ко всем маркерам
         if (features.length > 1) {
             const extent = vectorSource.getExtent()
             if (extent) {
-                map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 12 })
+                map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 8 })
             }
         }
     }
@@ -180,9 +215,18 @@
         })
     }
 
-    onMounted(() => {
-        initMap()
-        setupTooltip()
+    onMounted(async () => {
+        if (!props.locations.length) return
+
+        // Pre-flight: проверяем доступность сервиса тайлов
+        mapAvailable.value = await probeTileService()
+
+        if (mapAvailable.value) {
+            // nextTick чтобы контейнер успел отрендериться
+            await nextTick()
+            initMap()
+            setupTooltip()
+        }
     })
 
     onUnmounted(() => {
@@ -195,26 +239,34 @@
 
 <template>
     <div v-if="locations.length > 0" class="hero-location-map">
-        <h3 class="hero-location-map__title">География</h3>
-
-        <div ref="mapContainer" class="hero-location-map__container">
-            <div class="hero-map-tooltip" style="display: none" />
+        <!-- Skeleton во время pre-flight проверки -->
+        <div v-if="mapAvailable === null" class="hero-location-map__skeleton">
+            <h3 class="hero-location-map__title">География</h3>
+            <div class="hero-location-map__skeleton-box" />
         </div>
 
-        <ul class="hero-location-map__legend">
-            <li v-for="(config, key) in LOCATION_TYPE_CONFIG" :key="key"
-                v-show="locations.some((hl) => hl.type === key)" class="hero-location-map__legend-item">
-                <!-- Используем тот же SVG для консистентности с маркерами на карте -->
-                <svg class="hero-location-map__legend-icon" viewBox="0 0 32 32" :style="{ color: config.color }">
-                    <path d="M0 0h32v32H0z" fill="none" />
-                    <path fill="currentColor"
-                        d="M16 18a5 5 0 1 1 5-5a5.006 5.006 0 0 1-5 5m0-8a3 3 0 1 0 3 3a3.003 3.003 0 0 0-3-3" />
-                    <path fill="currentColor"
-                        d="m16 30l-8.436-9.949a35 35 0 0 1-.348-.451A10.9 10.9 0 0 1 5 13a11 11 0 0 1 22 0a10.9 10.9 0 0 1-2.215 6.597l-.001.003s-.3.394-.345.447ZM8.813 18.395s.233.308.286.374L16 26.908l6.91-8.15c.044-.055.278-.365.279-.366A8.9 8.9 0 0 0 25 13a9 9 0 1 0-18 0a8.9 8.9 0 0 0 1.813 5.395" />
-                </svg>
-                {{ config.label }}
-            </li>
-        </ul>
+        <!-- Карта доступна — рендерим -->
+        <template v-else-if="mapAvailable">
+            <h3 class="hero-location-map__title">География</h3>
+            <div ref="mapContainer" class="hero-location-map__container">
+                <div class="hero-map-tooltip" style="display: none" />
+            </div>
+
+            <ul class="hero-location-map__legend">
+                <li v-for="(config, key) in LOCATION_TYPE_CONFIG" :key="key"
+                    v-show="locations.some((hl) => hl.type === key)" class="hero-location-map__legend-item">
+                    <svg class="hero-location-map__legend-icon" viewBox="0 0 32 32" :style="{ color: config.color }">
+                        <path d="M0 0h32v32H0z" fill="none" />
+                        <path fill="currentColor"
+                            d="M16 18a5 5 0 1 1 5-5a5.006 5.006 0 0 1-5 5m0-8a3 3 0 1 0 3 3a3.003 3.003 0 0 0-3-3" />
+                        <path fill="currentColor"
+                            d="m16 30l-8.436-9.949a35 35 0 0 1-.348-.451A10.9 10.9 0 0 1 5 13a11 11 0 0 1 22 0a10.9 10.9 0 0 1-2.215 6.597l-.001.003s-.3.394-.345.447ZM8.813 18.395s.233.308.286.374L16 26.908l6.91-8.15c.044-.055.278-.365.279-.366A8.9 8.9 0 0 0 25 13a9 9 0 1 0-18 0a8.9 8.9 0 0 0 1.813 5.395" />
+                    </svg>
+                    {{ config.label }}
+                </li>
+            </ul>
+        </template>
+        <!-- mapAvailable === false: блок не рендерится вообще -->
     </div>
 </template>
 
@@ -277,8 +329,33 @@
         flex-shrink: 0;
     }
 
+    /* Skeleton */
+    .hero-location-map__skeleton-box {
+        width: 100%;
+        height: 320px;
+        border-radius: 8px;
+        background: linear-gradient(90deg,
+                var(--emh-surface, #f5f5f5) 0%,
+                var(--emh-surface-alt, #e8e8e8) 50%,
+                var(--emh-surface, #f5f5f5) 100%);
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes skeleton-pulse {
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
     @media (max-width: 768px) {
-        .hero-location-map__container {
+
+        .hero-location-map__container,
+        .hero-location-map__skeleton-box {
             height: 240px;
         }
     }

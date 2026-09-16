@@ -409,7 +409,7 @@
     </section>
 
     <!-- Места -->
-    <section v-if="data.locations?.length" class="hero__section">
+    <section v-if="data.locations?.length" class="hero__section mb-4">
       <h2 class="hero__section-title">Места, связанные с героем</h2>
       <ul class="hero__locations">
         <li v-for="l in data.locations ?? []" :key="`${l.locationId}-${l.type}`" class="hero__location">

@@ -73,8 +73,10 @@
 | # | Задача | Описание |
 | --- | --- | --- |
 | 1 | Мобильная производительность главной | TTI = 15.2 сек, TBT = 431 мс. Требуется: lazy loading изображений, оптимизация LCP |
-| 2 | Image Delivery (score 0) | Фронтенд: выбрать rendition по контексту (`thumbnail_url` для сеток, `url` для деталей). `<picture>` только на асинхронном окне. Без `srcset`, без AVIF (см. [ADR-001](docs/ADR/adr-001-image-delivery.md)) |
+| 2 | ~~Image Delivery (score 0)~~ | ✅ **Закрыто**: width/height/sizes/fetchpriority добавлены. TBT -97%, CLS -69%. Осталось: замена OSM → Яндекс.Карты (блокировки в РФ), шрифты без cache/font-display |
 | 3 | `preconnect` к S3 | Нет `preconnect` к `s3.neverforgotten.ru` на `/about`, `/contacts`, `/submit` |
+| 4 | OpenStreetMap таймауты | Заблокирован в РФ → `ERR_TIMED_OUT` в консоли. Мигрировать на Яндекс.Карты (`core-rendered.tiles.maps.yandex.net`) |
+| 5 | Шрифты без кэша | TTF/WOFF2 в `/fonts/` не имеют `Cache-Control` и `font-display: swap`. Добавить в Caddy и CSS |
 
 ### 🟡 Средний приоритет
 
@@ -238,6 +240,7 @@ PrimeIcons полностью удален из-за отсутствия tree-s
 | Code splitting `/submit` | `app/pages/submit.vue` + `app/components/submit/*.vue` (async) |
 | AI Policy | `app/pages/ai-policy.vue` + `public/.well-known/ai-policy.json` |
 | Локальные шрифты | `public/fonts/*.ttf` (Golos Text, Playfair Display) |
+| Карта локаций (OpenLayers) | `app/components/heroes/HeroLocationMap.vue` — async import через `<ClientOnly>` |
 
 ---
 
@@ -285,7 +288,7 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 
 | Страница | Performance | Ключевые проблемы |
 | --- | --- | --- |
-| `/heroes/[id]` | ~86/100 | Image Delivery (score 0), Legacy JS 133.8ms |
+| /heroes/[id] | **88/100** ✅ | Image Delivery оптимизирован: TBT 12ms, CLS 0.00094. Осталось: OSM таймауты (заменить на Яндекс.Карты), font-display/cache для шрифтов |
 | `/submit` | 80/100 ✅ | TBT 0ms, TTI 1.7s. Code splitting и unplugin-icons успешно применены. Осталось: Image Delivery, preconnect к S3 |
 | `/contacts` | 66/100 | FCP 1.9s, TTI 4.6s, контрастность ссылки 1.25:1, `v-reveal` |
 | `/about` | ~85/100 | Нет `preconnect` к S3, Unused CSS 68 КиБ |
@@ -305,6 +308,8 @@ Multi-stage build: `node:22.23.1-alpine` builder → `node:22.23.1-alpine` runti
 - `requestIdleCallback` — проверить наличие fallback для Safari (`window.requestIdleCallback ?? setTimeout`). Если отсутствует — добавить.
 - `contain: strict` на `.p-galleria-mask` — при проблемах с рендерингом заменить на `contain: layout paint`.
 - Image Delivery: не строить `srcset`/AVIF. Выбор `thumbnail_url` vs `url` по контексту. `<picture>` только на асинхронном окне. См. [ADR-001](docs/ADR/adr-001-image-delivery.md).
+- Карта локаций использует OpenLayers + OSM тайлы. **OSM заблокирован в РФ** — запланирована миграция на Яндекс.Карты (`core-rendered.tiles.maps.yandex.net`). Компонент `HeroLocationMap.vue` уже вынесен и загружается лениво.
+- Шрифты в `public/fonts/` (Golos Text, Playfair Display) не имеют HTTP-заголовков кэша. Caddy/Nginx должен отдавать `Cache-Control: public, max-age=31536000, immutable`.
 
 ## План работ по Image Delivery
 

@@ -8,6 +8,23 @@
 # Punycode: xn--b1aaibdmu4k.xn--p1acf
 # ==========================================================================
 xn--b1aaibdmu4k.xn--p1acf {
+    # Кэширование статических шрифтов (1 год, immutable)
+    @fonts {
+        path /fonts/*
+    }
+    header @fonts {
+        Cache-Control "public, max-age=31536000, immutable"
+        X-Content-Type-Options "nosniff"
+    }
+
+    # Кэширование статики Nuxt (_nuxt/*)
+    @nuxt_static {
+        path /_nuxt/*
+    }
+    header @nuxt_static {
+        Cache-Control "public, max-age=31536000, immutable"
+    }
+
     reverse_proxy emh-frontend:3000
 }
 
