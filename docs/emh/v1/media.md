@@ -280,4 +280,5 @@ UploadType определяет назначение загружаемого ф
 | `UPLOAD_TYPE_HERO_PHOTO` | 1 | UPLOAD_TYPE_HERO_PHOTO - фотография героя. |
 | `UPLOAD_TYPE_AWARD_IMAGE` | 2 | UPLOAD_TYPE_AWARD_IMAGE - изображение награды. |
 | `UPLOAD_TYPE_SUBMISSION_ATTACHMENT` | 3 | UPLOAD_TYPE_SUBMISSION_ATTACHMENT - документ к заявке. |
+| `UPLOAD_TYPE_AWARD_RIBBON` | 4 | UPLOAD_TYPE_AWARD_RIBBON - изображение ленты награды для орденской планки. |
 

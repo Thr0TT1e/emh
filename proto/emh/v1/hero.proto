@@ -160,6 +160,30 @@ message HeroAward {
   // award_date_info - гибкая дата награждения.
   // Если заполнено, имеет приоритет над award_date.
   FlexibleDate award_date_info = 5;
+  // devices - знаки повторности (звёздочки, цифры, дубовые листья).
+  // Например, при повторном награждении одной и той же медалью.
+  repeated AwardDevice devices = 6;
+  // ribbon_image_url - URL изображения ленты награды (денормализация из справочника).
+  // Пусто, если лента для награды ещё не загружена.
+  string ribbon_image_url = 7;
+  // type - тип награды (денормализация из справочника).
+  AwardType type = 8;
+  // worn_without_bar - награда носится без колодки (денормализация из справочника).
+  bool worn_without_bar = 9;
+  // is_jubilee - юбилейная награда (денормализация из справочника).
+  bool is_jubilee = 10;
+  // jurisdiction - государственная принадлежность награды (денормализация из справочника).
+  AwardJurisdiction jurisdiction = 11;
+  // image_url - URL изображения знака награды (денормализация из справочника).
+  string image_url = 12;
+}
+
+// AwardDevice знак повторности на планке.
+message AwardDevice {
+  // type - тип знака (звёздочка, цифра, дубовые листья).
+  string type = 1;
+  // count - количество (например, 2 звёздочки).
+  int32 count = 2;
 }
 
 // HeroConflict описывает участие героя в конкретном конфликте.

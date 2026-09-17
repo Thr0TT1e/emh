@@ -19,6 +19,30 @@ type awardRepository struct {
 	sb   squirrel.StatementBuilderType
 }
 
+// awardColumns список колонок для чтения награды.
+// COALESCE для ribbon_image_url: у строк, созданных до миграции 00027, значение NULL.
+const awardColumns = `id, name, description, image_url, sort_order,
+	COALESCE(ribbon_image_url, '') AS ribbon_image_url, type, jurisdiction, worn_without_bar, is_jubilee,
+	created_at, updated_at`
+
+// scanAward маппит строку БД в доменную модель (порядок колонок — awardColumns).
+func scanAward(s scannable) (*domain.Award, error) {
+	a := &domain.Award{}
+	var awardType, jurisdiction int
+
+	if err := s.Scan(
+		&a.ID, &a.Name, &a.Description, &a.ImageURL, &a.SortOrder,
+		&a.RibbonImageURL, &awardType, &jurisdiction, &a.WornWithoutBar, &a.IsJubilee,
+		&a.CreatedAt, &a.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	a.Type = domain.AwardType(awardType)
+	a.Jurisdiction = domain.AwardJurisdiction(jurisdiction)
+	return a, nil
+}
+
 func NewAwardRepository(pool *pgxpool.Pool) repository.AwardRepository {
 	return &awardRepository{
 		pool: pool,
@@ -28,8 +52,10 @@ func NewAwardRepository(pool *pgxpool.Pool) repository.AwardRepository {
 
 func (r *awardRepository) Create(ctx context.Context, p domain.CreateAwardParams) (string, error) {
 	query := r.sb.Insert("awards").
-		Columns("name", "description", "image_url", "sort_order").
-		Values(p.Name, p.Description, p.ImageURL, p.SortOrder).
+		Columns("name", "description", "image_url", "sort_order",
+			"ribbon_image_url", "type", "jurisdiction", "worn_without_bar", "is_jubilee").
+		Values(p.Name, p.Description, p.ImageURL, p.SortOrder,
+			p.RibbonImageURL, int(p.Type), int(p.Jurisdiction), p.WornWithoutBar, p.IsJubilee).
 		Suffix("RETURNING id")
 
 	sql, args, err := query.ToSql()
@@ -64,19 +90,31 @@ func (r *awardRepository) Update(ctx context.Context, p domain.UpdateAwardParams
 	if mask["sort_order"] {
 		update = update.Set("sort_order", p.SortOrder)
 	}
+	if mask["ribbon_image_url"] {
+		update = update.Set("ribbon_image_url", p.RibbonImageURL)
+	}
+	if mask["type"] {
+		update = update.Set("type", int(p.Type))
+	}
+	if mask["jurisdiction"] {
+		update = update.Set("jurisdiction", int(p.Jurisdiction))
+	}
+	if mask["worn_without_bar"] {
+		update = update.Set("worn_without_bar", p.WornWithoutBar)
+	}
+	if mask["is_jubilee"] {
+		update = update.Set("is_jubilee", p.IsJubilee)
+	}
 
 	update = update.Set("updated_at", time.Now())
-	update = update.Suffix("RETURNING id, name, description, image_url, sort_order, created_at, updated_at")
+	update = update.Suffix("RETURNING " + awardColumns)
 
 	sql, args, err := update.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("build update award: %w", err)
 	}
 
-	a := &domain.Award{}
-	err = r.pool.QueryRow(ctx, sql, args...).Scan(
-		&a.ID, &a.Name, &a.Description, &a.ImageURL, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt,
-	)
+	a, err := scanAward(r.pool.QueryRow(ctx, sql, args...))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("award not found")
@@ -104,7 +142,7 @@ func (r *awardRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (r *awardRepository) GetByID(ctx context.Context, id string) (*domain.Award, error) {
-	query := r.sb.Select("id, name, description, image_url, sort_order, created_at, updated_at").
+	query := r.sb.Select(awardColumns).
 		From("awards").
 		Where(squirrel.Eq{"id": id})
 
@@ -113,10 +151,7 @@ func (r *awardRepository) GetByID(ctx context.Context, id string) (*domain.Award
 		return nil, fmt.Errorf("build get award: %w", err)
 	}
 
-	a := &domain.Award{}
-	err = r.pool.QueryRow(ctx, sql, args...).Scan(
-		&a.ID, &a.Name, &a.Description, &a.ImageURL, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt,
-	)
+	a, err := scanAward(r.pool.QueryRow(ctx, sql, args...))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("award not found")
@@ -142,7 +177,7 @@ func (r *awardRepository) List(ctx context.Context, f domain.AwardFilter) ([]*do
 	}
 
 	// 2. SELECT с пагинацией
-	sel := r.sb.Select("id, name, description, image_url, sort_order, created_at, updated_at").
+	sel := r.sb.Select(awardColumns).
 		From("awards").
 		OrderBy("sort_order ASC, name ASC, id ASC")
 
@@ -169,8 +204,8 @@ func (r *awardRepository) List(ctx context.Context, f domain.AwardFilter) ([]*do
 
 	var awards []*domain.Award
 	for rows.Next() {
-		a := &domain.Award{}
-		if err := rows.Scan(&a.ID, &a.Name, &a.Description, &a.ImageURL, &a.SortOrder, &a.CreatedAt, &a.UpdatedAt); err != nil {
+		a, err := scanAward(rows)
+		if err != nil {
 			return nil, "", 0, fmt.Errorf("scan award: %w", err)
 		}
 		awards = append(awards, a)

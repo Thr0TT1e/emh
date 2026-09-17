@@ -51,8 +51,13 @@ CreateAward создает новую запись в справочнике н�
 {
   "description": "string",
   "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
   "name": "string",
-  "sortOrder": 0
+  "ribbonImageUrl": "string",
+  "sortOrder": 0,
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
 }
 ```
 
@@ -86,8 +91,13 @@ UpdateAward частично обновляет существующую наг�
   ],
   "id": "string",
   "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
   "name": "string",
-  "sortOrder": 0
+  "ribbonImageUrl": "string",
+  "sortOrder": 0,
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
 }
 ```
 
@@ -99,8 +109,13 @@ UpdateAward частично обновляет существующую наг�
     "description": "string",
     "id": "string",
     "imageUrl": "string",
+    "isJubilee": true,
+    "jurisdiction": "AwardJurisdiction_VALUE",
     "name": "string",
-    "sortOrder": 0
+    "ribbonImageUrl": "string",
+    "sortOrder": 0,
+    "type": "AwardType_VALUE",
+    "wornWithoutBar": true
   }
 }
 ```
@@ -147,6 +162,11 @@ CreateAwardRequest данные для создания новой наград�
 | description | string | optional | description - описание или статут награды. |
 | image_url | string | optional | image_url - URL загруженного изображения ленты или знака награды. |
 | sort_order | int32 | optional | sort_order - приоритет сортировки при отображении (старшие награды выше). |
+| ribbon_image_url | string | optional | ribbon_image_url - URL изображения ленты награды для орденской планки. Опционально: награду можно создать без загруженной ленты. |
+| type | AwardType | optional | type - тип награды (орден, медаль, знак). Обязателен при создании. |
+| worn_without_bar | bool | optional | worn_without_bar - награда носится без колодки и не входит в блок планок. |
+| is_jubilee | bool | optional | is_jubilee - признак юбилейной награды. |
+| jurisdiction | AwardJurisdiction | optional | jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная). |
 
 <details>
 <summary>JSON Example</summary>
@@ -155,8 +175,13 @@ CreateAwardRequest данные для создания новой наград�
 {
   "description": "string",
   "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
   "name": "string",
-  "sortOrder": 0
+  "ribbonImageUrl": "string",
+  "sortOrder": 0,
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
 }
 ```
 
@@ -197,6 +222,11 @@ UpdateAwardRequest данные для частичного обновления
 | image_url | string | optional | image_url - новый URL изображения награды. |
 | sort_order | int32 | optional | sort_order - новый приоритет сортировки. |
 | field_mask | string | repeated | field_mask - список полей для обновления. Позволяет отличить очистку поля от отсутствия изменений. |
+| ribbon_image_url | string | optional | ribbon_image_url - новый URL изображения ленты награды. Пустое значение очищает ленту. |
+| type | AwardType | optional | type - новый тип награды (орден, медаль, знак). |
+| worn_without_bar | bool | optional | worn_without_bar - новый признак ношения без колодки. |
+| is_jubilee | bool | optional | is_jubilee - новый признак юбилейной награды. |
+| jurisdiction | AwardJurisdiction | optional | jurisdiction - новая государственная принадлежность награды. |
 
 <details>
 <summary>JSON Example</summary>
@@ -209,8 +239,13 @@ UpdateAwardRequest данные для частичного обновления
   ],
   "id": "string",
   "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
   "name": "string",
-  "sortOrder": 0
+  "ribbonImageUrl": "string",
+  "sortOrder": 0,
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
 }
 ```
 
@@ -235,8 +270,13 @@ UpdateAwardResponse обновленный объект награды.
     "description": "string",
     "id": "string",
     "imageUrl": "string",
+    "isJubilee": true,
+    "jurisdiction": "AwardJurisdiction_VALUE",
     "name": "string",
-    "sortOrder": 0
+    "ribbonImageUrl": "string",
+    "sortOrder": 0,
+    "type": "AwardType_VALUE",
+    "wornWithoutBar": true
   }
 }
 ```

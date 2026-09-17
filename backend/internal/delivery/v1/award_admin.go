@@ -27,10 +27,15 @@ func (s *AwardAdminServer) CreateAward(
 	s.logger.InfoContext(ctx, "creating award", "name", req.Msg.Name)
 
 	params := domain.CreateAwardParams{
-		Name:        req.Msg.Name,
-		Description: req.Msg.Description,
-		ImageURL:    req.Msg.ImageUrl,
-		SortOrder:   int(req.Msg.SortOrder),
+		Name:           req.Msg.Name,
+		Description:    req.Msg.Description,
+		ImageURL:       req.Msg.ImageUrl,
+		SortOrder:      int(req.Msg.SortOrder),
+		RibbonImageURL: req.Msg.RibbonImageUrl,
+		Type:           domain.AwardType(req.Msg.Type),
+		Jurisdiction:   domain.AwardJurisdiction(req.Msg.Jurisdiction),
+		WornWithoutBar: req.Msg.WornWithoutBar,
+		IsJubilee:      req.Msg.IsJubilee,
 	}
 
 	id, err := s.awardUC.Create(ctx, params)
@@ -48,12 +53,17 @@ func (s *AwardAdminServer) UpdateAward(
 	s.logger.InfoContext(ctx, "updating award", "id", req.Msg.Id)
 
 	params := domain.UpdateAwardParams{
-		ID:          req.Msg.Id,
-		Name:        req.Msg.Name,
-		Description: req.Msg.Description,
-		ImageURL:    req.Msg.ImageUrl,
-		SortOrder:   int(req.Msg.SortOrder),
-		FieldMask:   req.Msg.FieldMask,
+		ID:             req.Msg.Id,
+		Name:           req.Msg.Name,
+		Description:    req.Msg.Description,
+		ImageURL:       req.Msg.ImageUrl,
+		SortOrder:      int(req.Msg.SortOrder),
+		RibbonImageURL: req.Msg.RibbonImageUrl,
+		Type:           domain.AwardType(req.Msg.Type),
+		Jurisdiction:   domain.AwardJurisdiction(req.Msg.Jurisdiction),
+		WornWithoutBar: req.Msg.WornWithoutBar,
+		IsJubilee:      req.Msg.IsJubilee,
+		FieldMask:      req.Msg.FieldMask,
 	}
 
 	award, err := s.awardUC.Update(ctx, params)

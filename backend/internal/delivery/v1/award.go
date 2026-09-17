@@ -75,10 +75,15 @@ func (s *AwardServer) ListAwards(
 
 func mapAwardToProto(a *domain.Award) *emhv1.Award {
 	return &emhv1.Award{
-		Id:          a.ID,
-		Name:        a.Name,
-		Description: a.Description,
-		ImageUrl:    a.ImageURL,
-		SortOrder:   int32(a.SortOrder),
+		Id:             a.ID,
+		Name:           a.Name,
+		Description:    a.Description,
+		ImageUrl:       a.ImageURL,
+		SortOrder:      int32(a.SortOrder),
+		RibbonImageUrl: a.RibbonImageURL,
+		Type:           emhv1.AwardType(a.Type),
+		WornWithoutBar: a.WornWithoutBar,
+		IsJubilee:      a.IsJubilee,
+		Jurisdiction:   emhv1.AwardJurisdiction(a.Jurisdiction),
 	}
 }

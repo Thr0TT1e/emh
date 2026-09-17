@@ -6,7 +6,7 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
-import type { HeroLocationType, HeroLocationTypeJson, PublicationStatus, PublicationStatusJson } from "./enums_emh_pb";
+import type { AwardJurisdiction, AwardJurisdictionJson, AwardType, AwardTypeJson, HeroLocationType, HeroLocationTypeJson, PublicationStatus, PublicationStatusJson } from "./enums_emh_pb";
 import { file_emh_v1_enums_emh } from "./enums_emh_pb";
 import type { AuditInfo, AuditInfoJson, FlexibleDate, FlexibleDateJson, PaginationRequest, PaginationRequestJson, PaginationResponse, PaginationResponseJson } from "./common_pb";
 import { file_emh_v1_common } from "./common_pb";
@@ -21,7 +21,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file emh/v1/hero.proto.
  */
 export const file_emh_v1_hero: GenFile = /*@__PURE__*/
-  fileDesc("ChFlbWgvdjEvaGVyby5wcm90bxIGZW1oLnYxIuADCgtIZXJvU3VtbWFyeRIKCgJpZBgBIAEoCRIRCglsYXN0X25hbWUYAiABKAkSEgoKZmlyc3RfbmFtZRgDIAEoCRITCgttaWRkbGVfbmFtZRgEIAEoCRIWCg5tYWluX3Bob3RvX3VybBgFIAEoCRIMCgRyYW5rGAYgASgJEhEKCXNob3J0X2JpbxgHIAEoCRITCgthd2FyZF9uYW1lcxgIIAMoCRIuCgpiaXJ0aF9kYXRlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpkZWF0aF9kYXRlGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghuaWNrbmFtZRgLIAEoCRIMCgR1bml0GAwgASgJEhYKDnNlcnZpY2VfYnJhbmNoGA0gASgJEhoKEm1haW5fdGh1bWJuYWlsX3VybBgOIAEoCRItCg9iaXJ0aF9kYXRlX2luZm8YDyABKAsyFC5lbWgudjEuRmxleGlibGVEYXRlEi0KD2RlYXRoX2RhdGVfaW5mbxgQIAEoCzIULmVtaC52MS5GbGV4aWJsZURhdGUSKQoGc3RhdHVzGBEgASgOMhkuZW1oLnYxLlB1YmxpY2F0aW9uU3RhdHVzIqEECgpIZXJvRGV0YWlsEiQKB3N1bW1hcnkYASABKAsyEy5lbWgudjEuSGVyb1N1bW1hcnkSEAoIZnVsbF9iaW8YAiABKAkSHQoGcGhvdG9zGAMgAygLMg0uZW1oLnYxLlBob3RvEiEKBmF3YXJkcxgEIAMoCzIRLmVtaC52MS5IZXJvQXdhcmQSJwoJY29uZmxpY3RzGAUgAygLMhQuZW1oLnYxLkhlcm9Db25mbGljdBInCglsb2NhdGlvbnMYBiADKAsyFC5lbWgudjEuSGVyb0xvY2F0aW9uEikKBnN0YXR1cxgHIAEoDjIZLmVtaC52MS5QdWJsaWNhdGlvblN0YXR1cxIgCgVhdWRpdBgIIAEoCzIRLmVtaC52MS5BdWRpdEluZm8SEAoIcG9zaXRpb24YCSABKAkSFgoOY2F1c2Vfb2ZfZGVhdGgYCiABKAkSNgoSc2VydmljZV9zdGFydF9kYXRlGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgttZW1iZXJzaGlwcxgMIAMoCRIjCgdzb3VyY2VzGA0gAygLMhIuZW1oLnYxLkhlcm9Tb3VyY2USJwoJcmVsYXRpb25zGA4gAygLMhQuZW1oLnYxLkhlcm9SZWxhdGlvbhI1ChdzZXJ2aWNlX3N0YXJ0X2RhdGVfaW5mbxgPIAEoCzIULmVtaC52MS5GbGV4aWJsZURhdGUiWgoKSGVyb1NvdXJjZRIKCgJpZBgBIAEoCRILCgN1cmwYAiABKAkSDQoFdGl0bGUYAyABKAkSEwoLc291cmNlX3R5cGUYBCABKAkSDwoHZXhjZXJwdBgFIAEoCSKLAQoMSGVyb1JlbGF0aW9uEgoKAmlkGAEgASgJEhQKDGZyb21faGVyb19pZBgCIAEoCRISCgp0b19oZXJvX2lkGAMgASgJEhUKDXJlbGF0aW9uX3R5cGUYBCABKAkSEwoLZGVzY3JpcHRpb24YBSABKAkSGQoRcmVsYXRlZF9oZXJvX25hbWUYBiABKAkiUAoHRmFjZUJveBIJCgF4GAEgASgFEgkKAXkYAiABKAUSFgoFd2lkdGgYAyABKAVCB7pIBBoCIAASFwoGaGVpZ2h0GAQgASgFQge6SAQaAiAAIpQBCgVQaG90bxIKCgJpZBgBIAEoCRILCgN1cmwYAiABKAkSFQoNdGh1bWJuYWlsX3VybBgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRISCgpzb3J0X29yZGVyGAUgASgFEg8KB2lzX21haW4YBiABKAgSIQoIZmFjZV9ib3gYByABKAsyDy5lbWgudjEuRmFjZUJveCKnAQoJSGVyb0F3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhIKCmF3YXJkX25hbWUYAiABKAkSLgoKYXdhcmRfZGF0ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNZGVjcmVlX251bWJlchgEIAEoCRItCg9hd2FyZF9kYXRlX2luZm8YBSABKAsyFC5lbWgudjEuRmxleGlibGVEYXRlIm8KDEhlcm9Db25mbGljdBITCgtjb25mbGljdF9pZBgBIAEoCRIVCg1jb25mbGljdF9uYW1lGAIgASgJEhkKEXNwZWNpZmljX2xvY2F0aW9uGAMgASgJEhgKEHJhbmtfYXRfY29uZmxpY3QYBCABKAkibwoMSGVyb0xvY2F0aW9uEhMKC2xvY2F0aW9uX2lkGAEgASgJEiIKCGxvY2F0aW9uGAIgASgLMhAuZW1oLnYxLkxvY2F0aW9uEiYKBHR5cGUYAyABKA4yGC5lbWgudjEuSGVyb0xvY2F0aW9uVHlwZSIcCg5HZXRIZXJvUmVxdWVzdBIKCgJpZBgBIAEoCSIzCg9HZXRIZXJvUmVzcG9uc2USIAoEaGVybxgBIAEoCzISLmVtaC52MS5IZXJvRGV0YWlsIt4BChFMaXN0SGVyb2VzUmVxdWVzdBItCgpwYWdpbmF0aW9uGAEgASgLMhkuZW1oLnYxLlBhZ2luYXRpb25SZXF1ZXN0EhQKDHNlYXJjaF9xdWVyeRgCIAEoCRITCgtjb25mbGljdF9pZBgDIAEoCRITCgtsb2NhdGlvbl9pZBgEIAEoCRItCglkYXRlX2Zyb20YBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEisKB2RhdGVfdG8YBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImkKEkxpc3RIZXJvZXNSZXNwb25zZRIjCgZoZXJvZXMYASADKAsyEy5lbWgudjEuSGVyb1N1bW1hcnkSLgoKcGFnaW5hdGlvbhgCIAEoCzIaLmVtaC52MS5QYWdpbmF0aW9uUmVzcG9uc2UiYQoVTGlzdEhlcm9QaG90b3NSZXF1ZXN0EhkKB2hlcm9faWQYASABKAlCCLpIBXIDsAEBEi0KCnBhZ2luYXRpb24YAiABKAsyGS5lbWgudjEuUGFnaW5hdGlvblJlcXVlc3QiZwoWTGlzdEhlcm9QaG90b3NSZXNwb25zZRIdCgZwaG90b3MYASADKAsyDS5lbWgudjEuUGhvdG8SLgoKcGFnaW5hdGlvbhgCIAEoCzIaLmVtaC52MS5QYWdpbmF0aW9uUmVzcG9uc2UiMwoWTGlzdEhlcm9Tb3VyY2VzUmVxdWVzdBIZCgdoZXJvX2lkGAEgASgJQgi6SAVyA7ABASI+ChdMaXN0SGVyb1NvdXJjZXNSZXNwb25zZRIjCgdzb3VyY2VzGAEgAygLMhIuZW1oLnYxLkhlcm9Tb3VyY2UiNQoYTGlzdEhlcm9SZWxhdGlvbnNSZXF1ZXN0EhkKB2hlcm9faWQYASABKAlCCLpIBXIDsAEBIkQKGUxpc3RIZXJvUmVsYXRpb25zUmVzcG9uc2USJwoJcmVsYXRpb25zGAEgAygLMhQuZW1oLnYxLkhlcm9SZWxhdGlvbjKNAwoLSGVyb1NlcnZpY2USOgoHR2V0SGVybxIWLmVtaC52MS5HZXRIZXJvUmVxdWVzdBoXLmVtaC52MS5HZXRIZXJvUmVzcG9uc2USQwoKTGlzdEhlcm9lcxIZLmVtaC52MS5MaXN0SGVyb2VzUmVxdWVzdBoaLmVtaC52MS5MaXN0SGVyb2VzUmVzcG9uc2USTwoOTGlzdEhlcm9QaG90b3MSHS5lbWgudjEuTGlzdEhlcm9QaG90b3NSZXF1ZXN0Gh4uZW1oLnYxLkxpc3RIZXJvUGhvdG9zUmVzcG9uc2USUgoPTGlzdEhlcm9Tb3VyY2VzEh4uZW1oLnYxLkxpc3RIZXJvU291cmNlc1JlcXVlc3QaHy5lbWgudjEuTGlzdEhlcm9Tb3VyY2VzUmVzcG9uc2USWAoRTGlzdEhlcm9SZWxhdGlvbnMSIC5lbWgudjEuTGlzdEhlcm9SZWxhdGlvbnNSZXF1ZXN0GiEuZW1oLnYxLkxpc3RIZXJvUmVsYXRpb25zUmVzcG9uc2VCPVo7Y29kZWJlcmcub3JnL1RocjBUVDFlL2VtaC9iYWNrZW5kL2ludGVybmFsL2dlbi9lbWgvdjE7ZW1odjFiBnByb3RvMw", [file_emh_v1_enums_emh, file_emh_v1_common, file_emh_v1_location, file_google_protobuf_timestamp, file_buf_validate_validate]);
+  fileDesc("ChFlbWgvdjEvaGVyby5wcm90bxIGZW1oLnYxIuADCgtIZXJvU3VtbWFyeRIKCgJpZBgBIAEoCRIRCglsYXN0X25hbWUYAiABKAkSEgoKZmlyc3RfbmFtZRgDIAEoCRITCgttaWRkbGVfbmFtZRgEIAEoCRIWCg5tYWluX3Bob3RvX3VybBgFIAEoCRIMCgRyYW5rGAYgASgJEhEKCXNob3J0X2JpbxgHIAEoCRITCgthd2FyZF9uYW1lcxgIIAMoCRIuCgpiaXJ0aF9kYXRlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgpkZWF0aF9kYXRlGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghuaWNrbmFtZRgLIAEoCRIMCgR1bml0GAwgASgJEhYKDnNlcnZpY2VfYnJhbmNoGA0gASgJEhoKEm1haW5fdGh1bWJuYWlsX3VybBgOIAEoCRItCg9iaXJ0aF9kYXRlX2luZm8YDyABKAsyFC5lbWgudjEuRmxleGlibGVEYXRlEi0KD2RlYXRoX2RhdGVfaW5mbxgQIAEoCzIULmVtaC52MS5GbGV4aWJsZURhdGUSKQoGc3RhdHVzGBEgASgOMhkuZW1oLnYxLlB1YmxpY2F0aW9uU3RhdHVzIqEECgpIZXJvRGV0YWlsEiQKB3N1bW1hcnkYASABKAsyEy5lbWgudjEuSGVyb1N1bW1hcnkSEAoIZnVsbF9iaW8YAiABKAkSHQoGcGhvdG9zGAMgAygLMg0uZW1oLnYxLlBob3RvEiEKBmF3YXJkcxgEIAMoCzIRLmVtaC52MS5IZXJvQXdhcmQSJwoJY29uZmxpY3RzGAUgAygLMhQuZW1oLnYxLkhlcm9Db25mbGljdBInCglsb2NhdGlvbnMYBiADKAsyFC5lbWgudjEuSGVyb0xvY2F0aW9uEikKBnN0YXR1cxgHIAEoDjIZLmVtaC52MS5QdWJsaWNhdGlvblN0YXR1cxIgCgVhdWRpdBgIIAEoCzIRLmVtaC52MS5BdWRpdEluZm8SEAoIcG9zaXRpb24YCSABKAkSFgoOY2F1c2Vfb2ZfZGVhdGgYCiABKAkSNgoSc2VydmljZV9zdGFydF9kYXRlGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgttZW1iZXJzaGlwcxgMIAMoCRIjCgdzb3VyY2VzGA0gAygLMhIuZW1oLnYxLkhlcm9Tb3VyY2USJwoJcmVsYXRpb25zGA4gAygLMhQuZW1oLnYxLkhlcm9SZWxhdGlvbhI1ChdzZXJ2aWNlX3N0YXJ0X2RhdGVfaW5mbxgPIAEoCzIULmVtaC52MS5GbGV4aWJsZURhdGUiWgoKSGVyb1NvdXJjZRIKCgJpZBgBIAEoCRILCgN1cmwYAiABKAkSDQoFdGl0bGUYAyABKAkSEwoLc291cmNlX3R5cGUYBCABKAkSDwoHZXhjZXJwdBgFIAEoCSKLAQoMSGVyb1JlbGF0aW9uEgoKAmlkGAEgASgJEhQKDGZyb21faGVyb19pZBgCIAEoCRISCgp0b19oZXJvX2lkGAMgASgJEhUKDXJlbGF0aW9uX3R5cGUYBCABKAkSEwoLZGVzY3JpcHRpb24YBSABKAkSGQoRcmVsYXRlZF9oZXJvX25hbWUYBiABKAkiUAoHRmFjZUJveBIJCgF4GAEgASgFEgkKAXkYAiABKAUSFgoFd2lkdGgYAyABKAVCB7pIBBoCIAASFwoGaGVpZ2h0GAQgASgFQge6SAQaAiAAIpQBCgVQaG90bxIKCgJpZBgBIAEoCRILCgN1cmwYAiABKAkSFQoNdGh1bWJuYWlsX3VybBgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRISCgpzb3J0X29yZGVyGAUgASgFEg8KB2lzX21haW4YBiABKAgSIQoIZmFjZV9ib3gYByABKAsyDy5lbWgudjEuRmFjZUJveCL6AgoJSGVyb0F3YXJkEhAKCGF3YXJkX2lkGAEgASgJEhIKCmF3YXJkX25hbWUYAiABKAkSLgoKYXdhcmRfZGF0ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNZGVjcmVlX251bWJlchgEIAEoCRItCg9hd2FyZF9kYXRlX2luZm8YBSABKAsyFC5lbWgudjEuRmxleGlibGVEYXRlEiQKB2RldmljZXMYBiADKAsyEy5lbWgudjEuQXdhcmREZXZpY2USGAoQcmliYm9uX2ltYWdlX3VybBgHIAEoCRIfCgR0eXBlGAggASgOMhEuZW1oLnYxLkF3YXJkVHlwZRIYChB3b3JuX3dpdGhvdXRfYmFyGAkgASgIEhIKCmlzX2p1YmlsZWUYCiABKAgSLwoManVyaXNkaWN0aW9uGAsgASgOMhkuZW1oLnYxLkF3YXJkSnVyaXNkaWN0aW9uEhEKCWltYWdlX3VybBgMIAEoCSIqCgtBd2FyZERldmljZRIMCgR0eXBlGAEgASgJEg0KBWNvdW50GAIgASgFIm8KDEhlcm9Db25mbGljdBITCgtjb25mbGljdF9pZBgBIAEoCRIVCg1jb25mbGljdF9uYW1lGAIgASgJEhkKEXNwZWNpZmljX2xvY2F0aW9uGAMgASgJEhgKEHJhbmtfYXRfY29uZmxpY3QYBCABKAkibwoMSGVyb0xvY2F0aW9uEhMKC2xvY2F0aW9uX2lkGAEgASgJEiIKCGxvY2F0aW9uGAIgASgLMhAuZW1oLnYxLkxvY2F0aW9uEiYKBHR5cGUYAyABKA4yGC5lbWgudjEuSGVyb0xvY2F0aW9uVHlwZSIcCg5HZXRIZXJvUmVxdWVzdBIKCgJpZBgBIAEoCSIzCg9HZXRIZXJvUmVzcG9uc2USIAoEaGVybxgBIAEoCzISLmVtaC52MS5IZXJvRGV0YWlsIt4BChFMaXN0SGVyb2VzUmVxdWVzdBItCgpwYWdpbmF0aW9uGAEgASgLMhkuZW1oLnYxLlBhZ2luYXRpb25SZXF1ZXN0EhQKDHNlYXJjaF9xdWVyeRgCIAEoCRITCgtjb25mbGljdF9pZBgDIAEoCRITCgtsb2NhdGlvbl9pZBgEIAEoCRItCglkYXRlX2Zyb20YBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEisKB2RhdGVfdG8YBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImkKEkxpc3RIZXJvZXNSZXNwb25zZRIjCgZoZXJvZXMYASADKAsyEy5lbWgudjEuSGVyb1N1bW1hcnkSLgoKcGFnaW5hdGlvbhgCIAEoCzIaLmVtaC52MS5QYWdpbmF0aW9uUmVzcG9uc2UiYQoVTGlzdEhlcm9QaG90b3NSZXF1ZXN0EhkKB2hlcm9faWQYASABKAlCCLpIBXIDsAEBEi0KCnBhZ2luYXRpb24YAiABKAsyGS5lbWgudjEuUGFnaW5hdGlvblJlcXVlc3QiZwoWTGlzdEhlcm9QaG90b3NSZXNwb25zZRIdCgZwaG90b3MYASADKAsyDS5lbWgudjEuUGhvdG8SLgoKcGFnaW5hdGlvbhgCIAEoCzIaLmVtaC52MS5QYWdpbmF0aW9uUmVzcG9uc2UiMwoWTGlzdEhlcm9Tb3VyY2VzUmVxdWVzdBIZCgdoZXJvX2lkGAEgASgJQgi6SAVyA7ABASI+ChdMaXN0SGVyb1NvdXJjZXNSZXNwb25zZRIjCgdzb3VyY2VzGAEgAygLMhIuZW1oLnYxLkhlcm9Tb3VyY2UiNQoYTGlzdEhlcm9SZWxhdGlvbnNSZXF1ZXN0EhkKB2hlcm9faWQYASABKAlCCLpIBXIDsAEBIkQKGUxpc3RIZXJvUmVsYXRpb25zUmVzcG9uc2USJwoJcmVsYXRpb25zGAEgAygLMhQuZW1oLnYxLkhlcm9SZWxhdGlvbjKNAwoLSGVyb1NlcnZpY2USOgoHR2V0SGVybxIWLmVtaC52MS5HZXRIZXJvUmVxdWVzdBoXLmVtaC52MS5HZXRIZXJvUmVzcG9uc2USQwoKTGlzdEhlcm9lcxIZLmVtaC52MS5MaXN0SGVyb2VzUmVxdWVzdBoaLmVtaC52MS5MaXN0SGVyb2VzUmVzcG9uc2USTwoOTGlzdEhlcm9QaG90b3MSHS5lbWgudjEuTGlzdEhlcm9QaG90b3NSZXF1ZXN0Gh4uZW1oLnYxLkxpc3RIZXJvUGhvdG9zUmVzcG9uc2USUgoPTGlzdEhlcm9Tb3VyY2VzEh4uZW1oLnYxLkxpc3RIZXJvU291cmNlc1JlcXVlc3QaHy5lbWgudjEuTGlzdEhlcm9Tb3VyY2VzUmVzcG9uc2USWAoRTGlzdEhlcm9SZWxhdGlvbnMSIC5lbWgudjEuTGlzdEhlcm9SZWxhdGlvbnNSZXF1ZXN0GiEuZW1oLnYxLkxpc3RIZXJvUmVsYXRpb25zUmVzcG9uc2VCPVo7Y29kZWJlcmcub3JnL1RocjBUVDFlL2VtaC9iYWNrZW5kL2ludGVybmFsL2dlbi9lbWgvdjE7ZW1odjFiBnByb3RvMw", [file_emh_v1_enums_emh, file_emh_v1_common, file_emh_v1_location, file_google_protobuf_timestamp, file_buf_validate_validate]);
 
 /**
  * HeroSummary содержит краткую информацию о герое для отображения в списках и результатах поиска.
@@ -954,6 +954,57 @@ export type HeroAward = Message<"emh.v1.HeroAward"> & {
    * @generated from field: emh.v1.FlexibleDate award_date_info = 5;
    */
   awardDateInfo?: FlexibleDate | undefined;
+
+  /**
+   * devices - знаки повторности (звёздочки, цифры, дубовые листья).
+   * Например, при повторном награждении одной и той же медалью.
+   *
+   * @generated from field: repeated emh.v1.AwardDevice devices = 6;
+   */
+  devices: AwardDevice[];
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды (денормализация из справочника).
+   * Пусто, если лента для награды ещё не загружена.
+   *
+   * @generated from field: string ribbon_image_url = 7;
+   */
+  ribbonImageUrl: string;
+
+  /**
+   * type - тип награды (денормализация из справочника).
+   *
+   * @generated from field: emh.v1.AwardType type = 8;
+   */
+  type: AwardType;
+
+  /**
+   * worn_without_bar - награда носится без колодки (денормализация из справочника).
+   *
+   * @generated from field: bool worn_without_bar = 9;
+   */
+  wornWithoutBar: boolean;
+
+  /**
+   * is_jubilee - юбилейная награда (денормализация из справочника).
+   *
+   * @generated from field: bool is_jubilee = 10;
+   */
+  isJubilee: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (денормализация из справочника).
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 11;
+   */
+  jurisdiction: AwardJurisdiction;
+
+  /**
+   * image_url - URL изображения знака награды (денормализация из справочника).
+   *
+   * @generated from field: string image_url = 12;
+   */
+  imageUrl: string;
 };
 
 /**
@@ -997,6 +1048,57 @@ export type HeroAwardJson = {
    * @generated from field: emh.v1.FlexibleDate award_date_info = 5;
    */
   awardDateInfo?: FlexibleDateJson;
+
+  /**
+   * devices - знаки повторности (звёздочки, цифры, дубовые листья).
+   * Например, при повторном награждении одной и той же медалью.
+   *
+   * @generated from field: repeated emh.v1.AwardDevice devices = 6;
+   */
+  devices?: AwardDeviceJson[];
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды (денормализация из справочника).
+   * Пусто, если лента для награды ещё не загружена.
+   *
+   * @generated from field: string ribbon_image_url = 7;
+   */
+  ribbonImageUrl?: string;
+
+  /**
+   * type - тип награды (денормализация из справочника).
+   *
+   * @generated from field: emh.v1.AwardType type = 8;
+   */
+  type?: AwardTypeJson;
+
+  /**
+   * worn_without_bar - награда носится без колодки (денормализация из справочника).
+   *
+   * @generated from field: bool worn_without_bar = 9;
+   */
+  wornWithoutBar?: boolean;
+
+  /**
+   * is_jubilee - юбилейная награда (денормализация из справочника).
+   *
+   * @generated from field: bool is_jubilee = 10;
+   */
+  isJubilee?: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (денормализация из справочника).
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 11;
+   */
+  jurisdiction?: AwardJurisdictionJson;
+
+  /**
+   * image_url - URL изображения знака награды (денормализация из справочника).
+   *
+   * @generated from field: string image_url = 12;
+   */
+  imageUrl?: string;
 };
 
 /**
@@ -1005,6 +1107,55 @@ export type HeroAwardJson = {
  */
 export const HeroAwardSchema: GenMessage<HeroAward, {jsonType: HeroAwardJson}> = /*@__PURE__*/
   messageDesc(file_emh_v1_hero, 6);
+
+/**
+ * AwardDevice знак повторности на планке.
+ *
+ * @generated from message emh.v1.AwardDevice
+ */
+export type AwardDevice = Message<"emh.v1.AwardDevice"> & {
+  /**
+   * type - тип знака (звёздочка, цифра, дубовые листья).
+   *
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * count - количество (например, 2 звёздочки).
+   *
+   * @generated from field: int32 count = 2;
+   */
+  count: number;
+};
+
+/**
+ * AwardDevice знак повторности на планке.
+ *
+ * @generated from message emh.v1.AwardDevice
+ */
+export type AwardDeviceJson = {
+  /**
+   * type - тип знака (звёздочка, цифра, дубовые листья).
+   *
+   * @generated from field: string type = 1;
+   */
+  type?: string;
+
+  /**
+   * count - количество (например, 2 звёздочки).
+   *
+   * @generated from field: int32 count = 2;
+   */
+  count?: number;
+};
+
+/**
+ * Describes the message emh.v1.AwardDevice.
+ * Use `create(AwardDeviceSchema)` to create a new message.
+ */
+export const AwardDeviceSchema: GenMessage<AwardDevice, {jsonType: AwardDeviceJson}> = /*@__PURE__*/
+  messageDesc(file_emh_v1_hero, 7);
 
 /**
  * HeroConflict описывает участие героя в конкретном конфликте.
@@ -1081,7 +1232,7 @@ export type HeroConflictJson = {
  * Use `create(HeroConflictSchema)` to create a new message.
  */
 export const HeroConflictSchema: GenMessage<HeroConflict, {jsonType: HeroConflictJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 7);
+  messageDesc(file_emh_v1_hero, 8);
 
 /**
  * HeroLocation связывает героя с географическим объектом.
@@ -1144,7 +1295,7 @@ export type HeroLocationJson = {
  * Use `create(HeroLocationSchema)` to create a new message.
  */
 export const HeroLocationSchema: GenMessage<HeroLocation, {jsonType: HeroLocationJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 8);
+  messageDesc(file_emh_v1_hero, 9);
 
 /**
  * GetHeroRequest запрос на получение полной карточки героя.
@@ -1179,7 +1330,7 @@ export type GetHeroRequestJson = {
  * Use `create(GetHeroRequestSchema)` to create a new message.
  */
 export const GetHeroRequestSchema: GenMessage<GetHeroRequest, {jsonType: GetHeroRequestJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 9);
+  messageDesc(file_emh_v1_hero, 10);
 
 /**
  * GetHeroResponse ответ с полной информацией о герое.
@@ -1214,7 +1365,7 @@ export type GetHeroResponseJson = {
  * Use `create(GetHeroResponseSchema)` to create a new message.
  */
 export const GetHeroResponseSchema: GenMessage<GetHeroResponse, {jsonType: GetHeroResponseJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 10);
+  messageDesc(file_emh_v1_hero, 11);
 
 /**
  * ListHeroesRequest параметры поиска и фильтрации списка героев.
@@ -1319,7 +1470,7 @@ export type ListHeroesRequestJson = {
  * Use `create(ListHeroesRequestSchema)` to create a new message.
  */
 export const ListHeroesRequestSchema: GenMessage<ListHeroesRequest, {jsonType: ListHeroesRequestJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 11);
+  messageDesc(file_emh_v1_hero, 12);
 
 /**
  * ListHeroesResponse результат поиска героев с пагинацией.
@@ -1368,7 +1519,7 @@ export type ListHeroesResponseJson = {
  * Use `create(ListHeroesResponseSchema)` to create a new message.
  */
 export const ListHeroesResponseSchema: GenMessage<ListHeroesResponse, {jsonType: ListHeroesResponseJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 12);
+  messageDesc(file_emh_v1_hero, 13);
 
 /**
  * ListHeroPhotosRequest запрос на получение всех фотографий героя.
@@ -1417,7 +1568,7 @@ export type ListHeroPhotosRequestJson = {
  * Use `create(ListHeroPhotosRequestSchema)` to create a new message.
  */
 export const ListHeroPhotosRequestSchema: GenMessage<ListHeroPhotosRequest, {jsonType: ListHeroPhotosRequestJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 13);
+  messageDesc(file_emh_v1_hero, 14);
 
 /**
  * ListHeroPhotosResponse список фотографий героя, упорядоченный по sort_order.
@@ -1466,7 +1617,7 @@ export type ListHeroPhotosResponseJson = {
  * Use `create(ListHeroPhotosResponseSchema)` to create a new message.
  */
 export const ListHeroPhotosResponseSchema: GenMessage<ListHeroPhotosResponse, {jsonType: ListHeroPhotosResponseJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 14);
+  messageDesc(file_emh_v1_hero, 15);
 
 /**
  * ListHeroSourcesRequest запрос на получение источников данных героя.
@@ -1501,7 +1652,7 @@ export type ListHeroSourcesRequestJson = {
  * Use `create(ListHeroSourcesRequestSchema)` to create a new message.
  */
 export const ListHeroSourcesRequestSchema: GenMessage<ListHeroSourcesRequest, {jsonType: ListHeroSourcesRequestJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 15);
+  messageDesc(file_emh_v1_hero, 16);
 
 /**
  * ListHeroSourcesResponse список источников данных героя.
@@ -1536,7 +1687,7 @@ export type ListHeroSourcesResponseJson = {
  * Use `create(ListHeroSourcesResponseSchema)` to create a new message.
  */
 export const ListHeroSourcesResponseSchema: GenMessage<ListHeroSourcesResponse, {jsonType: ListHeroSourcesResponseJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 16);
+  messageDesc(file_emh_v1_hero, 17);
 
 /**
  * ListHeroRelationsRequest запрос на получение связей героя с другими героями.
@@ -1571,7 +1722,7 @@ export type ListHeroRelationsRequestJson = {
  * Use `create(ListHeroRelationsRequestSchema)` to create a new message.
  */
 export const ListHeroRelationsRequestSchema: GenMessage<ListHeroRelationsRequest, {jsonType: ListHeroRelationsRequestJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 17);
+  messageDesc(file_emh_v1_hero, 18);
 
 /**
  * ListHeroRelationsResponse список связей героя с другими героями.
@@ -1606,7 +1757,7 @@ export type ListHeroRelationsResponseJson = {
  * Use `create(ListHeroRelationsResponseSchema)` to create a new message.
  */
 export const ListHeroRelationsResponseSchema: GenMessage<ListHeroRelationsResponse, {jsonType: ListHeroRelationsResponseJson}> = /*@__PURE__*/
-  messageDesc(file_emh_v1_hero, 18);
+  messageDesc(file_emh_v1_hero, 19);
 
 /**
  * HeroService публичный сервис для чтения данных о героях.

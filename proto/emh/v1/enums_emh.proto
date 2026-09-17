@@ -82,3 +82,28 @@ enum DatePrecision {
   // DATE_PRECISION_UNKNOWN означает, что дата неизвестна и есть только текстовое описание.
   DATE_PRECISION_UNKNOWN = 7;
 }
+
+// AwardType определяет тип награды. Используется для старшинства в орденской планке.
+enum AwardType {
+  // AWARD_TYPE_UNSPECIFIED - тип не указан.
+  AWARD_TYPE_UNSPECIFIED = 0;
+  // AWARD_TYPE_ORDER - орден.
+  AWARD_TYPE_ORDER = 1;
+  // AWARD_TYPE_MEDAL - медаль.
+  AWARD_TYPE_MEDAL = 2;
+  // AWARD_TYPE_BADGE - знак отличия или почётный знак.
+  AWARD_TYPE_BADGE = 3;
+}
+
+// AwardJurisdiction определяет государственную принадлежность награды.
+// Задаёт первичную ось старшинства согласно приказу МО РФ №1500.
+enum AwardJurisdiction {
+  // AWARD_JURISDICTION_UNSPECIFIED - принадлежность не указана.
+  AWARD_JURISDICTION_UNSPECIFIED = 0;
+  // AWARD_JURISDICTION_RUSSIAN_FEDERATION - награда Российской Федерации.
+  AWARD_JURISDICTION_RUSSIAN_FEDERATION = 1;
+  // AWARD_JURISDICTION_USSR - награда СССР.
+  AWARD_JURISDICTION_USSR = 2;
+  // AWARD_JURISDICTION_DEPARTMENTAL - ведомственная награда.
+  AWARD_JURISDICTION_DEPARTMENTAL = 3;
+}

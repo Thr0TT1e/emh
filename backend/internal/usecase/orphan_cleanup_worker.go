@@ -123,7 +123,7 @@ func (w *OrphanCleanupWorker) cleanup(ctx context.Context) error {
 		case <-ctx.Done():
 			w.logger.Warn("orphan cleanup cancelled",
 				"scanned", totalScanned,
-				"deleted", totalDeleted,
+				"deleted", totalDeleted.Load(),
 			)
 			return ctx.Err()
 		default:

@@ -60,8 +60,13 @@ func (r *heroAwardRepository) Remove(ctx context.Context, heroID, awardID string
 }
 
 func (r *heroAwardRepository) ListByHero(ctx context.Context, heroID string) ([]*domain.HeroAward, error) {
+	// Денормализация полей справочника для орденской планки (ADR-005):
+	// COALESCE для ribbon_image_url — у строк, созданных до миграции 00027, значение NULL.
 	query := r.sb.Select(
 		"ha.hero_id", "ha.award_id", "a.name", "ha.award_date", "ha.decree_number",
+		"COALESCE(a.ribbon_image_url, '') AS ribbon_image_url",
+		"COALESCE(a.image_url, '') AS image_url",
+		"a.type", "a.jurisdiction", "a.worn_without_bar", "a.is_jubilee",
 	).
 		From("hero_awards ha").
 		Join("awards a ON ha.award_id = a.id").
@@ -82,9 +87,16 @@ func (r *heroAwardRepository) ListByHero(ctx context.Context, heroID string) ([]
 	var awards []*domain.HeroAward
 	for rows.Next() {
 		ha := &domain.HeroAward{}
-		if err := rows.Scan(&ha.HeroID, &ha.AwardID, &ha.AwardName, &ha.AwardDate, &ha.DecreeNumber); err != nil {
+		var awardType, jurisdiction int
+		if err := rows.Scan(
+			&ha.HeroID, &ha.AwardID, &ha.AwardName, &ha.AwardDate, &ha.DecreeNumber,
+			&ha.RibbonImageURL, &ha.ImageURL, &awardType, &jurisdiction,
+			&ha.WornWithoutBar, &ha.IsJubilee,
+		); err != nil {
 			return nil, fmt.Errorf("scan hero award: %w", err)
 		}
+		ha.Type = domain.AwardType(awardType)
+		ha.Jurisdiction = domain.AwardJurisdiction(jurisdiction)
 		awards = append(awards, ha)
 	}
 	return awards, rows.Err()

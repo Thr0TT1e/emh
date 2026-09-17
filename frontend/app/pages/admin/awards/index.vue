@@ -8,9 +8,12 @@
     import { useConfirm } from 'primevue/useconfirm'
     import { useToast } from 'primevue/usetoast'
     import ImageUpload from '~/components/admin/ImageUpload.vue'
+    import { awardJurisdictionLabel, awardTypeLabel } from '~/lib/awards'
     import { toPlain } from '~/lib/pb'
     import type { AwardJson } from '~/sdk/emh/v1/award_pb'
     import { AwardSchema } from '~/sdk/emh/v1/award_pb'
+    import type { AwardJurisdictionJson, AwardTypeJson } from '~/sdk/emh/v1/enums_emh_pb'
+    import { AwardJurisdiction, AwardType } from '~/sdk/emh/v1/enums_emh_pb'
     import { UploadType } from '~/sdk/emh/v1/media_pb'
     import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em'
     import ImageIcon from '~icons/carbon/image?width=1.25em&height=1.25em'
@@ -23,6 +26,36 @@
     const { award, awardAdmin } = useApi()
     const toast = useToast()
     const confirm = useConfirm()
+
+    // ---------------------------------------------------------------------------
+    // Справочные мапы (тип и принадлежность — enum'ы, в форме держим numeric)
+    // ---------------------------------------------------------------------------
+    const TYPE_OPTIONS = [
+        { label: 'Орден', value: AwardType.ORDER },
+        { label: 'Медаль', value: AwardType.MEDAL },
+        { label: 'Знак отличия', value: AwardType.BADGE },
+    ]
+
+    const JURISDICTION_OPTIONS = [
+        { label: 'Не указана', value: AwardJurisdiction.UNSPECIFIED },
+        { label: 'Российская Федерация', value: AwardJurisdiction.RUSSIAN_FEDERATION },
+        { label: 'СССР', value: AwardJurisdiction.USSR },
+        { label: 'Ведомственная', value: AwardJurisdiction.DEPARTMENTAL },
+    ]
+
+    const TYPE_JSON_TO_NUM: Record<AwardTypeJson, AwardType> = {
+        AWARD_TYPE_UNSPECIFIED: AwardType.UNSPECIFIED,
+        AWARD_TYPE_ORDER: AwardType.ORDER,
+        AWARD_TYPE_MEDAL: AwardType.MEDAL,
+        AWARD_TYPE_BADGE: AwardType.BADGE,
+    }
+
+    const JURISDICTION_JSON_TO_NUM: Record<AwardJurisdictionJson, AwardJurisdiction> = {
+        AWARD_JURISDICTION_UNSPECIFIED: AwardJurisdiction.UNSPECIFIED,
+        AWARD_JURISDICTION_RUSSIAN_FEDERATION: AwardJurisdiction.RUSSIAN_FEDERATION,
+        AWARD_JURISDICTION_USSR: AwardJurisdiction.USSR,
+        AWARD_JURISDICTION_DEPARTMENTAL: AwardJurisdiction.DEPARTMENTAL,
+    }
 
     // ---------------------------------------------------------------------------
     // Список + серверный поиск (search_query есть в ListAwardsRequest)
@@ -66,11 +99,27 @@
         description: '',
         imageUrl: '',
         sortOrder: 0,
+        ribbonImageUrl: '',
+        type: AwardType.ORDER as AwardType,
+        jurisdiction: AwardJurisdiction.UNSPECIFIED as AwardJurisdiction,
+        wornWithoutBar: false,
+        isJubilee: false,
     })
+
+    // Полный набор изменяемых полей для partial update (snake_case, Q24а).
+    const UPDATE_FIELD_MASK = [
+        'name', 'description', 'image_url', 'sort_order',
+        'ribbon_image_url', 'type', 'jurisdiction', 'worn_without_bar', 'is_jubilee',
+    ]
 
     function openCreate() {
         editingId.value = null
-        Object.assign(form, { name: '', description: '', imageUrl: '', sortOrder: 0 })
+        Object.assign(form, {
+            name: '', description: '', imageUrl: '', sortOrder: 0,
+            ribbonImageUrl: '', type: AwardType.ORDER,
+            jurisdiction: AwardJurisdiction.UNSPECIFIED,
+            wornWithoutBar: false, isJubilee: false,
+        })
         dialogVisible.value = true
     }
 
@@ -81,6 +130,11 @@
             description: a.description ?? '',
             imageUrl: a.imageUrl ?? '',
             sortOrder: a.sortOrder ?? 0,
+            ribbonImageUrl: a.ribbonImageUrl ?? '',
+            type: TYPE_JSON_TO_NUM[a.type ?? 'AWARD_TYPE_UNSPECIFIED'] ?? AwardType.UNSPECIFIED,
+            jurisdiction: JURISDICTION_JSON_TO_NUM[a.jurisdiction ?? 'AWARD_JURISDICTION_UNSPECIFIED'] ?? AwardJurisdiction.UNSPECIFIED,
+            wornWithoutBar: a.wornWithoutBar ?? false,
+            isJubilee: a.isJubilee ?? false,
         })
         dialogVisible.value = true
     }
@@ -95,6 +149,15 @@
             })
             return
         }
+        if (form.type === AwardType.UNSPECIFIED) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Проверьте форму',
+                detail: 'Тип награды обязателен',
+                life: 3000
+            })
+            return
+        }
         busy.value = true
         try {
             const payload = {
@@ -102,12 +165,17 @@
                 description: form.description,
                 imageUrl: form.imageUrl,
                 sortOrder: form.sortOrder,
+                ribbonImageUrl: form.ribbonImageUrl,
+                type: form.type,
+                jurisdiction: form.jurisdiction,
+                wornWithoutBar: form.wornWithoutBar,
+                isJubilee: form.isJubilee,
             }
             if (editingId.value) {
                 await awardAdmin.updateAward({
                     id: editingId.value,
                     ...payload,
-                    fieldMask: ['name', 'description', 'image_url', 'sort_order'],
+                    fieldMask: UPDATE_FIELD_MASK,
                 })
                 toast.add({
                     severity: 'success',
@@ -191,7 +259,7 @@
                 <div class="flex flex-col gap-3">
                     <div class="award_pic">
                         <div>
-                            <span class="afield__label">Изображение (лента / знак)</span>
+                            <span class="afield__label">Знак награды</span>
                             <ImageUpload v-model="form.imageUrl" :type="UploadType.AWARD_IMAGE" />
                         </div>
 
@@ -206,6 +274,38 @@
                                 <span class="afield__label">Приоритет (меньше = старше)</span>
                                 <InputNumber v-model="form.sortOrder" :min="0" />
                             </label>
+                        </div>
+                    </div>
+
+                    <div class="award_pic">
+                        <div>
+                            <span class="afield__label">Лента (для планки)</span>
+                            <ImageUpload v-model="form.ribbonImageUrl" :type="UploadType.AWARD_RIBBON" />
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <label>
+                                <span class="afield__label">Тип награды *</span>
+                                <Select v-model="form.type" :options="TYPE_OPTIONS" option-label="label"
+                                    option-value="value" placeholder="Выберите тип…" class="w-full" />
+                            </label>
+
+                            <label>
+                                <span class="afield__label">Принадлежность</span>
+                                <Select v-model="form.jurisdiction" :options="JURISDICTION_OPTIONS" option-label="label"
+                                    option-value="value" placeholder="Выберите…" class="w-full" />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="award_flags">
+                        <div class="award_flag">
+                            <Checkbox v-model="form.wornWithoutBar" :binary="true" input-id="awardWornWithoutBar" />
+                            <label for="awardWornWithoutBar">Носится без колодки (не входит в планку)</label>
+                        </div>
+                        <div class="award_flag">
+                            <Checkbox v-model="form.isJubilee" :binary="true" input-id="awardIsJubilee" />
+                            <label for="awardIsJubilee">Юбилейная награда</label>
                         </div>
                     </div>
 
@@ -234,6 +334,24 @@
         </Column>
 
         <Column field="name" header="Название" />
+
+        <Column header="Лента" style="width: 70px">
+            <template #body="{ data }">
+                <img v-if="data.ribbonImageUrl" :src="data.ribbonImageUrl" :alt="`Лента: ${data.name}`"
+                    class="award-ribbon" width="36" height="12" />
+                <span v-else class="award-ribbon award-ribbon--empty" aria-hidden="true"></span>
+            </template>
+        </Column>
+
+        <Column header="Тип" style="width: 180px">
+            <template #body="{ data }">
+                <div class="award-tags">
+                    <Tag :value="awardTypeLabel(data.type)" severity="secondary" />
+                    <Tag v-if="data.jurisdiction && data.jurisdiction !== 'AWARD_JURISDICTION_UNSPECIFIED'"
+                        :value="awardJurisdictionLabel(data.jurisdiction)" severity="info" />
+                </div>
+            </template>
+        </Column>
 
         <Column header="Описание">
             <template #body="{ data }">
@@ -276,6 +394,24 @@
         gap: 1.2rem
     }
 
+    .award_flags {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .award_flag {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .award-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
     .award-thumb {
         width: 56px;
         height: 56px;
@@ -291,6 +427,19 @@
         width: 56px;
         height: 56px;
         color: var(--p-text-muted-color);
+        border: 1px dashed var(--p-surface-300);
+        background: #fff;
+    }
+
+    .award-ribbon {
+        display: block;
+        width: 36px;
+        height: 12px;
+        object-fit: cover;
+        border: 1px solid var(--p-surface-200);
+    }
+
+    .award-ribbon--empty {
         border: 1px dashed var(--p-surface-300);
         background: #fff;
     }

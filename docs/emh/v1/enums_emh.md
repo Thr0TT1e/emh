@@ -10,6 +10,8 @@
     - [HeroLocationType](#emh-v1-herolocationtype)
     - [ConflictType](#emh-v1-conflicttype)
     - [DatePrecision](#emh-v1-dateprecision)
+    - [AwardType](#emh-v1-awardtype)
+    - [AwardJurisdiction](#emh-v1-awardjurisdiction)
 
 <a name="emh-v1-enums-emh-proto"></a>
 <p align="right"><a href="#top">Top</a></p>
@@ -91,4 +93,31 @@ DatePrecision определяет уровень точности гибкой 
 | `DATE_PRECISION_DAY_MONTH` | 5 | DATE_PRECISION_DAY_MONTH означает день и месяц без года, например "28 июля". |
 | `DATE_PRECISION_RANGE` | 6 | DATE_PRECISION_RANGE зарезервировано для диапазона дат, например "1994-1995". |
 | `DATE_PRECISION_UNKNOWN` | 7 | DATE_PRECISION_UNKNOWN означает, что дата неизвестна и есть только текстовое описание. |
+
+<a name="emh-v1-awardtype"></a>
+
+### AwardType
+
+AwardType определяет тип награды. Используется для старшинства в орденской планке.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `AWARD_TYPE_UNSPECIFIED` | 0 | AWARD_TYPE_UNSPECIFIED - тип не указан. |
+| `AWARD_TYPE_ORDER` | 1 | AWARD_TYPE_ORDER - орден. |
+| `AWARD_TYPE_MEDAL` | 2 | AWARD_TYPE_MEDAL - медаль. |
+| `AWARD_TYPE_BADGE` | 3 | AWARD_TYPE_BADGE - знак отличия или почётный знак. |
+
+<a name="emh-v1-awardjurisdiction"></a>
+
+### AwardJurisdiction
+
+AwardJurisdiction определяет государственную принадлежность награды.
+Задаёт первичную ось старшинства согласно приказу МО РФ №1500.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `AWARD_JURISDICTION_UNSPECIFIED` | 0 | AWARD_JURISDICTION_UNSPECIFIED - принадлежность не указана. |
+| `AWARD_JURISDICTION_RUSSIAN_FEDERATION` | 1 | AWARD_JURISDICTION_RUSSIAN_FEDERATION - награда Российской Федерации. |
+| `AWARD_JURISDICTION_USSR` | 2 | AWARD_JURISDICTION_USSR - награда СССР. |
+| `AWARD_JURISDICTION_DEPARTMENTAL` | 3 | AWARD_JURISDICTION_DEPARTMENTAL - ведомственная награда. |
 

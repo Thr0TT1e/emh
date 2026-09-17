@@ -35,7 +35,20 @@ type Award struct {
 	// image_url - URL изображения ленты или знака награды.
 	ImageUrl string `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
 	// sort_order - приоритет отображения (старшие награды выше).
-	SortOrder     int32 `protobuf:"varint,5,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	SortOrder int32 `protobuf:"varint,5,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	// ribbon_image_url - URL изображения ленты награды для орденской планки.
+	RibbonImageUrl string `protobuf:"bytes,6,opt,name=ribbon_image_url,json=ribbonImageUrl,proto3" json:"ribbon_image_url,omitempty"`
+	// type - тип награды (орден, медаль, знак).
+	// Влияет на старшинство согласно приказу МО РФ №1500.
+	Type AwardType `protobuf:"varint,7,opt,name=type,proto3,enum=emh.v1.AwardType" json:"type,omitempty"`
+	// worn_without_bar - награда носится без колодки (звёзды орденов, знаки).
+	// Такие награды не включаются в общий блок планок.
+	WornWithoutBar bool `protobuf:"varint,8,opt,name=worn_without_bar,json=wornWithoutBar,proto3" json:"worn_without_bar,omitempty"`
+	// is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных).
+	IsJubilee bool `protobuf:"varint,9,opt,name=is_jubilee,json=isJubilee,proto3" json:"is_jubilee,omitempty"`
+	// jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+	// Первичная ось старшинства в орденской планке.
+	Jurisdiction  AwardJurisdiction `protobuf:"varint,10,opt,name=jurisdiction,proto3,enum=emh.v1.AwardJurisdiction" json:"jurisdiction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -103,6 +116,41 @@ func (x *Award) GetSortOrder() int32 {
 		return x.SortOrder
 	}
 	return 0
+}
+
+func (x *Award) GetRibbonImageUrl() string {
+	if x != nil {
+		return x.RibbonImageUrl
+	}
+	return ""
+}
+
+func (x *Award) GetType() AwardType {
+	if x != nil {
+		return x.Type
+	}
+	return AwardType_AWARD_TYPE_UNSPECIFIED
+}
+
+func (x *Award) GetWornWithoutBar() bool {
+	if x != nil {
+		return x.WornWithoutBar
+	}
+	return false
+}
+
+func (x *Award) GetIsJubilee() bool {
+	if x != nil {
+		return x.IsJubilee
+	}
+	return false
+}
+
+func (x *Award) GetJurisdiction() AwardJurisdiction {
+	if x != nil {
+		return x.Jurisdiction
+	}
+	return AwardJurisdiction_AWARD_JURISDICTION_UNSPECIFIED
 }
 
 // GetAwardRequest запрос на получение награды по ID.
@@ -311,14 +359,21 @@ var File_emh_v1_award_proto protoreflect.FileDescriptor
 
 const file_emh_v1_award_proto_rawDesc = "" +
 	"\n" +
-	"\x12emh/v1/award.proto\x12\x06emh.v1\x1a\x13emh/v1/common.proto\"\x89\x01\n" +
+	"\x12emh/v1/award.proto\x12\x06emh.v1\x1a\x16emh/v1/enums_emh.proto\x1a\x13emh/v1/common.proto\"\xe2\x02\n" +
 	"\x05Award\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x1b\n" +
 	"\timage_url\x18\x04 \x01(\tR\bimageUrl\x12\x1d\n" +
 	"\n" +
-	"sort_order\x18\x05 \x01(\x05R\tsortOrder\"!\n" +
+	"sort_order\x18\x05 \x01(\x05R\tsortOrder\x12(\n" +
+	"\x10ribbon_image_url\x18\x06 \x01(\tR\x0eribbonImageUrl\x12%\n" +
+	"\x04type\x18\a \x01(\x0e2\x11.emh.v1.AwardTypeR\x04type\x12(\n" +
+	"\x10worn_without_bar\x18\b \x01(\bR\x0ewornWithoutBar\x12\x1d\n" +
+	"\n" +
+	"is_jubilee\x18\t \x01(\bR\tisJubilee\x12=\n" +
+	"\fjurisdiction\x18\n" +
+	" \x01(\x0e2\x19.emh.v1.AwardJurisdictionR\fjurisdiction\"!\n" +
 	"\x0fGetAwardRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"7\n" +
 	"\x10GetAwardResponse\x12#\n" +
@@ -357,23 +412,27 @@ var file_emh_v1_award_proto_goTypes = []any{
 	(*GetAwardResponse)(nil),   // 2: emh.v1.GetAwardResponse
 	(*ListAwardsRequest)(nil),  // 3: emh.v1.ListAwardsRequest
 	(*ListAwardsResponse)(nil), // 4: emh.v1.ListAwardsResponse
-	(*PaginationRequest)(nil),  // 5: emh.v1.PaginationRequest
-	(*PaginationResponse)(nil), // 6: emh.v1.PaginationResponse
+	(AwardType)(0),             // 5: emh.v1.AwardType
+	(AwardJurisdiction)(0),     // 6: emh.v1.AwardJurisdiction
+	(*PaginationRequest)(nil),  // 7: emh.v1.PaginationRequest
+	(*PaginationResponse)(nil), // 8: emh.v1.PaginationResponse
 }
 var file_emh_v1_award_proto_depIdxs = []int32{
-	0, // 0: emh.v1.GetAwardResponse.award:type_name -> emh.v1.Award
-	5, // 1: emh.v1.ListAwardsRequest.pagination:type_name -> emh.v1.PaginationRequest
-	0, // 2: emh.v1.ListAwardsResponse.awards:type_name -> emh.v1.Award
-	6, // 3: emh.v1.ListAwardsResponse.pagination:type_name -> emh.v1.PaginationResponse
-	1, // 4: emh.v1.AwardService.GetAward:input_type -> emh.v1.GetAwardRequest
-	3, // 5: emh.v1.AwardService.ListAwards:input_type -> emh.v1.ListAwardsRequest
-	2, // 6: emh.v1.AwardService.GetAward:output_type -> emh.v1.GetAwardResponse
-	4, // 7: emh.v1.AwardService.ListAwards:output_type -> emh.v1.ListAwardsResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 0: emh.v1.Award.type:type_name -> emh.v1.AwardType
+	6, // 1: emh.v1.Award.jurisdiction:type_name -> emh.v1.AwardJurisdiction
+	0, // 2: emh.v1.GetAwardResponse.award:type_name -> emh.v1.Award
+	7, // 3: emh.v1.ListAwardsRequest.pagination:type_name -> emh.v1.PaginationRequest
+	0, // 4: emh.v1.ListAwardsResponse.awards:type_name -> emh.v1.Award
+	8, // 5: emh.v1.ListAwardsResponse.pagination:type_name -> emh.v1.PaginationResponse
+	1, // 6: emh.v1.AwardService.GetAward:input_type -> emh.v1.GetAwardRequest
+	3, // 7: emh.v1.AwardService.ListAwards:input_type -> emh.v1.ListAwardsRequest
+	2, // 8: emh.v1.AwardService.GetAward:output_type -> emh.v1.GetAwardResponse
+	4, // 9: emh.v1.AwardService.ListAwards:output_type -> emh.v1.ListAwardsResponse
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_emh_v1_award_proto_init() }
@@ -381,6 +440,7 @@ func file_emh_v1_award_proto_init() {
 	if File_emh_v1_award_proto != nil {
 		return
 	}
+	file_emh_v1_enums_emh_proto_init()
 	file_emh_v1_common_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{

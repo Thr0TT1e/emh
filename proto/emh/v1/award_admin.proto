@@ -5,6 +5,7 @@ syntax = "proto3";
 package emh.v1;
 
 import "emh/v1/award.proto";
+import "emh/v1/enums_emh.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
@@ -19,6 +20,20 @@ message CreateAwardRequest {
   string image_url = 3 [(buf.validate.field).string.uri = true];
   // sort_order - приоритет сортировки при отображении (старшие награды выше).
   int32 sort_order = 4 [(buf.validate.field).int32.gte = 0];
+  // ribbon_image_url - URL изображения ленты награды для орденской планки.
+  // Опционально: награду можно создать без загруженной ленты.
+  string ribbon_image_url = 5 [
+      (buf.validate.field).string.uri = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // type - тип награды (орден, медаль, знак). Обязателен при создании.
+  AwardType type = 6 [(buf.validate.field).enum.not_in = 0];
+  // worn_without_bar - награда носится без колодки и не входит в блок планок.
+  bool worn_without_bar = 7;
+  // is_jubilee - признак юбилейной награды.
+  bool is_jubilee = 8;
+  // jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+  AwardJurisdiction jurisdiction = 9;
 }
 
 // CreateAwardResponse результат успешного создания награды.
@@ -50,6 +65,22 @@ message UpdateAwardRequest {
   ];
   // field_mask - список полей для обновления. Позволяет отличить очистку поля от отсутствия изменений.
   repeated string field_mask = 6;
+  // ribbon_image_url - новый URL изображения ленты награды. Пустое значение очищает ленту.
+  string ribbon_image_url = 7 [
+      (buf.validate.field).string.uri = true,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // type - новый тип награды (орден, медаль, знак).
+  AwardType type = 8 [
+      (buf.validate.field).enum.not_in = 0,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
+  ];
+  // worn_without_bar - новый признак ношения без колодки.
+  bool worn_without_bar = 9 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+  // is_jubilee - новый признак юбилейной награды.
+  bool is_jubilee = 10 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
+  // jurisdiction - новая государственная принадлежность награды.
+  AwardJurisdiction jurisdiction = 11 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE];
 }
 
 // UpdateAwardResponse обновленный объект награды.

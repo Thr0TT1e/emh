@@ -184,6 +184,8 @@ message AddHeroAwardRequest {
   // award_date_info - гибкая дата награждения.
   // Если заполнено, имеет приоритет над award_date.
   FlexibleDate award_date_info = 5;
+  // devices - знаки повторности награды (звёздочки, цифры, дубовые листья).
+  repeated AwardDevice devices = 6;
 }
 
 // RemoveHeroAwardRequest запрос на отвязку награды от героя.

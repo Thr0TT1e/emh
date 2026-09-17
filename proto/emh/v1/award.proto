@@ -4,6 +4,7 @@ syntax = "proto3";
 
 package emh.v1;
 
+import "emh/v1/enums_emh.proto";
 import "emh/v1/common.proto";
 
 option go_package = "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1";
@@ -20,6 +21,19 @@ message Award {
   string image_url = 4;
   // sort_order - приоритет отображения (старшие награды выше).
   int32 sort_order = 5;
+  // ribbon_image_url - URL изображения ленты награды для орденской планки.
+  string ribbon_image_url = 6;
+  // type - тип награды (орден, медаль, знак).
+  // Влияет на старшинство согласно приказу МО РФ №1500.
+  AwardType type = 7;
+  // worn_without_bar - награда носится без колодки (звёзды орденов, знаки).
+  // Такие награды не включаются в общий блок планок.
+  bool worn_without_bar = 8;
+  // is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных).
+  bool is_jubilee = 9;
+  // jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+  // Первичная ось старшинства в орденской планке.
+  AwardJurisdiction jurisdiction = 10;
 }
 
 // GetAwardRequest запрос на получение награды по ID.

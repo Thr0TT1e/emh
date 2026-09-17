@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Masterminds/squirrel"
@@ -261,7 +262,7 @@ func (r *submissionRepository) FindByContentHash(ctx context.Context, hash strin
 func (r *submissionRepository) CreateReview(ctx context.Context, p domain.CreateSubmissionReviewParams) (string, error) {
 	query := r.sb.Insert("submission_reviews").
 		Columns("submission_id", "reviewer_name", "decision", "comment").
-		Values(p.SubmissionID, p.ReviewerName, string(p.Decision), p.Comment).
+		Values(p.SubmissionID, p.ReviewerName, strconv.Itoa(int(p.Decision)), p.Comment).
 		Suffix("RETURNING id")
 
 	sql, args, err := query.ToSql()
@@ -297,10 +298,16 @@ func (r *submissionRepository) ListReviews(ctx context.Context, submissionID str
 	var reviews []*domain.SubmissionReview
 	for rows.Next() {
 		r := &domain.SubmissionReview{}
+		var decision string
 		if err := rows.Scan(&r.ID, &r.SubmissionID, &r.ReviewerName,
-			&r.Decision, &r.Comment, &r.CreatedAt); err != nil {
+			&decision, &r.Comment, &r.CreatedAt); err != nil {
 			return nil, fmt.Errorf("scan review: %w", err)
 		}
+		decisionInt, err := strconv.Atoi(decision)
+		if err != nil {
+			return nil, fmt.Errorf("parse review decision %q: %w", decision, err)
+		}
+		r.Decision = domain.ReviewDecision(decisionInt)
 		reviews = append(reviews, r)
 	}
 	return reviews, rows.Err()

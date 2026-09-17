@@ -6,6 +6,8 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { AwardJurisdiction, AwardJurisdictionJson, AwardType, AwardTypeJson } from "./enums_emh_pb";
+import { file_emh_v1_enums_emh } from "./enums_emh_pb";
 import type { PaginationRequest, PaginationRequestJson, PaginationResponse, PaginationResponseJson } from "./common_pb";
 import { file_emh_v1_common } from "./common_pb";
 import type { Message } from "@bufbuild/protobuf";
@@ -14,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file emh/v1/award.proto.
  */
 export const file_emh_v1_award: GenFile = /*@__PURE__*/
-  fileDesc("ChJlbWgvdjEvYXdhcmQucHJvdG8SBmVtaC52MSJdCgVBd2FyZBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhEKCWltYWdlX3VybBgEIAEoCRISCgpzb3J0X29yZGVyGAUgASgFIh0KD0dldEF3YXJkUmVxdWVzdBIKCgJpZBgBIAEoCSIwChBHZXRBd2FyZFJlc3BvbnNlEhwKBWF3YXJkGAEgASgLMg0uZW1oLnYxLkF3YXJkIlgKEUxpc3RBd2FyZHNSZXF1ZXN0EhQKDHNlYXJjaF9xdWVyeRgBIAEoCRItCgpwYWdpbmF0aW9uGAIgASgLMhkuZW1oLnYxLlBhZ2luYXRpb25SZXF1ZXN0ImMKEkxpc3RBd2FyZHNSZXNwb25zZRIdCgZhd2FyZHMYASADKAsyDS5lbWgudjEuQXdhcmQSLgoKcGFnaW5hdGlvbhgCIAEoCzIaLmVtaC52MS5QYWdpbmF0aW9uUmVzcG9uc2UykgEKDEF3YXJkU2VydmljZRI9CghHZXRBd2FyZBIXLmVtaC52MS5HZXRBd2FyZFJlcXVlc3QaGC5lbWgudjEuR2V0QXdhcmRSZXNwb25zZRJDCgpMaXN0QXdhcmRzEhkuZW1oLnYxLkxpc3RBd2FyZHNSZXF1ZXN0GhouZW1oLnYxLkxpc3RBd2FyZHNSZXNwb25zZUI9Wjtjb2RlYmVyZy5vcmcvVGhyMFRUMWUvZW1oL2JhY2tlbmQvaW50ZXJuYWwvZ2VuL2VtaC92MTtlbWh2MWIGcHJvdG8z", [file_emh_v1_common]);
+  fileDesc("ChJlbWgvdjEvYXdhcmQucHJvdG8SBmVtaC52MSL3AQoFQXdhcmQSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIRCglpbWFnZV91cmwYBCABKAkSEgoKc29ydF9vcmRlchgFIAEoBRIYChByaWJib25faW1hZ2VfdXJsGAYgASgJEh8KBHR5cGUYByABKA4yES5lbWgudjEuQXdhcmRUeXBlEhgKEHdvcm5fd2l0aG91dF9iYXIYCCABKAgSEgoKaXNfanViaWxlZRgJIAEoCBIvCgxqdXJpc2RpY3Rpb24YCiABKA4yGS5lbWgudjEuQXdhcmRKdXJpc2RpY3Rpb24iHQoPR2V0QXdhcmRSZXF1ZXN0EgoKAmlkGAEgASgJIjAKEEdldEF3YXJkUmVzcG9uc2USHAoFYXdhcmQYASABKAsyDS5lbWgudjEuQXdhcmQiWAoRTGlzdEF3YXJkc1JlcXVlc3QSFAoMc2VhcmNoX3F1ZXJ5GAEgASgJEi0KCnBhZ2luYXRpb24YAiABKAsyGS5lbWgudjEuUGFnaW5hdGlvblJlcXVlc3QiYwoSTGlzdEF3YXJkc1Jlc3BvbnNlEh0KBmF3YXJkcxgBIAMoCzINLmVtaC52MS5Bd2FyZBIuCgpwYWdpbmF0aW9uGAIgASgLMhouZW1oLnYxLlBhZ2luYXRpb25SZXNwb25zZTKSAQoMQXdhcmRTZXJ2aWNlEj0KCEdldEF3YXJkEhcuZW1oLnYxLkdldEF3YXJkUmVxdWVzdBoYLmVtaC52MS5HZXRBd2FyZFJlc3BvbnNlEkMKCkxpc3RBd2FyZHMSGS5lbWgudjEuTGlzdEF3YXJkc1JlcXVlc3QaGi5lbWgudjEuTGlzdEF3YXJkc1Jlc3BvbnNlQj1aO2NvZGViZXJnLm9yZy9UaHIwVFQxZS9lbWgvYmFja2VuZC9pbnRlcm5hbC9nZW4vZW1oL3YxO2VtaHYxYgZwcm90bzM", [file_emh_v1_enums_emh, file_emh_v1_common]);
 
 /**
  * Award представляет государственную или ведомственную награду.
@@ -56,6 +58,44 @@ export type Award = Message<"emh.v1.Award"> & {
    * @generated from field: int32 sort_order = 5;
    */
   sortOrder: number;
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды для орденской планки.
+   *
+   * @generated from field: string ribbon_image_url = 6;
+   */
+  ribbonImageUrl: string;
+
+  /**
+   * type - тип награды (орден, медаль, знак).
+   * Влияет на старшинство согласно приказу МО РФ №1500.
+   *
+   * @generated from field: emh.v1.AwardType type = 7;
+   */
+  type: AwardType;
+
+  /**
+   * worn_without_bar - награда носится без колодки (звёзды орденов, знаки).
+   * Такие награды не включаются в общий блок планок.
+   *
+   * @generated from field: bool worn_without_bar = 8;
+   */
+  wornWithoutBar: boolean;
+
+  /**
+   * is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных).
+   *
+   * @generated from field: bool is_jubilee = 9;
+   */
+  isJubilee: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+   * Первичная ось старшинства в орденской планке.
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 10;
+   */
+  jurisdiction: AwardJurisdiction;
 };
 
 /**
@@ -98,6 +138,44 @@ export type AwardJson = {
    * @generated from field: int32 sort_order = 5;
    */
   sortOrder?: number;
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды для орденской планки.
+   *
+   * @generated from field: string ribbon_image_url = 6;
+   */
+  ribbonImageUrl?: string;
+
+  /**
+   * type - тип награды (орден, медаль, знак).
+   * Влияет на старшинство согласно приказу МО РФ №1500.
+   *
+   * @generated from field: emh.v1.AwardType type = 7;
+   */
+  type?: AwardTypeJson;
+
+  /**
+   * worn_without_bar - награда носится без колодки (звёзды орденов, знаки).
+   * Такие награды не включаются в общий блок планок.
+   *
+   * @generated from field: bool worn_without_bar = 8;
+   */
+  wornWithoutBar?: boolean;
+
+  /**
+   * is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных).
+   *
+   * @generated from field: bool is_jubilee = 9;
+   */
+  isJubilee?: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+   * Первичная ось старшинства в орденской планке.
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 10;
+   */
+  jurisdiction?: AwardJurisdictionJson;
 };
 
 /**

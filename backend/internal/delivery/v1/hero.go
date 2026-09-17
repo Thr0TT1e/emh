@@ -246,9 +246,15 @@ func mapHeroRelationToProto(r *domain.HeroRelation) *emhv1.HeroRelation {
 
 func mapHeroAwardToProto(a *domain.HeroAward) *emhv1.HeroAward {
 	proto := &emhv1.HeroAward{
-		AwardId:      a.AwardID,
-		AwardName:    a.AwardName,
-		DecreeNumber: a.DecreeNumber,
+		AwardId:        a.AwardID,
+		AwardName:      a.AwardName,
+		DecreeNumber:   a.DecreeNumber,
+		RibbonImageUrl: a.RibbonImageURL,
+		ImageUrl:       a.ImageURL,
+		Type:           emhv1.AwardType(a.Type),
+		Jurisdiction:   emhv1.AwardJurisdiction(a.Jurisdiction),
+		WornWithoutBar: a.WornWithoutBar,
+		IsJubilee:      a.IsJubilee,
 	}
 	if a.AwardDate != nil {
 		proto.AwardDate = timestamppb.New(*a.AwardDate)

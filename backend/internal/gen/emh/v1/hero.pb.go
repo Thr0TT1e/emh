@@ -751,6 +751,22 @@ type HeroAward struct {
 	// award_date_info - гибкая дата награждения.
 	// Если заполнено, имеет приоритет над award_date.
 	AwardDateInfo *FlexibleDate `protobuf:"bytes,5,opt,name=award_date_info,json=awardDateInfo,proto3" json:"award_date_info,omitempty"`
+	// devices - знаки повторности (звёздочки, цифры, дубовые листья).
+	// Например, при повторном награждении одной и той же медалью.
+	Devices []*AwardDevice `protobuf:"bytes,6,rep,name=devices,proto3" json:"devices,omitempty"`
+	// ribbon_image_url - URL изображения ленты награды (денормализация из справочника).
+	// Пусто, если лента для награды ещё не загружена.
+	RibbonImageUrl string `protobuf:"bytes,7,opt,name=ribbon_image_url,json=ribbonImageUrl,proto3" json:"ribbon_image_url,omitempty"`
+	// type - тип награды (денормализация из справочника).
+	Type AwardType `protobuf:"varint,8,opt,name=type,proto3,enum=emh.v1.AwardType" json:"type,omitempty"`
+	// worn_without_bar - награда носится без колодки (денормализация из справочника).
+	WornWithoutBar bool `protobuf:"varint,9,opt,name=worn_without_bar,json=wornWithoutBar,proto3" json:"worn_without_bar,omitempty"`
+	// is_jubilee - юбилейная награда (денормализация из справочника).
+	IsJubilee bool `protobuf:"varint,10,opt,name=is_jubilee,json=isJubilee,proto3" json:"is_jubilee,omitempty"`
+	// jurisdiction - государственная принадлежность награды (денормализация из справочника).
+	Jurisdiction AwardJurisdiction `protobuf:"varint,11,opt,name=jurisdiction,proto3,enum=emh.v1.AwardJurisdiction" json:"jurisdiction,omitempty"`
+	// image_url - URL изображения знака награды (денормализация из справочника).
+	ImageUrl      string `protobuf:"bytes,12,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -820,6 +836,110 @@ func (x *HeroAward) GetAwardDateInfo() *FlexibleDate {
 	return nil
 }
 
+func (x *HeroAward) GetDevices() []*AwardDevice {
+	if x != nil {
+		return x.Devices
+	}
+	return nil
+}
+
+func (x *HeroAward) GetRibbonImageUrl() string {
+	if x != nil {
+		return x.RibbonImageUrl
+	}
+	return ""
+}
+
+func (x *HeroAward) GetType() AwardType {
+	if x != nil {
+		return x.Type
+	}
+	return AwardType_AWARD_TYPE_UNSPECIFIED
+}
+
+func (x *HeroAward) GetWornWithoutBar() bool {
+	if x != nil {
+		return x.WornWithoutBar
+	}
+	return false
+}
+
+func (x *HeroAward) GetIsJubilee() bool {
+	if x != nil {
+		return x.IsJubilee
+	}
+	return false
+}
+
+func (x *HeroAward) GetJurisdiction() AwardJurisdiction {
+	if x != nil {
+		return x.Jurisdiction
+	}
+	return AwardJurisdiction_AWARD_JURISDICTION_UNSPECIFIED
+}
+
+func (x *HeroAward) GetImageUrl() string {
+	if x != nil {
+		return x.ImageUrl
+	}
+	return ""
+}
+
+// AwardDevice знак повторности на планке.
+type AwardDevice struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// type - тип знака (звёздочка, цифра, дубовые листья).
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// count - количество (например, 2 звёздочки).
+	Count         int32 `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AwardDevice) Reset() {
+	*x = AwardDevice{}
+	mi := &file_emh_v1_hero_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AwardDevice) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AwardDevice) ProtoMessage() {}
+
+func (x *AwardDevice) ProtoReflect() protoreflect.Message {
+	mi := &file_emh_v1_hero_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AwardDevice.ProtoReflect.Descriptor instead.
+func (*AwardDevice) Descriptor() ([]byte, []int) {
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *AwardDevice) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *AwardDevice) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
 // HeroConflict описывает участие героя в конкретном конфликте.
 type HeroConflict struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -837,7 +957,7 @@ type HeroConflict struct {
 
 func (x *HeroConflict) Reset() {
 	*x = HeroConflict{}
-	mi := &file_emh_v1_hero_proto_msgTypes[7]
+	mi := &file_emh_v1_hero_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -849,7 +969,7 @@ func (x *HeroConflict) String() string {
 func (*HeroConflict) ProtoMessage() {}
 
 func (x *HeroConflict) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[7]
+	mi := &file_emh_v1_hero_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -862,7 +982,7 @@ func (x *HeroConflict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeroConflict.ProtoReflect.Descriptor instead.
 func (*HeroConflict) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{7}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *HeroConflict) GetConflictId() string {
@@ -908,7 +1028,7 @@ type HeroLocation struct {
 
 func (x *HeroLocation) Reset() {
 	*x = HeroLocation{}
-	mi := &file_emh_v1_hero_proto_msgTypes[8]
+	mi := &file_emh_v1_hero_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -920,7 +1040,7 @@ func (x *HeroLocation) String() string {
 func (*HeroLocation) ProtoMessage() {}
 
 func (x *HeroLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[8]
+	mi := &file_emh_v1_hero_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -933,7 +1053,7 @@ func (x *HeroLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeroLocation.ProtoReflect.Descriptor instead.
 func (*HeroLocation) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{8}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *HeroLocation) GetLocationId() string {
@@ -968,7 +1088,7 @@ type GetHeroRequest struct {
 
 func (x *GetHeroRequest) Reset() {
 	*x = GetHeroRequest{}
-	mi := &file_emh_v1_hero_proto_msgTypes[9]
+	mi := &file_emh_v1_hero_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1100,7 @@ func (x *GetHeroRequest) String() string {
 func (*GetHeroRequest) ProtoMessage() {}
 
 func (x *GetHeroRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[9]
+	mi := &file_emh_v1_hero_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,7 +1113,7 @@ func (x *GetHeroRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHeroRequest.ProtoReflect.Descriptor instead.
 func (*GetHeroRequest) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{9}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetHeroRequest) GetId() string {
@@ -1014,7 +1134,7 @@ type GetHeroResponse struct {
 
 func (x *GetHeroResponse) Reset() {
 	*x = GetHeroResponse{}
-	mi := &file_emh_v1_hero_proto_msgTypes[10]
+	mi := &file_emh_v1_hero_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1026,7 +1146,7 @@ func (x *GetHeroResponse) String() string {
 func (*GetHeroResponse) ProtoMessage() {}
 
 func (x *GetHeroResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[10]
+	mi := &file_emh_v1_hero_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1039,7 +1159,7 @@ func (x *GetHeroResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHeroResponse.ProtoReflect.Descriptor instead.
 func (*GetHeroResponse) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{10}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetHeroResponse) GetHero() *HeroDetail {
@@ -1070,7 +1190,7 @@ type ListHeroesRequest struct {
 
 func (x *ListHeroesRequest) Reset() {
 	*x = ListHeroesRequest{}
-	mi := &file_emh_v1_hero_proto_msgTypes[11]
+	mi := &file_emh_v1_hero_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1082,7 +1202,7 @@ func (x *ListHeroesRequest) String() string {
 func (*ListHeroesRequest) ProtoMessage() {}
 
 func (x *ListHeroesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[11]
+	mi := &file_emh_v1_hero_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1095,7 +1215,7 @@ func (x *ListHeroesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroesRequest.ProtoReflect.Descriptor instead.
 func (*ListHeroesRequest) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{11}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListHeroesRequest) GetPagination() *PaginationRequest {
@@ -1153,7 +1273,7 @@ type ListHeroesResponse struct {
 
 func (x *ListHeroesResponse) Reset() {
 	*x = ListHeroesResponse{}
-	mi := &file_emh_v1_hero_proto_msgTypes[12]
+	mi := &file_emh_v1_hero_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1165,7 +1285,7 @@ func (x *ListHeroesResponse) String() string {
 func (*ListHeroesResponse) ProtoMessage() {}
 
 func (x *ListHeroesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[12]
+	mi := &file_emh_v1_hero_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1178,7 +1298,7 @@ func (x *ListHeroesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroesResponse.ProtoReflect.Descriptor instead.
 func (*ListHeroesResponse) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{12}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListHeroesResponse) GetHeroes() []*HeroSummary {
@@ -1208,7 +1328,7 @@ type ListHeroPhotosRequest struct {
 
 func (x *ListHeroPhotosRequest) Reset() {
 	*x = ListHeroPhotosRequest{}
-	mi := &file_emh_v1_hero_proto_msgTypes[13]
+	mi := &file_emh_v1_hero_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1220,7 +1340,7 @@ func (x *ListHeroPhotosRequest) String() string {
 func (*ListHeroPhotosRequest) ProtoMessage() {}
 
 func (x *ListHeroPhotosRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[13]
+	mi := &file_emh_v1_hero_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1233,7 +1353,7 @@ func (x *ListHeroPhotosRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroPhotosRequest.ProtoReflect.Descriptor instead.
 func (*ListHeroPhotosRequest) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{13}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListHeroPhotosRequest) GetHeroId() string {
@@ -1263,7 +1383,7 @@ type ListHeroPhotosResponse struct {
 
 func (x *ListHeroPhotosResponse) Reset() {
 	*x = ListHeroPhotosResponse{}
-	mi := &file_emh_v1_hero_proto_msgTypes[14]
+	mi := &file_emh_v1_hero_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1395,7 @@ func (x *ListHeroPhotosResponse) String() string {
 func (*ListHeroPhotosResponse) ProtoMessage() {}
 
 func (x *ListHeroPhotosResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[14]
+	mi := &file_emh_v1_hero_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,7 +1408,7 @@ func (x *ListHeroPhotosResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroPhotosResponse.ProtoReflect.Descriptor instead.
 func (*ListHeroPhotosResponse) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{14}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListHeroPhotosResponse) GetPhotos() []*Photo {
@@ -1316,7 +1436,7 @@ type ListHeroSourcesRequest struct {
 
 func (x *ListHeroSourcesRequest) Reset() {
 	*x = ListHeroSourcesRequest{}
-	mi := &file_emh_v1_hero_proto_msgTypes[15]
+	mi := &file_emh_v1_hero_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1448,7 @@ func (x *ListHeroSourcesRequest) String() string {
 func (*ListHeroSourcesRequest) ProtoMessage() {}
 
 func (x *ListHeroSourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[15]
+	mi := &file_emh_v1_hero_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1461,7 @@ func (x *ListHeroSourcesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroSourcesRequest.ProtoReflect.Descriptor instead.
 func (*ListHeroSourcesRequest) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{15}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListHeroSourcesRequest) GetHeroId() string {
@@ -1362,7 +1482,7 @@ type ListHeroSourcesResponse struct {
 
 func (x *ListHeroSourcesResponse) Reset() {
 	*x = ListHeroSourcesResponse{}
-	mi := &file_emh_v1_hero_proto_msgTypes[16]
+	mi := &file_emh_v1_hero_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1374,7 +1494,7 @@ func (x *ListHeroSourcesResponse) String() string {
 func (*ListHeroSourcesResponse) ProtoMessage() {}
 
 func (x *ListHeroSourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[16]
+	mi := &file_emh_v1_hero_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1387,7 +1507,7 @@ func (x *ListHeroSourcesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroSourcesResponse.ProtoReflect.Descriptor instead.
 func (*ListHeroSourcesResponse) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{16}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListHeroSourcesResponse) GetSources() []*HeroSource {
@@ -1408,7 +1528,7 @@ type ListHeroRelationsRequest struct {
 
 func (x *ListHeroRelationsRequest) Reset() {
 	*x = ListHeroRelationsRequest{}
-	mi := &file_emh_v1_hero_proto_msgTypes[17]
+	mi := &file_emh_v1_hero_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1420,7 +1540,7 @@ func (x *ListHeroRelationsRequest) String() string {
 func (*ListHeroRelationsRequest) ProtoMessage() {}
 
 func (x *ListHeroRelationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[17]
+	mi := &file_emh_v1_hero_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1433,7 +1553,7 @@ func (x *ListHeroRelationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroRelationsRequest.ProtoReflect.Descriptor instead.
 func (*ListHeroRelationsRequest) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{17}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListHeroRelationsRequest) GetHeroId() string {
@@ -1454,7 +1574,7 @@ type ListHeroRelationsResponse struct {
 
 func (x *ListHeroRelationsResponse) Reset() {
 	*x = ListHeroRelationsResponse{}
-	mi := &file_emh_v1_hero_proto_msgTypes[18]
+	mi := &file_emh_v1_hero_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1466,7 +1586,7 @@ func (x *ListHeroRelationsResponse) String() string {
 func (*ListHeroRelationsResponse) ProtoMessage() {}
 
 func (x *ListHeroRelationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_emh_v1_hero_proto_msgTypes[18]
+	mi := &file_emh_v1_hero_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1479,7 +1599,7 @@ func (x *ListHeroRelationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListHeroRelationsResponse.ProtoReflect.Descriptor instead.
 func (*ListHeroRelationsResponse) Descriptor() ([]byte, []int) {
-	return file_emh_v1_hero_proto_rawDescGZIP(), []int{18}
+	return file_emh_v1_hero_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListHeroRelationsResponse) GetRelations() []*HeroRelation {
@@ -1566,7 +1686,7 @@ const file_emh_v1_hero_proto_rawDesc = "" +
 	"\n" +
 	"sort_order\x18\x05 \x01(\x05R\tsortOrder\x12\x17\n" +
 	"\ais_main\x18\x06 \x01(\bR\x06isMain\x12*\n" +
-	"\bface_box\x18\a \x01(\v2\x0f.emh.v1.FaceBoxR\afaceBox\"\xe3\x01\n" +
+	"\bface_box\x18\a \x01(\v2\x0f.emh.v1.FaceBoxR\afaceBox\"\x88\x04\n" +
 	"\tHeroAward\x12\x19\n" +
 	"\baward_id\x18\x01 \x01(\tR\aawardId\x12\x1d\n" +
 	"\n" +
@@ -1574,7 +1694,19 @@ const file_emh_v1_hero_proto_rawDesc = "" +
 	"\n" +
 	"award_date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tawardDate\x12#\n" +
 	"\rdecree_number\x18\x04 \x01(\tR\fdecreeNumber\x12<\n" +
-	"\x0faward_date_info\x18\x05 \x01(\v2\x14.emh.v1.FlexibleDateR\rawardDateInfo\"\xab\x01\n" +
+	"\x0faward_date_info\x18\x05 \x01(\v2\x14.emh.v1.FlexibleDateR\rawardDateInfo\x12-\n" +
+	"\adevices\x18\x06 \x03(\v2\x13.emh.v1.AwardDeviceR\adevices\x12(\n" +
+	"\x10ribbon_image_url\x18\a \x01(\tR\x0eribbonImageUrl\x12%\n" +
+	"\x04type\x18\b \x01(\x0e2\x11.emh.v1.AwardTypeR\x04type\x12(\n" +
+	"\x10worn_without_bar\x18\t \x01(\bR\x0ewornWithoutBar\x12\x1d\n" +
+	"\n" +
+	"is_jubilee\x18\n" +
+	" \x01(\bR\tisJubilee\x12=\n" +
+	"\fjurisdiction\x18\v \x01(\x0e2\x19.emh.v1.AwardJurisdictionR\fjurisdiction\x12\x1b\n" +
+	"\timage_url\x18\f \x01(\tR\bimageUrl\"7\n" +
+	"\vAwardDevice\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count\"\xab\x01\n" +
 	"\fHeroConflict\x12\x1f\n" +
 	"\vconflict_id\x18\x01 \x01(\tR\n" +
 	"conflictId\x12#\n" +
@@ -1644,7 +1776,7 @@ func file_emh_v1_hero_proto_rawDescGZIP() []byte {
 	return file_emh_v1_hero_proto_rawDescData
 }
 
-var file_emh_v1_hero_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_emh_v1_hero_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_emh_v1_hero_proto_goTypes = []any{
 	(*HeroSummary)(nil),               // 0: emh.v1.HeroSummary
 	(*HeroDetail)(nil),                // 1: emh.v1.HeroDetail
@@ -1653,75 +1785,81 @@ var file_emh_v1_hero_proto_goTypes = []any{
 	(*FaceBox)(nil),                   // 4: emh.v1.FaceBox
 	(*Photo)(nil),                     // 5: emh.v1.Photo
 	(*HeroAward)(nil),                 // 6: emh.v1.HeroAward
-	(*HeroConflict)(nil),              // 7: emh.v1.HeroConflict
-	(*HeroLocation)(nil),              // 8: emh.v1.HeroLocation
-	(*GetHeroRequest)(nil),            // 9: emh.v1.GetHeroRequest
-	(*GetHeroResponse)(nil),           // 10: emh.v1.GetHeroResponse
-	(*ListHeroesRequest)(nil),         // 11: emh.v1.ListHeroesRequest
-	(*ListHeroesResponse)(nil),        // 12: emh.v1.ListHeroesResponse
-	(*ListHeroPhotosRequest)(nil),     // 13: emh.v1.ListHeroPhotosRequest
-	(*ListHeroPhotosResponse)(nil),    // 14: emh.v1.ListHeroPhotosResponse
-	(*ListHeroSourcesRequest)(nil),    // 15: emh.v1.ListHeroSourcesRequest
-	(*ListHeroSourcesResponse)(nil),   // 16: emh.v1.ListHeroSourcesResponse
-	(*ListHeroRelationsRequest)(nil),  // 17: emh.v1.ListHeroRelationsRequest
-	(*ListHeroRelationsResponse)(nil), // 18: emh.v1.ListHeroRelationsResponse
-	(*timestamppb.Timestamp)(nil),     // 19: google.protobuf.Timestamp
-	(*FlexibleDate)(nil),              // 20: emh.v1.FlexibleDate
-	(PublicationStatus)(0),            // 21: emh.v1.PublicationStatus
-	(*AuditInfo)(nil),                 // 22: emh.v1.AuditInfo
-	(*Location)(nil),                  // 23: emh.v1.Location
-	(HeroLocationType)(0),             // 24: emh.v1.HeroLocationType
-	(*PaginationRequest)(nil),         // 25: emh.v1.PaginationRequest
-	(*PaginationResponse)(nil),        // 26: emh.v1.PaginationResponse
+	(*AwardDevice)(nil),               // 7: emh.v1.AwardDevice
+	(*HeroConflict)(nil),              // 8: emh.v1.HeroConflict
+	(*HeroLocation)(nil),              // 9: emh.v1.HeroLocation
+	(*GetHeroRequest)(nil),            // 10: emh.v1.GetHeroRequest
+	(*GetHeroResponse)(nil),           // 11: emh.v1.GetHeroResponse
+	(*ListHeroesRequest)(nil),         // 12: emh.v1.ListHeroesRequest
+	(*ListHeroesResponse)(nil),        // 13: emh.v1.ListHeroesResponse
+	(*ListHeroPhotosRequest)(nil),     // 14: emh.v1.ListHeroPhotosRequest
+	(*ListHeroPhotosResponse)(nil),    // 15: emh.v1.ListHeroPhotosResponse
+	(*ListHeroSourcesRequest)(nil),    // 16: emh.v1.ListHeroSourcesRequest
+	(*ListHeroSourcesResponse)(nil),   // 17: emh.v1.ListHeroSourcesResponse
+	(*ListHeroRelationsRequest)(nil),  // 18: emh.v1.ListHeroRelationsRequest
+	(*ListHeroRelationsResponse)(nil), // 19: emh.v1.ListHeroRelationsResponse
+	(*timestamppb.Timestamp)(nil),     // 20: google.protobuf.Timestamp
+	(*FlexibleDate)(nil),              // 21: emh.v1.FlexibleDate
+	(PublicationStatus)(0),            // 22: emh.v1.PublicationStatus
+	(*AuditInfo)(nil),                 // 23: emh.v1.AuditInfo
+	(AwardType)(0),                    // 24: emh.v1.AwardType
+	(AwardJurisdiction)(0),            // 25: emh.v1.AwardJurisdiction
+	(*Location)(nil),                  // 26: emh.v1.Location
+	(HeroLocationType)(0),             // 27: emh.v1.HeroLocationType
+	(*PaginationRequest)(nil),         // 28: emh.v1.PaginationRequest
+	(*PaginationResponse)(nil),        // 29: emh.v1.PaginationResponse
 }
 var file_emh_v1_hero_proto_depIdxs = []int32{
-	19, // 0: emh.v1.HeroSummary.birth_date:type_name -> google.protobuf.Timestamp
-	19, // 1: emh.v1.HeroSummary.death_date:type_name -> google.protobuf.Timestamp
-	20, // 2: emh.v1.HeroSummary.birth_date_info:type_name -> emh.v1.FlexibleDate
-	20, // 3: emh.v1.HeroSummary.death_date_info:type_name -> emh.v1.FlexibleDate
-	21, // 4: emh.v1.HeroSummary.status:type_name -> emh.v1.PublicationStatus
+	20, // 0: emh.v1.HeroSummary.birth_date:type_name -> google.protobuf.Timestamp
+	20, // 1: emh.v1.HeroSummary.death_date:type_name -> google.protobuf.Timestamp
+	21, // 2: emh.v1.HeroSummary.birth_date_info:type_name -> emh.v1.FlexibleDate
+	21, // 3: emh.v1.HeroSummary.death_date_info:type_name -> emh.v1.FlexibleDate
+	22, // 4: emh.v1.HeroSummary.status:type_name -> emh.v1.PublicationStatus
 	0,  // 5: emh.v1.HeroDetail.summary:type_name -> emh.v1.HeroSummary
 	5,  // 6: emh.v1.HeroDetail.photos:type_name -> emh.v1.Photo
 	6,  // 7: emh.v1.HeroDetail.awards:type_name -> emh.v1.HeroAward
-	7,  // 8: emh.v1.HeroDetail.conflicts:type_name -> emh.v1.HeroConflict
-	8,  // 9: emh.v1.HeroDetail.locations:type_name -> emh.v1.HeroLocation
-	21, // 10: emh.v1.HeroDetail.status:type_name -> emh.v1.PublicationStatus
-	22, // 11: emh.v1.HeroDetail.audit:type_name -> emh.v1.AuditInfo
-	19, // 12: emh.v1.HeroDetail.service_start_date:type_name -> google.protobuf.Timestamp
+	8,  // 8: emh.v1.HeroDetail.conflicts:type_name -> emh.v1.HeroConflict
+	9,  // 9: emh.v1.HeroDetail.locations:type_name -> emh.v1.HeroLocation
+	22, // 10: emh.v1.HeroDetail.status:type_name -> emh.v1.PublicationStatus
+	23, // 11: emh.v1.HeroDetail.audit:type_name -> emh.v1.AuditInfo
+	20, // 12: emh.v1.HeroDetail.service_start_date:type_name -> google.protobuf.Timestamp
 	2,  // 13: emh.v1.HeroDetail.sources:type_name -> emh.v1.HeroSource
 	3,  // 14: emh.v1.HeroDetail.relations:type_name -> emh.v1.HeroRelation
-	20, // 15: emh.v1.HeroDetail.service_start_date_info:type_name -> emh.v1.FlexibleDate
+	21, // 15: emh.v1.HeroDetail.service_start_date_info:type_name -> emh.v1.FlexibleDate
 	4,  // 16: emh.v1.Photo.face_box:type_name -> emh.v1.FaceBox
-	19, // 17: emh.v1.HeroAward.award_date:type_name -> google.protobuf.Timestamp
-	20, // 18: emh.v1.HeroAward.award_date_info:type_name -> emh.v1.FlexibleDate
-	23, // 19: emh.v1.HeroLocation.location:type_name -> emh.v1.Location
-	24, // 20: emh.v1.HeroLocation.type:type_name -> emh.v1.HeroLocationType
-	1,  // 21: emh.v1.GetHeroResponse.hero:type_name -> emh.v1.HeroDetail
-	25, // 22: emh.v1.ListHeroesRequest.pagination:type_name -> emh.v1.PaginationRequest
-	19, // 23: emh.v1.ListHeroesRequest.date_from:type_name -> google.protobuf.Timestamp
-	19, // 24: emh.v1.ListHeroesRequest.date_to:type_name -> google.protobuf.Timestamp
-	0,  // 25: emh.v1.ListHeroesResponse.heroes:type_name -> emh.v1.HeroSummary
-	26, // 26: emh.v1.ListHeroesResponse.pagination:type_name -> emh.v1.PaginationResponse
-	25, // 27: emh.v1.ListHeroPhotosRequest.pagination:type_name -> emh.v1.PaginationRequest
-	5,  // 28: emh.v1.ListHeroPhotosResponse.photos:type_name -> emh.v1.Photo
-	26, // 29: emh.v1.ListHeroPhotosResponse.pagination:type_name -> emh.v1.PaginationResponse
-	2,  // 30: emh.v1.ListHeroSourcesResponse.sources:type_name -> emh.v1.HeroSource
-	3,  // 31: emh.v1.ListHeroRelationsResponse.relations:type_name -> emh.v1.HeroRelation
-	9,  // 32: emh.v1.HeroService.GetHero:input_type -> emh.v1.GetHeroRequest
-	11, // 33: emh.v1.HeroService.ListHeroes:input_type -> emh.v1.ListHeroesRequest
-	13, // 34: emh.v1.HeroService.ListHeroPhotos:input_type -> emh.v1.ListHeroPhotosRequest
-	15, // 35: emh.v1.HeroService.ListHeroSources:input_type -> emh.v1.ListHeroSourcesRequest
-	17, // 36: emh.v1.HeroService.ListHeroRelations:input_type -> emh.v1.ListHeroRelationsRequest
-	10, // 37: emh.v1.HeroService.GetHero:output_type -> emh.v1.GetHeroResponse
-	12, // 38: emh.v1.HeroService.ListHeroes:output_type -> emh.v1.ListHeroesResponse
-	14, // 39: emh.v1.HeroService.ListHeroPhotos:output_type -> emh.v1.ListHeroPhotosResponse
-	16, // 40: emh.v1.HeroService.ListHeroSources:output_type -> emh.v1.ListHeroSourcesResponse
-	18, // 41: emh.v1.HeroService.ListHeroRelations:output_type -> emh.v1.ListHeroRelationsResponse
-	37, // [37:42] is the sub-list for method output_type
-	32, // [32:37] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	20, // 17: emh.v1.HeroAward.award_date:type_name -> google.protobuf.Timestamp
+	21, // 18: emh.v1.HeroAward.award_date_info:type_name -> emh.v1.FlexibleDate
+	7,  // 19: emh.v1.HeroAward.devices:type_name -> emh.v1.AwardDevice
+	24, // 20: emh.v1.HeroAward.type:type_name -> emh.v1.AwardType
+	25, // 21: emh.v1.HeroAward.jurisdiction:type_name -> emh.v1.AwardJurisdiction
+	26, // 22: emh.v1.HeroLocation.location:type_name -> emh.v1.Location
+	27, // 23: emh.v1.HeroLocation.type:type_name -> emh.v1.HeroLocationType
+	1,  // 24: emh.v1.GetHeroResponse.hero:type_name -> emh.v1.HeroDetail
+	28, // 25: emh.v1.ListHeroesRequest.pagination:type_name -> emh.v1.PaginationRequest
+	20, // 26: emh.v1.ListHeroesRequest.date_from:type_name -> google.protobuf.Timestamp
+	20, // 27: emh.v1.ListHeroesRequest.date_to:type_name -> google.protobuf.Timestamp
+	0,  // 28: emh.v1.ListHeroesResponse.heroes:type_name -> emh.v1.HeroSummary
+	29, // 29: emh.v1.ListHeroesResponse.pagination:type_name -> emh.v1.PaginationResponse
+	28, // 30: emh.v1.ListHeroPhotosRequest.pagination:type_name -> emh.v1.PaginationRequest
+	5,  // 31: emh.v1.ListHeroPhotosResponse.photos:type_name -> emh.v1.Photo
+	29, // 32: emh.v1.ListHeroPhotosResponse.pagination:type_name -> emh.v1.PaginationResponse
+	2,  // 33: emh.v1.ListHeroSourcesResponse.sources:type_name -> emh.v1.HeroSource
+	3,  // 34: emh.v1.ListHeroRelationsResponse.relations:type_name -> emh.v1.HeroRelation
+	10, // 35: emh.v1.HeroService.GetHero:input_type -> emh.v1.GetHeroRequest
+	12, // 36: emh.v1.HeroService.ListHeroes:input_type -> emh.v1.ListHeroesRequest
+	14, // 37: emh.v1.HeroService.ListHeroPhotos:input_type -> emh.v1.ListHeroPhotosRequest
+	16, // 38: emh.v1.HeroService.ListHeroSources:input_type -> emh.v1.ListHeroSourcesRequest
+	18, // 39: emh.v1.HeroService.ListHeroRelations:input_type -> emh.v1.ListHeroRelationsRequest
+	11, // 40: emh.v1.HeroService.GetHero:output_type -> emh.v1.GetHeroResponse
+	13, // 41: emh.v1.HeroService.ListHeroes:output_type -> emh.v1.ListHeroesResponse
+	15, // 42: emh.v1.HeroService.ListHeroPhotos:output_type -> emh.v1.ListHeroPhotosResponse
+	17, // 43: emh.v1.HeroService.ListHeroSources:output_type -> emh.v1.ListHeroSourcesResponse
+	19, // 44: emh.v1.HeroService.ListHeroRelations:output_type -> emh.v1.ListHeroRelationsResponse
+	40, // [40:45] is the sub-list for method output_type
+	35, // [35:40] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_emh_v1_hero_proto_init() }
@@ -1738,7 +1876,7 @@ func file_emh_v1_hero_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_emh_v1_hero_proto_rawDesc), len(file_emh_v1_hero_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { defineBreadcrumb, defineOrganization } from 'nuxt-schema-org/schema';
   import { useAnalytics } from '~/composables/useAnalytics';
+  import { RIBBON_BAR_THRESHOLD, ribbonAwardsOf, sortedAwards } from '~/lib/awards';
   import { formatFlexibleDate, locationTypeLabel, relationTypeLabel, sourceTypeLabel } from "~/lib/format";
   import { toPlain } from "~/lib/pb";
   import { HeroDetailSchema } from "~/sdk/emh/v1/hero_pb";
@@ -132,6 +133,20 @@
   );
 
   /* ====================================================================== */
+  /* Орденская планка (ADR-005)                                              */
+  /* ====================================================================== */
+
+  // Награды, которые попадают в планку: лента загружена и награда носится на колодке.
+  const ribbonAwards = computed(() => ribbonAwardsOf(data.value?.awards ?? []));
+
+  // Порог переключения: планка вместо текстового списка только когда лент больше трёх.
+  const showRibbonBar = computed(() => ribbonAwards.value.length > RIBBON_BAR_THRESHOLD);
+
+  // Текстовый fallback показывает все награды героя, включая носимые без колодки
+  // и награды без загруженной ленты.
+  const listAwards = computed(() => sortedAwards(data.value?.awards ?? []));
+
+  /* ====================================================================== */
   /* SEO карточки героя                                                      */
   /* ====================================================================== */
 
@@ -260,10 +275,24 @@
           {{ formatFlexibleDate(data.summary?.deathDateInfo, data.summary?.deathDate) }}
         </p>
 
-        <ul v-if="data.awards?.length" class="hero__awards">
-          <li v-for="a in data.awards ?? []" :key="a.awardId" class="hero__award">
-            <span class="hero__award-name">{{ a.awardName }}</span>
-            <span v-if="a.decreeNumber" class="hero__award-decree">{{ a.decreeNumber }}</span>
+        <HeroesAwardRibbonBar v-if="showRibbonBar" :awards="ribbonAwards" />
+
+        <ul v-else-if="listAwards.length" class="hero__awards">
+          <li v-for="a in listAwards" :key="a.awardId" class="hero__award">
+            <img
+              v-if="a.imageUrl"
+              class="hero__award-sign"
+              :src="a.imageUrl"
+              alt=""
+              width="48"
+              height="48"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="hero__award-text">
+              <span class="hero__award-name">{{ a.awardName }}</span>
+              <span v-if="a.decreeNumber" class="hero__award-decree">{{ a.decreeNumber }}</span>
+            </span>
           </li>
         </ul>
 
@@ -533,15 +562,30 @@
 
   .hero__award {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.8rem;
     border-left: 3px solid var(--emh-bronze);
     padding: 0.35rem 0 0.35rem 0.9rem;
     background: rgba(176, 141, 87, 0.07);
   }
 
+  /* Знак награды рядом с названием; декоративен, alt="" */
+  .hero__award-sign {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
   .hero__award-name {
     font-weight: 600;
+  }
+
+  /* Текст имени и приказа остаётся на общей базовой линии внутри flex-строки */
+  .hero__award-text {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
   }
 
   .hero__award-decree {

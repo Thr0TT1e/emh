@@ -14,6 +14,7 @@ const (
 	UploadTypeHeroPhoto
 	UploadTypeAwardImage
 	UploadTypeSubmissionAttachment
+	UploadTypeAwardRibbon
 )
 
 // UploadParams параметры запроса на получение presigned URL.

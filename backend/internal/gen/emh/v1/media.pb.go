@@ -36,6 +36,8 @@ const (
 	UploadType_UPLOAD_TYPE_AWARD_IMAGE UploadType = 2
 	// UPLOAD_TYPE_SUBMISSION_ATTACHMENT - документ к заявке.
 	UploadType_UPLOAD_TYPE_SUBMISSION_ATTACHMENT UploadType = 3
+	// UPLOAD_TYPE_AWARD_RIBBON - изображение ленты награды для орденской планки.
+	UploadType_UPLOAD_TYPE_AWARD_RIBBON UploadType = 4
 )
 
 // Enum value maps for UploadType.
@@ -45,12 +47,14 @@ var (
 		1: "UPLOAD_TYPE_HERO_PHOTO",
 		2: "UPLOAD_TYPE_AWARD_IMAGE",
 		3: "UPLOAD_TYPE_SUBMISSION_ATTACHMENT",
+		4: "UPLOAD_TYPE_AWARD_RIBBON",
 	}
 	UploadType_value = map[string]int32{
 		"UPLOAD_TYPE_UNSPECIFIED":           0,
 		"UPLOAD_TYPE_HERO_PHOTO":            1,
 		"UPLOAD_TYPE_AWARD_IMAGE":           2,
 		"UPLOAD_TYPE_SUBMISSION_ATTACHMENT": 3,
+		"UPLOAD_TYPE_AWARD_RIBBON":          4,
 	}
 )
 
@@ -480,13 +484,14 @@ const file_emh_v1_media_proto_rawDesc = "" +
 	"\n" +
 	"public_url\x18\x03 \x01(\tR\tpublicUrl\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x04 \x01(\tR\texpiresAt*\x89\x01\n" +
+	"expires_at\x18\x04 \x01(\tR\texpiresAt*\xa7\x01\n" +
 	"\n" +
 	"UploadType\x12\x1b\n" +
 	"\x17UPLOAD_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16UPLOAD_TYPE_HERO_PHOTO\x10\x01\x12\x1b\n" +
 	"\x17UPLOAD_TYPE_AWARD_IMAGE\x10\x02\x12%\n" +
-	"!UPLOAD_TYPE_SUBMISSION_ATTACHMENT\x10\x032\xb6\x01\n" +
+	"!UPLOAD_TYPE_SUBMISSION_ATTACHMENT\x10\x03\x12\x1c\n" +
+	"\x18UPLOAD_TYPE_AWARD_RIBBON\x10\x042\xb6\x01\n" +
 	"\fMediaService\x12I\n" +
 	"\fGetUploadUrl\x12\x1b.emh.v1.GetUploadUrlRequest\x1a\x1c.emh.v1.GetUploadUrlResponse\x12[\n" +
 	"\x12BatchGetUploadUrls\x12!.emh.v1.BatchGetUploadUrlsRequest\x1a\".emh.v1.BatchGetUploadUrlsResponseB=Z;codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1b\x06proto3"

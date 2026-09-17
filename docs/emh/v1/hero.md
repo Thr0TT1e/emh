@@ -14,6 +14,7 @@
     - [FaceBox](#emh-v1-facebox)
     - [Photo](#emh-v1-photo)
     - [HeroAward](#emh-v1-heroaward)
+    - [AwardDevice](#emh-v1-awarddevice)
     - [HeroConflict](#emh-v1-heroconflict)
     - [HeroLocation](#emh-v1-herolocation)
     - [GetHeroRequest](#emh-v1-getherorequest)
@@ -100,7 +101,19 @@ GetHero возвращает полную карточку героя по ID.
         },
         "awardId": "string",
         "awardName": "string",
-        "decreeNumber": "string"
+        "decreeNumber": "string",
+        "devices": [
+          {
+            "count": 0,
+            "type": "string"
+          }
+        ],
+        "imageUrl": "string",
+        "isJubilee": true,
+        "jurisdiction": "AwardJurisdiction_VALUE",
+        "ribbonImageUrl": "string",
+        "type": "AwardType_VALUE",
+        "wornWithoutBar": true
       }
     ],
     "causeOfDeath": "string",
@@ -570,7 +583,19 @@ HeroDetail содержит полную информацию о герое дл
       },
       "awardId": "string",
       "awardName": "string",
-      "decreeNumber": "string"
+      "decreeNumber": "string",
+      "devices": [
+        {
+          "count": 0,
+          "type": "string"
+        }
+      ],
+      "imageUrl": "string",
+      "isJubilee": true,
+      "jurisdiction": "AwardJurisdiction_VALUE",
+      "ribbonImageUrl": "string",
+      "type": "AwardType_VALUE",
+      "wornWithoutBar": true
     }
   ],
   "causeOfDeath": "string",
@@ -835,6 +860,13 @@ HeroAward описывает конкретную награду героя.
 | award_date | [Timestamp](#google-protobuf-timestamp) | optional | award_date - дата вручения или издания указа. |
 | decree_number | string | optional | decree_number - номер приказа или указа о награждении. |
 | award_date_info | [FlexibleDate](#emh-v1-flexibledate) | optional | award_date_info - гибкая дата награждения. Если заполнено, имеет приоритет над award_date. |
+| devices | [AwardDevice](#emh-v1-awarddevice) | repeated | devices - знаки повторности (звёздочки, цифры, дубовые листья). Например, при повторном награждении одной и той же медалью. |
+| ribbon_image_url | string | optional | ribbon_image_url - URL изображения ленты награды (денормализация из справочника). Пусто, если лента для награды ещё не загружена. |
+| type | AwardType | optional | type - тип награды (денормализация из справочника). |
+| worn_without_bar | bool | optional | worn_without_bar - награда носится без колодки (денормализация из справочника). |
+| is_jubilee | bool | optional | is_jubilee - юбилейная награда (денормализация из справочника). |
+| jurisdiction | AwardJurisdiction | optional | jurisdiction - государственная принадлежность награды (денормализация из справочника). |
+| image_url | string | optional | image_url - URL изображения знака награды (денормализация из справочника). |
 
 <details>
 <summary>JSON Example</summary>
@@ -855,7 +887,42 @@ HeroAward описывает конкретную награду героя.
   },
   "awardId": "string",
   "awardName": "string",
-  "decreeNumber": "string"
+  "decreeNumber": "string",
+  "devices": [
+    {
+      "count": 0,
+      "type": "string"
+    }
+  ],
+  "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
+  "ribbonImageUrl": "string",
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
+}
+```
+
+</details>
+
+<a name="emh-v1-awarddevice"></a>
+
+### AwardDevice
+
+AwardDevice знак повторности на планке.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| type | string | optional | type - тип знака (звёздочка, цифра, дубовые листья). |
+| count | int32 | optional | count - количество (например, 2 звёздочки). |
+
+<details>
+<summary>JSON Example</summary>
+
+```json
+{
+  "count": 0,
+  "type": "string"
 }
 ```
 
@@ -985,7 +1052,19 @@ GetHeroResponse ответ с полной информацией о герое.
         },
         "awardId": "string",
         "awardName": "string",
-        "decreeNumber": "string"
+        "decreeNumber": "string",
+        "devices": [
+          {
+            "count": 0,
+            "type": "string"
+          }
+        ],
+        "imageUrl": "string",
+        "isJubilee": true,
+        "jurisdiction": "AwardJurisdiction_VALUE",
+        "ribbonImageUrl": "string",
+        "type": "AwardType_VALUE",
+        "wornWithoutBar": true
       }
     ],
     "causeOfDeath": "string",

@@ -59,8 +59,13 @@ GetAward возвращает награду по ID.
     "description": "string",
     "id": "string",
     "imageUrl": "string",
+    "isJubilee": true,
+    "jurisdiction": "AwardJurisdiction_VALUE",
     "name": "string",
-    "sortOrder": 0
+    "ribbonImageUrl": "string",
+    "sortOrder": 0,
+    "type": "AwardType_VALUE",
+    "wornWithoutBar": true
   }
 }
 ```
@@ -98,8 +103,13 @@ ListAwards возвращает список всех наград (справо
       "description": "string",
       "id": "string",
       "imageUrl": "string",
+      "isJubilee": true,
+      "jurisdiction": "AwardJurisdiction_VALUE",
       "name": "string",
-      "sortOrder": 0
+      "ribbonImageUrl": "string",
+      "sortOrder": 0,
+      "type": "AwardType_VALUE",
+      "wornWithoutBar": true
     }
   ],
   "pagination": {
@@ -124,6 +134,11 @@ Award представляет государственную или ведом�
 | description | string | optional | description - краткое описание или статут награды. |
 | image_url | string | optional | image_url - URL изображения ленты или знака награды. |
 | sort_order | int32 | optional | sort_order - приоритет отображения (старшие награды выше). |
+| ribbon_image_url | string | optional | ribbon_image_url - URL изображения ленты награды для орденской планки. |
+| type | AwardType | optional | type - тип награды (орден, медаль, знак). Влияет на старшинство согласно приказу МО РФ №1500. |
+| worn_without_bar | bool | optional | worn_without_bar - награда носится без колодки (звёзды орденов, знаки). Такие награды не включаются в общий блок планок. |
+| is_jubilee | bool | optional | is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных). |
+| jurisdiction | AwardJurisdiction | optional | jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная). Первичная ось старшинства в орденской планке. |
 
 <details>
 <summary>JSON Example</summary>
@@ -133,8 +148,13 @@ Award представляет государственную или ведом�
   "description": "string",
   "id": "string",
   "imageUrl": "string",
+  "isJubilee": true,
+  "jurisdiction": "AwardJurisdiction_VALUE",
   "name": "string",
-  "sortOrder": 0
+  "ribbonImageUrl": "string",
+  "sortOrder": 0,
+  "type": "AwardType_VALUE",
+  "wornWithoutBar": true
 }
 ```
 
@@ -180,8 +200,13 @@ GetAwardResponse ответ с данными награды.
     "description": "string",
     "id": "string",
     "imageUrl": "string",
+    "isJubilee": true,
+    "jurisdiction": "AwardJurisdiction_VALUE",
     "name": "string",
-    "sortOrder": 0
+    "ribbonImageUrl": "string",
+    "sortOrder": 0,
+    "type": "AwardType_VALUE",
+    "wornWithoutBar": true
   }
 }
 ```
@@ -235,8 +260,13 @@ ListAwardsResponse список доступных наград.
       "description": "string",
       "id": "string",
       "imageUrl": "string",
+      "isJubilee": true,
+      "jurisdiction": "AwardJurisdiction_VALUE",
       "name": "string",
-      "sortOrder": 0
+      "ribbonImageUrl": "string",
+      "sortOrder": 0,
+      "type": "AwardType_VALUE",
+      "wornWithoutBar": true
     }
   ],
   "pagination": {

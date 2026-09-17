@@ -799,6 +799,8 @@ type AddHeroAwardRequest struct {
 	// award_date_info - гибкая дата награждения.
 	// Если заполнено, имеет приоритет над award_date.
 	AwardDateInfo *FlexibleDate `protobuf:"bytes,5,opt,name=award_date_info,json=awardDateInfo,proto3" json:"award_date_info,omitempty"`
+	// devices - знаки повторности награды (звёздочки, цифры, дубовые листья).
+	Devices       []*AwardDevice `protobuf:"bytes,6,rep,name=devices,proto3" json:"devices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -864,6 +866,13 @@ func (x *AddHeroAwardRequest) GetDecreeNumber() string {
 func (x *AddHeroAwardRequest) GetAwardDateInfo() *FlexibleDate {
 	if x != nil {
 		return x.AwardDateInfo
+	}
+	return nil
+}
+
+func (x *AddHeroAwardRequest) GetDevices() []*AwardDevice {
+	if x != nil {
+		return x.Devices
 	}
 	return nil
 }
@@ -2211,14 +2220,15 @@ const file_emh_v1_hero_admin_proto_rawDesc = "" +
 	"\x06heroes\x18\x01 \x03(\v2\x13.emh.v1.HeroSummaryR\x06heroes\x12:\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1a.emh.v1.PaginationResponseR\n" +
-	"pagination\"\xfb\x01\n" +
+	"pagination\"\xaa\x02\n" +
 	"\x13AddHeroAwardRequest\x12!\n" +
 	"\ahero_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06heroId\x12#\n" +
 	"\baward_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aawardId\x129\n" +
 	"\n" +
 	"award_date\x18\x03 \x01(\tB\x1a\xbaH\x17r\x152\x13^\\d{4}-\\d{2}-\\d{2}$R\tawardDate\x12#\n" +
 	"\rdecree_number\x18\x04 \x01(\tR\fdecreeNumber\x12<\n" +
-	"\x0faward_date_info\x18\x05 \x01(\v2\x14.emh.v1.FlexibleDateR\rawardDateInfo\"`\n" +
+	"\x0faward_date_info\x18\x05 \x01(\v2\x14.emh.v1.FlexibleDateR\rawardDateInfo\x12-\n" +
+	"\adevices\x18\x06 \x03(\v2\x13.emh.v1.AwardDeviceR\adevices\"`\n" +
 	"\x16RemoveHeroAwardRequest\x12!\n" +
 	"\ahero_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06heroId\x12#\n" +
 	"\baward_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aawardId\"\xbd\x01\n" +
@@ -2386,9 +2396,10 @@ var file_emh_v1_hero_admin_proto_goTypes = []any{
 	(*PaginationRequest)(nil),          // 32: emh.v1.PaginationRequest
 	(*HeroSummary)(nil),                // 33: emh.v1.HeroSummary
 	(*PaginationResponse)(nil),         // 34: emh.v1.PaginationResponse
-	(HeroLocationType)(0),              // 35: emh.v1.HeroLocationType
-	(*FaceBox)(nil),                    // 36: emh.v1.FaceBox
-	(*Photo)(nil),                      // 37: emh.v1.Photo
+	(*AwardDevice)(nil),                // 35: emh.v1.AwardDevice
+	(HeroLocationType)(0),              // 36: emh.v1.HeroLocationType
+	(*FaceBox)(nil),                    // 37: emh.v1.FaceBox
+	(*Photo)(nil),                      // 38: emh.v1.Photo
 }
 var file_emh_v1_hero_admin_proto_depIdxs = []int32{
 	29, // 0: emh.v1.CreateHeroRequest.status:type_name -> emh.v1.PublicationStatus
@@ -2405,59 +2416,60 @@ var file_emh_v1_hero_admin_proto_depIdxs = []int32{
 	33, // 11: emh.v1.ListAdminHeroesResponse.heroes:type_name -> emh.v1.HeroSummary
 	34, // 12: emh.v1.ListAdminHeroesResponse.pagination:type_name -> emh.v1.PaginationResponse
 	30, // 13: emh.v1.AddHeroAwardRequest.award_date_info:type_name -> emh.v1.FlexibleDate
-	35, // 14: emh.v1.AddHeroLocationRequest.type:type_name -> emh.v1.HeroLocationType
-	35, // 15: emh.v1.RemoveHeroLocationRequest.type:type_name -> emh.v1.HeroLocationType
-	36, // 16: emh.v1.AddHeroPhotoRequest.face_box:type_name -> emh.v1.FaceBox
-	36, // 17: emh.v1.NewPhoto.face_box:type_name -> emh.v1.FaceBox
-	16, // 18: emh.v1.BatchAddHeroPhotosRequest.photos:type_name -> emh.v1.NewPhoto
-	17, // 19: emh.v1.BatchAddHeroPhotosResponse.added:type_name -> emh.v1.AddedPhoto
-	36, // 20: emh.v1.UpdateHeroPhotoRequest.face_box:type_name -> emh.v1.FaceBox
-	37, // 21: emh.v1.UpdateHeroPhotoResponse.photo:type_name -> emh.v1.Photo
-	0,  // 22: emh.v1.HeroAdminService.CreateHero:input_type -> emh.v1.CreateHeroRequest
-	2,  // 23: emh.v1.HeroAdminService.UpdateHero:input_type -> emh.v1.UpdateHeroRequest
-	4,  // 24: emh.v1.HeroAdminService.DeleteHero:input_type -> emh.v1.DeleteHeroRequest
-	8,  // 25: emh.v1.HeroAdminService.AddHeroAward:input_type -> emh.v1.AddHeroAwardRequest
-	9,  // 26: emh.v1.HeroAdminService.RemoveHeroAward:input_type -> emh.v1.RemoveHeroAwardRequest
-	10, // 27: emh.v1.HeroAdminService.AddHeroConflict:input_type -> emh.v1.AddHeroConflictRequest
-	11, // 28: emh.v1.HeroAdminService.RemoveHeroConflict:input_type -> emh.v1.RemoveHeroConflictRequest
-	12, // 29: emh.v1.HeroAdminService.AddHeroLocation:input_type -> emh.v1.AddHeroLocationRequest
-	13, // 30: emh.v1.HeroAdminService.RemoveHeroLocation:input_type -> emh.v1.RemoveHeroLocationRequest
-	14, // 31: emh.v1.HeroAdminService.AddHeroPhoto:input_type -> emh.v1.AddHeroPhotoRequest
-	15, // 32: emh.v1.HeroAdminService.ReorderHeroPhotos:input_type -> emh.v1.ReorderHeroPhotosRequest
-	18, // 33: emh.v1.HeroAdminService.BatchAddHeroPhotos:input_type -> emh.v1.BatchAddHeroPhotosRequest
-	20, // 34: emh.v1.HeroAdminService.DeleteHeroPhotos:input_type -> emh.v1.DeleteHeroPhotosRequest
-	22, // 35: emh.v1.HeroAdminService.AddHeroSource:input_type -> emh.v1.AddHeroSourceRequest
-	23, // 36: emh.v1.HeroAdminService.RemoveHeroSource:input_type -> emh.v1.RemoveHeroSourceRequest
-	24, // 37: emh.v1.HeroAdminService.AddHeroRelation:input_type -> emh.v1.AddHeroRelationRequest
-	25, // 38: emh.v1.HeroAdminService.RemoveHeroRelation:input_type -> emh.v1.RemoveHeroRelationRequest
-	26, // 39: emh.v1.HeroAdminService.SetMainHeroPhoto:input_type -> emh.v1.SetMainHeroPhotoRequest
-	27, // 40: emh.v1.HeroAdminService.UpdateHeroPhoto:input_type -> emh.v1.UpdateHeroPhotoRequest
-	6,  // 41: emh.v1.HeroAdminService.ListHeroes:input_type -> emh.v1.ListAdminHeroesRequest
-	1,  // 42: emh.v1.HeroAdminService.CreateHero:output_type -> emh.v1.CreateHeroResponse
-	3,  // 43: emh.v1.HeroAdminService.UpdateHero:output_type -> emh.v1.UpdateHeroResponse
-	5,  // 44: emh.v1.HeroAdminService.DeleteHero:output_type -> emh.v1.DeleteHeroResponse
-	8,  // 45: emh.v1.HeroAdminService.AddHeroAward:output_type -> emh.v1.AddHeroAwardRequest
-	9,  // 46: emh.v1.HeroAdminService.RemoveHeroAward:output_type -> emh.v1.RemoveHeroAwardRequest
-	10, // 47: emh.v1.HeroAdminService.AddHeroConflict:output_type -> emh.v1.AddHeroConflictRequest
-	11, // 48: emh.v1.HeroAdminService.RemoveHeroConflict:output_type -> emh.v1.RemoveHeroConflictRequest
-	12, // 49: emh.v1.HeroAdminService.AddHeroLocation:output_type -> emh.v1.AddHeroLocationRequest
-	13, // 50: emh.v1.HeroAdminService.RemoveHeroLocation:output_type -> emh.v1.RemoveHeroLocationRequest
-	14, // 51: emh.v1.HeroAdminService.AddHeroPhoto:output_type -> emh.v1.AddHeroPhotoRequest
-	15, // 52: emh.v1.HeroAdminService.ReorderHeroPhotos:output_type -> emh.v1.ReorderHeroPhotosRequest
-	19, // 53: emh.v1.HeroAdminService.BatchAddHeroPhotos:output_type -> emh.v1.BatchAddHeroPhotosResponse
-	21, // 54: emh.v1.HeroAdminService.DeleteHeroPhotos:output_type -> emh.v1.DeleteHeroPhotosResponse
-	22, // 55: emh.v1.HeroAdminService.AddHeroSource:output_type -> emh.v1.AddHeroSourceRequest
-	23, // 56: emh.v1.HeroAdminService.RemoveHeroSource:output_type -> emh.v1.RemoveHeroSourceRequest
-	24, // 57: emh.v1.HeroAdminService.AddHeroRelation:output_type -> emh.v1.AddHeroRelationRequest
-	25, // 58: emh.v1.HeroAdminService.RemoveHeroRelation:output_type -> emh.v1.RemoveHeroRelationRequest
-	26, // 59: emh.v1.HeroAdminService.SetMainHeroPhoto:output_type -> emh.v1.SetMainHeroPhotoRequest
-	28, // 60: emh.v1.HeroAdminService.UpdateHeroPhoto:output_type -> emh.v1.UpdateHeroPhotoResponse
-	7,  // 61: emh.v1.HeroAdminService.ListHeroes:output_type -> emh.v1.ListAdminHeroesResponse
-	42, // [42:62] is the sub-list for method output_type
-	22, // [22:42] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	35, // 14: emh.v1.AddHeroAwardRequest.devices:type_name -> emh.v1.AwardDevice
+	36, // 15: emh.v1.AddHeroLocationRequest.type:type_name -> emh.v1.HeroLocationType
+	36, // 16: emh.v1.RemoveHeroLocationRequest.type:type_name -> emh.v1.HeroLocationType
+	37, // 17: emh.v1.AddHeroPhotoRequest.face_box:type_name -> emh.v1.FaceBox
+	37, // 18: emh.v1.NewPhoto.face_box:type_name -> emh.v1.FaceBox
+	16, // 19: emh.v1.BatchAddHeroPhotosRequest.photos:type_name -> emh.v1.NewPhoto
+	17, // 20: emh.v1.BatchAddHeroPhotosResponse.added:type_name -> emh.v1.AddedPhoto
+	37, // 21: emh.v1.UpdateHeroPhotoRequest.face_box:type_name -> emh.v1.FaceBox
+	38, // 22: emh.v1.UpdateHeroPhotoResponse.photo:type_name -> emh.v1.Photo
+	0,  // 23: emh.v1.HeroAdminService.CreateHero:input_type -> emh.v1.CreateHeroRequest
+	2,  // 24: emh.v1.HeroAdminService.UpdateHero:input_type -> emh.v1.UpdateHeroRequest
+	4,  // 25: emh.v1.HeroAdminService.DeleteHero:input_type -> emh.v1.DeleteHeroRequest
+	8,  // 26: emh.v1.HeroAdminService.AddHeroAward:input_type -> emh.v1.AddHeroAwardRequest
+	9,  // 27: emh.v1.HeroAdminService.RemoveHeroAward:input_type -> emh.v1.RemoveHeroAwardRequest
+	10, // 28: emh.v1.HeroAdminService.AddHeroConflict:input_type -> emh.v1.AddHeroConflictRequest
+	11, // 29: emh.v1.HeroAdminService.RemoveHeroConflict:input_type -> emh.v1.RemoveHeroConflictRequest
+	12, // 30: emh.v1.HeroAdminService.AddHeroLocation:input_type -> emh.v1.AddHeroLocationRequest
+	13, // 31: emh.v1.HeroAdminService.RemoveHeroLocation:input_type -> emh.v1.RemoveHeroLocationRequest
+	14, // 32: emh.v1.HeroAdminService.AddHeroPhoto:input_type -> emh.v1.AddHeroPhotoRequest
+	15, // 33: emh.v1.HeroAdminService.ReorderHeroPhotos:input_type -> emh.v1.ReorderHeroPhotosRequest
+	18, // 34: emh.v1.HeroAdminService.BatchAddHeroPhotos:input_type -> emh.v1.BatchAddHeroPhotosRequest
+	20, // 35: emh.v1.HeroAdminService.DeleteHeroPhotos:input_type -> emh.v1.DeleteHeroPhotosRequest
+	22, // 36: emh.v1.HeroAdminService.AddHeroSource:input_type -> emh.v1.AddHeroSourceRequest
+	23, // 37: emh.v1.HeroAdminService.RemoveHeroSource:input_type -> emh.v1.RemoveHeroSourceRequest
+	24, // 38: emh.v1.HeroAdminService.AddHeroRelation:input_type -> emh.v1.AddHeroRelationRequest
+	25, // 39: emh.v1.HeroAdminService.RemoveHeroRelation:input_type -> emh.v1.RemoveHeroRelationRequest
+	26, // 40: emh.v1.HeroAdminService.SetMainHeroPhoto:input_type -> emh.v1.SetMainHeroPhotoRequest
+	27, // 41: emh.v1.HeroAdminService.UpdateHeroPhoto:input_type -> emh.v1.UpdateHeroPhotoRequest
+	6,  // 42: emh.v1.HeroAdminService.ListHeroes:input_type -> emh.v1.ListAdminHeroesRequest
+	1,  // 43: emh.v1.HeroAdminService.CreateHero:output_type -> emh.v1.CreateHeroResponse
+	3,  // 44: emh.v1.HeroAdminService.UpdateHero:output_type -> emh.v1.UpdateHeroResponse
+	5,  // 45: emh.v1.HeroAdminService.DeleteHero:output_type -> emh.v1.DeleteHeroResponse
+	8,  // 46: emh.v1.HeroAdminService.AddHeroAward:output_type -> emh.v1.AddHeroAwardRequest
+	9,  // 47: emh.v1.HeroAdminService.RemoveHeroAward:output_type -> emh.v1.RemoveHeroAwardRequest
+	10, // 48: emh.v1.HeroAdminService.AddHeroConflict:output_type -> emh.v1.AddHeroConflictRequest
+	11, // 49: emh.v1.HeroAdminService.RemoveHeroConflict:output_type -> emh.v1.RemoveHeroConflictRequest
+	12, // 50: emh.v1.HeroAdminService.AddHeroLocation:output_type -> emh.v1.AddHeroLocationRequest
+	13, // 51: emh.v1.HeroAdminService.RemoveHeroLocation:output_type -> emh.v1.RemoveHeroLocationRequest
+	14, // 52: emh.v1.HeroAdminService.AddHeroPhoto:output_type -> emh.v1.AddHeroPhotoRequest
+	15, // 53: emh.v1.HeroAdminService.ReorderHeroPhotos:output_type -> emh.v1.ReorderHeroPhotosRequest
+	19, // 54: emh.v1.HeroAdminService.BatchAddHeroPhotos:output_type -> emh.v1.BatchAddHeroPhotosResponse
+	21, // 55: emh.v1.HeroAdminService.DeleteHeroPhotos:output_type -> emh.v1.DeleteHeroPhotosResponse
+	22, // 56: emh.v1.HeroAdminService.AddHeroSource:output_type -> emh.v1.AddHeroSourceRequest
+	23, // 57: emh.v1.HeroAdminService.RemoveHeroSource:output_type -> emh.v1.RemoveHeroSourceRequest
+	24, // 58: emh.v1.HeroAdminService.AddHeroRelation:output_type -> emh.v1.AddHeroRelationRequest
+	25, // 59: emh.v1.HeroAdminService.RemoveHeroRelation:output_type -> emh.v1.RemoveHeroRelationRequest
+	26, // 60: emh.v1.HeroAdminService.SetMainHeroPhoto:output_type -> emh.v1.SetMainHeroPhotoRequest
+	28, // 61: emh.v1.HeroAdminService.UpdateHeroPhoto:output_type -> emh.v1.UpdateHeroPhotoResponse
+	7,  // 62: emh.v1.HeroAdminService.ListHeroes:output_type -> emh.v1.ListAdminHeroesResponse
+	43, // [43:63] is the sub-list for method output_type
+	23, // [23:43] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_emh_v1_hero_admin_proto_init() }

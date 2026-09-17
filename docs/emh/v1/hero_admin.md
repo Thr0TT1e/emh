@@ -239,7 +239,19 @@ UpdateHero обновляет основные поля героя с подде
         },
         "awardId": "string",
         "awardName": "string",
-        "decreeNumber": "string"
+        "decreeNumber": "string",
+        "devices": [
+          {
+            "count": 0,
+            "type": "string"
+          }
+        ],
+        "imageUrl": "string",
+        "isJubilee": true,
+        "jurisdiction": "AwardJurisdiction_VALUE",
+        "ribbonImageUrl": "string",
+        "type": "AwardType_VALUE",
+        "wornWithoutBar": true
       }
     ],
     "causeOfDeath": "string",
@@ -420,6 +432,12 @@ AddHeroAward привязывает награду к герою. Возвращ
   },
   "awardId": "string",
   "decreeNumber": "string",
+  "devices": [
+    {
+      "count": 0,
+      "type": "string"
+    }
+  ],
   "heroId": "string"
 }
 ```
@@ -439,6 +457,12 @@ AddHeroAward привязывает награду к герою. Возвращ
   },
   "awardId": "string",
   "decreeNumber": "string",
+  "devices": [
+    {
+      "count": 0,
+      "type": "string"
+    }
+  ],
   "heroId": "string"
 }
 ```
@@ -1287,7 +1311,19 @@ UpdateHeroResponse обновленная полная карточка геро
         },
         "awardId": "string",
         "awardName": "string",
-        "decreeNumber": "string"
+        "decreeNumber": "string",
+        "devices": [
+          {
+            "count": 0,
+            "type": "string"
+          }
+        ],
+        "imageUrl": "string",
+        "isJubilee": true,
+        "jurisdiction": "AwardJurisdiction_VALUE",
+        "ribbonImageUrl": "string",
+        "type": "AwardType_VALUE",
+        "wornWithoutBar": true
       }
     ],
     "causeOfDeath": "string",
@@ -1569,6 +1605,7 @@ AddHeroAwardRequest запрос на привязку награды к гер�
 | award_date | string | optional | award_date - дата награждения (строка YYYY-MM-DD). |
 | decree_number | string | optional | decree_number - номер приказа или указа о награждении. |
 | award_date_info | [FlexibleDate](#emh-v1-flexibledate) | optional | award_date_info - гибкая дата награждения. Если заполнено, имеет приоритет над award_date. |
+| devices | [AwardDevice](#emh-v1-awarddevice) | repeated | devices - знаки повторности награды (звёздочки, цифры, дубовые листья). |
 
 <details>
 <summary>JSON Example</summary>
@@ -1586,6 +1623,12 @@ AddHeroAwardRequest запрос на привязку награды к гер�
   },
   "awardId": "string",
   "decreeNumber": "string",
+  "devices": [
+    {
+      "count": 0,
+      "type": "string"
+    }
+  ],
   "heroId": "string"
 }
 ```

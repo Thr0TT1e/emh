@@ -8,6 +8,8 @@ import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegen
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Award, AwardJson } from "./award_pb";
 import { file_emh_v1_award } from "./award_pb";
+import type { AwardJurisdiction, AwardJurisdictionJson, AwardType, AwardTypeJson } from "./enums_emh_pb";
+import { file_emh_v1_enums_emh } from "./enums_emh_pb";
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -15,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file emh/v1/award_admin.proto.
  */
 export const file_emh_v1_award_admin: GenFile = /*@__PURE__*/
-  fileDesc("ChhlbWgvdjEvYXdhcmRfYWRtaW4ucHJvdG8SBmVtaC52MSJ6ChJDcmVhdGVBd2FyZFJlcXVlc3QSFQoEbmFtZRgBIAEoCUIHukgEcgIQARITCgtkZXNjcmlwdGlvbhgCIAEoCRIbCglpbWFnZV91cmwYAyABKAlCCLpIBXIDiAEBEhsKCnNvcnRfb3JkZXIYBCABKAVCB7pIBBoCKAAiIQoTQ3JlYXRlQXdhcmRSZXNwb25zZRIKCgJpZBgBIAEoCSKtAQoSVXBkYXRlQXdhcmRSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABARIYCgRuYW1lGAIgASgJQgq6SAdyAhAB2AEBEhMKC2Rlc2NyaXB0aW9uGAMgASgJEh4KCWltYWdlX3VybBgEIAEoCUILukgI2AEBcgOIAQESHgoKc29ydF9vcmRlchgFIAEoBUIKukgHGgIoANgBARISCgpmaWVsZF9tYXNrGAYgAygJIjMKE1VwZGF0ZUF3YXJkUmVzcG9uc2USHAoFYXdhcmQYASABKAsyDS5lbWgudjEuQXdhcmQiKgoSRGVsZXRlQXdhcmRSZXF1ZXN0EhQKAmlkGAEgASgJQgi6SAVyA7ABASImChNEZWxldGVBd2FyZFJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgy6wEKEUF3YXJkQWRtaW5TZXJ2aWNlEkYKC0NyZWF0ZUF3YXJkEhouZW1oLnYxLkNyZWF0ZUF3YXJkUmVxdWVzdBobLmVtaC52MS5DcmVhdGVBd2FyZFJlc3BvbnNlEkYKC1VwZGF0ZUF3YXJkEhouZW1oLnYxLlVwZGF0ZUF3YXJkUmVxdWVzdBobLmVtaC52MS5VcGRhdGVBd2FyZFJlc3BvbnNlEkYKC0RlbGV0ZUF3YXJkEhouZW1oLnYxLkRlbGV0ZUF3YXJkUmVxdWVzdBobLmVtaC52MS5EZWxldGVBd2FyZFJlc3BvbnNlQj1aO2NvZGViZXJnLm9yZy9UaHIwVFQxZS9lbWgvYmFja2VuZC9pbnRlcm5hbC9nZW4vZW1oL3YxO2VtaHYxYgZwcm90bzM", [file_emh_v1_award, file_buf_validate_validate]);
+  fileDesc("ChhlbWgvdjEvYXdhcmRfYWRtaW4ucHJvdG8SBmVtaC52MSKrAgoSQ3JlYXRlQXdhcmRSZXF1ZXN0EhUKBG5hbWUYASABKAlCB7pIBHICEAESEwoLZGVzY3JpcHRpb24YAiABKAkSGwoJaW1hZ2VfdXJsGAMgASgJQgi6SAVyA4gBARIbCgpzb3J0X29yZGVyGAQgASgFQge6SAQaAigAEiUKEHJpYmJvbl9pbWFnZV91cmwYBSABKAlCC7pICNgBAXIDiAEBEikKBHR5cGUYBiABKA4yES5lbWgudjEuQXdhcmRUeXBlQgi6SAWCAQIgABIYChB3b3JuX3dpdGhvdXRfYmFyGAcgASgIEhIKCmlzX2p1YmlsZWUYCCABKAgSLwoManVyaXNkaWN0aW9uGAkgASgOMhkuZW1oLnYxLkF3YXJkSnVyaXNkaWN0aW9uIiEKE0NyZWF0ZUF3YXJkUmVzcG9uc2USCgoCaWQYASABKAki+QIKElVwZGF0ZUF3YXJkUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQESGAoEbmFtZRgCIAEoCUIKukgHcgIQAdgBARITCgtkZXNjcmlwdGlvbhgDIAEoCRIeCglpbWFnZV91cmwYBCABKAlCC7pICHIDiAEB2AEBEh4KCnNvcnRfb3JkZXIYBSABKAVCCrpIBxoCKADYAQESEgoKZmllbGRfbWFzaxgGIAMoCRIlChByaWJib25faW1hZ2VfdXJsGAcgASgJQgu6SAhyA4gBAdgBARIsCgR0eXBlGAggASgOMhEuZW1oLnYxLkF3YXJkVHlwZUILukgI2AEBggECIAASIAoQd29ybl93aXRob3V0X2JhchgJIAEoCEIGukgD2AEBEhoKCmlzX2p1YmlsZWUYCiABKAhCBrpIA9gBARI3CgxqdXJpc2RpY3Rpb24YCyABKA4yGS5lbWgudjEuQXdhcmRKdXJpc2RpY3Rpb25CBrpIA9gBASIzChNVcGRhdGVBd2FyZFJlc3BvbnNlEhwKBWF3YXJkGAEgASgLMg0uZW1oLnYxLkF3YXJkIioKEkRlbGV0ZUF3YXJkUmVxdWVzdBIUCgJpZBgBIAEoCUIIukgFcgOwAQEiJgoTRGVsZXRlQXdhcmRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIMusBChFBd2FyZEFkbWluU2VydmljZRJGCgtDcmVhdGVBd2FyZBIaLmVtaC52MS5DcmVhdGVBd2FyZFJlcXVlc3QaGy5lbWgudjEuQ3JlYXRlQXdhcmRSZXNwb25zZRJGCgtVcGRhdGVBd2FyZBIaLmVtaC52MS5VcGRhdGVBd2FyZFJlcXVlc3QaGy5lbWgudjEuVXBkYXRlQXdhcmRSZXNwb25zZRJGCgtEZWxldGVBd2FyZBIaLmVtaC52MS5EZWxldGVBd2FyZFJlcXVlc3QaGy5lbWgudjEuRGVsZXRlQXdhcmRSZXNwb25zZUI9Wjtjb2RlYmVyZy5vcmcvVGhyMFRUMWUvZW1oL2JhY2tlbmQvaW50ZXJuYWwvZ2VuL2VtaC92MTtlbWh2MWIGcHJvdG8z", [file_emh_v1_award, file_emh_v1_enums_emh, file_buf_validate_validate]);
 
 /**
  * CreateAwardRequest данные для создания новой награды в справочнике.
@@ -50,6 +52,42 @@ export type CreateAwardRequest = Message<"emh.v1.CreateAwardRequest"> & {
    * @generated from field: int32 sort_order = 4;
    */
   sortOrder: number;
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды для орденской планки.
+   * Опционально: награду можно создать без загруженной ленты.
+   *
+   * @generated from field: string ribbon_image_url = 5;
+   */
+  ribbonImageUrl: string;
+
+  /**
+   * type - тип награды (орден, медаль, знак). Обязателен при создании.
+   *
+   * @generated from field: emh.v1.AwardType type = 6;
+   */
+  type: AwardType;
+
+  /**
+   * worn_without_bar - награда носится без колодки и не входит в блок планок.
+   *
+   * @generated from field: bool worn_without_bar = 7;
+   */
+  wornWithoutBar: boolean;
+
+  /**
+   * is_jubilee - признак юбилейной награды.
+   *
+   * @generated from field: bool is_jubilee = 8;
+   */
+  isJubilee: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 9;
+   */
+  jurisdiction: AwardJurisdiction;
 };
 
 /**
@@ -85,6 +123,42 @@ export type CreateAwardRequestJson = {
    * @generated from field: int32 sort_order = 4;
    */
   sortOrder?: number;
+
+  /**
+   * ribbon_image_url - URL изображения ленты награды для орденской планки.
+   * Опционально: награду можно создать без загруженной ленты.
+   *
+   * @generated from field: string ribbon_image_url = 5;
+   */
+  ribbonImageUrl?: string;
+
+  /**
+   * type - тип награды (орден, медаль, знак). Обязателен при создании.
+   *
+   * @generated from field: emh.v1.AwardType type = 6;
+   */
+  type?: AwardTypeJson;
+
+  /**
+   * worn_without_bar - награда носится без колодки и не входит в блок планок.
+   *
+   * @generated from field: bool worn_without_bar = 7;
+   */
+  wornWithoutBar?: boolean;
+
+  /**
+   * is_jubilee - признак юбилейной награды.
+   *
+   * @generated from field: bool is_jubilee = 8;
+   */
+  isJubilee?: boolean;
+
+  /**
+   * jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 9;
+   */
+  jurisdiction?: AwardJurisdictionJson;
 };
 
 /**
@@ -176,6 +250,41 @@ export type UpdateAwardRequest = Message<"emh.v1.UpdateAwardRequest"> & {
    * @generated from field: repeated string field_mask = 6;
    */
   fieldMask: string[];
+
+  /**
+   * ribbon_image_url - новый URL изображения ленты награды. Пустое значение очищает ленту.
+   *
+   * @generated from field: string ribbon_image_url = 7;
+   */
+  ribbonImageUrl: string;
+
+  /**
+   * type - новый тип награды (орден, медаль, знак).
+   *
+   * @generated from field: emh.v1.AwardType type = 8;
+   */
+  type: AwardType;
+
+  /**
+   * worn_without_bar - новый признак ношения без колодки.
+   *
+   * @generated from field: bool worn_without_bar = 9;
+   */
+  wornWithoutBar: boolean;
+
+  /**
+   * is_jubilee - новый признак юбилейной награды.
+   *
+   * @generated from field: bool is_jubilee = 10;
+   */
+  isJubilee: boolean;
+
+  /**
+   * jurisdiction - новая государственная принадлежность награды.
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 11;
+   */
+  jurisdiction: AwardJurisdiction;
 };
 
 /**
@@ -225,6 +334,41 @@ export type UpdateAwardRequestJson = {
    * @generated from field: repeated string field_mask = 6;
    */
   fieldMask?: string[];
+
+  /**
+   * ribbon_image_url - новый URL изображения ленты награды. Пустое значение очищает ленту.
+   *
+   * @generated from field: string ribbon_image_url = 7;
+   */
+  ribbonImageUrl?: string;
+
+  /**
+   * type - новый тип награды (орден, медаль, знак).
+   *
+   * @generated from field: emh.v1.AwardType type = 8;
+   */
+  type?: AwardTypeJson;
+
+  /**
+   * worn_without_bar - новый признак ношения без колодки.
+   *
+   * @generated from field: bool worn_without_bar = 9;
+   */
+  wornWithoutBar?: boolean;
+
+  /**
+   * is_jubilee - новый признак юбилейной награды.
+   *
+   * @generated from field: bool is_jubilee = 10;
+   */
+  isJubilee?: boolean;
+
+  /**
+   * jurisdiction - новая государственная принадлежность награды.
+   *
+   * @generated from field: emh.v1.AwardJurisdiction jurisdiction = 11;
+   */
+  jurisdiction?: AwardJurisdictionJson;
 };
 
 /**

@@ -344,6 +344,121 @@ func (DatePrecision) EnumDescriptor() ([]byte, []int) {
 	return file_emh_v1_enums_emh_proto_rawDescGZIP(), []int{4}
 }
 
+// AwardType определяет тип награды. Используется для старшинства в орденской планке.
+type AwardType int32
+
+const (
+	// AWARD_TYPE_UNSPECIFIED - тип не указан.
+	AwardType_AWARD_TYPE_UNSPECIFIED AwardType = 0
+	// AWARD_TYPE_ORDER - орден.
+	AwardType_AWARD_TYPE_ORDER AwardType = 1
+	// AWARD_TYPE_MEDAL - медаль.
+	AwardType_AWARD_TYPE_MEDAL AwardType = 2
+	// AWARD_TYPE_BADGE - знак отличия или почётный знак.
+	AwardType_AWARD_TYPE_BADGE AwardType = 3
+)
+
+// Enum value maps for AwardType.
+var (
+	AwardType_name = map[int32]string{
+		0: "AWARD_TYPE_UNSPECIFIED",
+		1: "AWARD_TYPE_ORDER",
+		2: "AWARD_TYPE_MEDAL",
+		3: "AWARD_TYPE_BADGE",
+	}
+	AwardType_value = map[string]int32{
+		"AWARD_TYPE_UNSPECIFIED": 0,
+		"AWARD_TYPE_ORDER":       1,
+		"AWARD_TYPE_MEDAL":       2,
+		"AWARD_TYPE_BADGE":       3,
+	}
+)
+
+func (x AwardType) Enum() *AwardType {
+	p := new(AwardType)
+	*p = x
+	return p
+}
+
+func (x AwardType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AwardType) Descriptor() protoreflect.EnumDescriptor {
+	return file_emh_v1_enums_emh_proto_enumTypes[5].Descriptor()
+}
+
+func (AwardType) Type() protoreflect.EnumType {
+	return &file_emh_v1_enums_emh_proto_enumTypes[5]
+}
+
+func (x AwardType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AwardType.Descriptor instead.
+func (AwardType) EnumDescriptor() ([]byte, []int) {
+	return file_emh_v1_enums_emh_proto_rawDescGZIP(), []int{5}
+}
+
+// AwardJurisdiction определяет государственную принадлежность награды.
+// Задаёт первичную ось старшинства согласно приказу МО РФ №1500.
+type AwardJurisdiction int32
+
+const (
+	// AWARD_JURISDICTION_UNSPECIFIED - принадлежность не указана.
+	AwardJurisdiction_AWARD_JURISDICTION_UNSPECIFIED AwardJurisdiction = 0
+	// AWARD_JURISDICTION_RUSSIAN_FEDERATION - награда Российской Федерации.
+	AwardJurisdiction_AWARD_JURISDICTION_RUSSIAN_FEDERATION AwardJurisdiction = 1
+	// AWARD_JURISDICTION_USSR - награда СССР.
+	AwardJurisdiction_AWARD_JURISDICTION_USSR AwardJurisdiction = 2
+	// AWARD_JURISDICTION_DEPARTMENTAL - ведомственная награда.
+	AwardJurisdiction_AWARD_JURISDICTION_DEPARTMENTAL AwardJurisdiction = 3
+)
+
+// Enum value maps for AwardJurisdiction.
+var (
+	AwardJurisdiction_name = map[int32]string{
+		0: "AWARD_JURISDICTION_UNSPECIFIED",
+		1: "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+		2: "AWARD_JURISDICTION_USSR",
+		3: "AWARD_JURISDICTION_DEPARTMENTAL",
+	}
+	AwardJurisdiction_value = map[string]int32{
+		"AWARD_JURISDICTION_UNSPECIFIED":        0,
+		"AWARD_JURISDICTION_RUSSIAN_FEDERATION": 1,
+		"AWARD_JURISDICTION_USSR":               2,
+		"AWARD_JURISDICTION_DEPARTMENTAL":       3,
+	}
+)
+
+func (x AwardJurisdiction) Enum() *AwardJurisdiction {
+	p := new(AwardJurisdiction)
+	*p = x
+	return p
+}
+
+func (x AwardJurisdiction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AwardJurisdiction) Descriptor() protoreflect.EnumDescriptor {
+	return file_emh_v1_enums_emh_proto_enumTypes[6].Descriptor()
+}
+
+func (AwardJurisdiction) Type() protoreflect.EnumType {
+	return &file_emh_v1_enums_emh_proto_enumTypes[6]
+}
+
+func (x AwardJurisdiction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AwardJurisdiction.Descriptor instead.
+func (AwardJurisdiction) EnumDescriptor() ([]byte, []int) {
+	return file_emh_v1_enums_emh_proto_rawDescGZIP(), []int{6}
+}
+
 var File_emh_v1_enums_emh_proto protoreflect.FileDescriptor
 
 const file_emh_v1_enums_emh_proto_rawDesc = "" +
@@ -382,7 +497,17 @@ const file_emh_v1_enums_emh_proto_rawDesc = "" +
 	"\x15DATE_PRECISION_SEASON\x10\x04\x12\x1c\n" +
 	"\x18DATE_PRECISION_DAY_MONTH\x10\x05\x12\x18\n" +
 	"\x14DATE_PRECISION_RANGE\x10\x06\x12\x1a\n" +
-	"\x16DATE_PRECISION_UNKNOWN\x10\aB=Z;codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1b\x06proto3"
+	"\x16DATE_PRECISION_UNKNOWN\x10\a*i\n" +
+	"\tAwardType\x12\x1a\n" +
+	"\x16AWARD_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10AWARD_TYPE_ORDER\x10\x01\x12\x14\n" +
+	"\x10AWARD_TYPE_MEDAL\x10\x02\x12\x14\n" +
+	"\x10AWARD_TYPE_BADGE\x10\x03*\xa4\x01\n" +
+	"\x11AwardJurisdiction\x12\"\n" +
+	"\x1eAWARD_JURISDICTION_UNSPECIFIED\x10\x00\x12)\n" +
+	"%AWARD_JURISDICTION_RUSSIAN_FEDERATION\x10\x01\x12\x1b\n" +
+	"\x17AWARD_JURISDICTION_USSR\x10\x02\x12#\n" +
+	"\x1fAWARD_JURISDICTION_DEPARTMENTAL\x10\x03B=Z;codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1;emhv1b\x06proto3"
 
 var (
 	file_emh_v1_enums_emh_proto_rawDescOnce sync.Once
@@ -396,13 +521,15 @@ func file_emh_v1_enums_emh_proto_rawDescGZIP() []byte {
 	return file_emh_v1_enums_emh_proto_rawDescData
 }
 
-var file_emh_v1_enums_emh_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_emh_v1_enums_emh_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
 var file_emh_v1_enums_emh_proto_goTypes = []any{
 	(PublicationStatus)(0), // 0: emh.v1.PublicationStatus
 	(LocationType)(0),      // 1: emh.v1.LocationType
 	(HeroLocationType)(0),  // 2: emh.v1.HeroLocationType
 	(ConflictType)(0),      // 3: emh.v1.ConflictType
 	(DatePrecision)(0),     // 4: emh.v1.DatePrecision
+	(AwardType)(0),         // 5: emh.v1.AwardType
+	(AwardJurisdiction)(0), // 6: emh.v1.AwardJurisdiction
 }
 var file_emh_v1_enums_emh_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -422,7 +549,7 @@ func file_emh_v1_enums_emh_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_emh_v1_enums_emh_proto_rawDesc), len(file_emh_v1_enums_emh_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      7,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

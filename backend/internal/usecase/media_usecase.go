@@ -46,6 +46,11 @@ var allowedMIME = map[domain.UploadType]map[string]string{
 		"image/png":  ".png",
 		"image/webp": ".webp",
 	},
+	domain.UploadTypeAwardRibbon: {
+		"image/jpeg": ".jpg",
+		"image/png":  ".png",
+		"image/webp": ".webp",
+	},
 	domain.UploadTypeSubmissionAttachment: {
 		"image/jpeg":      ".jpg",
 		"image/png":       ".png",
@@ -58,6 +63,7 @@ var allowedMIME = map[domain.UploadType]map[string]string{
 var typePrefix = map[domain.UploadType]string{
 	domain.UploadTypeHeroPhoto:            "heroes",
 	domain.UploadTypeAwardImage:           "awards",
+	domain.UploadTypeAwardRibbon:          "awards/ribbons",
 	domain.UploadTypeSubmissionAttachment: "submissions",
 }
 

@@ -18,6 +18,8 @@ enum UploadType {
   UPLOAD_TYPE_AWARD_IMAGE = 2;
   // UPLOAD_TYPE_SUBMISSION_ATTACHMENT - документ к заявке.
   UPLOAD_TYPE_SUBMISSION_ATTACHMENT = 3;
+  // UPLOAD_TYPE_AWARD_RIBBON - изображение ленты награды для орденской планки.
+  UPLOAD_TYPE_AWARD_RIBBON = 4;
 }
 
 // GetUploadUrlRequest запрос на получение presigned URL для загрузки.

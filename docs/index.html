@@ -460,6 +460,14 @@
               
               
                 <li>
+                  <a href="#emh.v1.AwardJurisdiction"><span class="badge">E</span>AwardJurisdiction</a>
+                </li>
+              
+                <li>
+                  <a href="#emh.v1.AwardType"><span class="badge">E</span>AwardType</a>
+                </li>
+              
+                <li>
                   <a href="#emh.v1.ConflictType"><span class="badge">E</span>ConflictType</a>
                 </li>
               
@@ -535,6 +543,10 @@
           <li>
             <a href="#emh%2fv1%2fhero.proto">emh/v1/hero.proto</a>
             <ul>
+              
+                <li>
+                  <a href="#emh.v1.AwardDevice"><span class="badge">M</span>AwardDevice</a>
+                </li>
               
                 <li>
                   <a href="#emh.v1.FaceBox"><span class="badge">M</span>FaceBox</a>
@@ -1617,6 +1629,44 @@
                   <td><p>sort_order - приоритет отображения (старшие награды выше). </p></td>
                 </tr>
               
+                <tr>
+                  <td>ribbon_image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ribbon_image_url - URL изображения ленты награды для орденской планки. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>type</td>
+                  <td><a href="#emh.v1.AwardType">AwardType</a></td>
+                  <td></td>
+                  <td><p>type - тип награды (орден, медаль, знак).
+Влияет на старшинство согласно приказу МО РФ №1500. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>worn_without_bar</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>worn_without_bar - награда носится без колодки (звёзды орденов, знаки).
+Такие награды не включаются в общий блок планок. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_jubilee</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>is_jubilee - юбилейная награда (влияет на старшинство: боевые выше юбилейных). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>jurisdiction</td>
+                  <td><a href="#emh.v1.AwardJurisdiction">AwardJurisdiction</a></td>
+                  <td></td>
+                  <td><p>jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная).
+Первичная ось старшинства в орденской планке. </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -1812,6 +1862,42 @@
                   <td><p>sort_order - приоритет сортировки при отображении (старшие награды выше). </p></td>
                 </tr>
               
+                <tr>
+                  <td>ribbon_image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ribbon_image_url - URL изображения ленты награды для орденской планки.
+Опционально: награду можно создать без загруженной ленты. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>type</td>
+                  <td><a href="#emh.v1.AwardType">AwardType</a></td>
+                  <td></td>
+                  <td><p>type - тип награды (орден, медаль, знак). Обязателен при создании. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>worn_without_bar</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>worn_without_bar - награда носится без колодки и не входит в блок планок. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_jubilee</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>is_jubilee - признак юбилейной награды. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>jurisdiction</td>
+                  <td><a href="#emh.v1.AwardJurisdiction">AwardJurisdiction</a></td>
+                  <td></td>
+                  <td><p>jurisdiction - государственная принадлежность награды (РФ, СССР, ведомственная). </p></td>
+                </tr>
+              
             </tbody>
           </table>
 
@@ -1941,6 +2027,41 @@
                   <td><a href="#string">string</a></td>
                   <td>repeated</td>
                   <td><p>field_mask - список полей для обновления. Позволяет отличить очистку поля от отсутствия изменений. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>ribbon_image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ribbon_image_url - новый URL изображения ленты награды. Пустое значение очищает ленту. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>type</td>
+                  <td><a href="#emh.v1.AwardType">AwardType</a></td>
+                  <td></td>
+                  <td><p>type - новый тип награды (орден, медаль, знак). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>worn_without_bar</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>worn_without_bar - новый признак ношения без колодки. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_jubilee</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>is_jubilee - новый признак юбилейной награды. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>jurisdiction</td>
+                  <td><a href="#emh.v1.AwardJurisdiction">AwardJurisdiction</a></td>
+                  <td></td>
+                  <td><p>jurisdiction - новая государственная принадлежность награды. </p></td>
                 </tr>
               
             </tbody>
@@ -2851,6 +2972,76 @@
       
 
       
+        <h3 id="emh.v1.AwardJurisdiction">AwardJurisdiction</h3>
+        <p>AwardJurisdiction определяет государственную принадлежность награды.</p><p>Задаёт первичную ось старшинства согласно приказу МО РФ №1500.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>AWARD_JURISDICTION_UNSPECIFIED</td>
+                <td>0</td>
+                <td><p>AWARD_JURISDICTION_UNSPECIFIED - принадлежность не указана.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_JURISDICTION_RUSSIAN_FEDERATION</td>
+                <td>1</td>
+                <td><p>AWARD_JURISDICTION_RUSSIAN_FEDERATION - награда Российской Федерации.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_JURISDICTION_USSR</td>
+                <td>2</td>
+                <td><p>AWARD_JURISDICTION_USSR - награда СССР.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_JURISDICTION_DEPARTMENTAL</td>
+                <td>3</td>
+                <td><p>AWARD_JURISDICTION_DEPARTMENTAL - ведомственная награда.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      
+        <h3 id="emh.v1.AwardType">AwardType</h3>
+        <p>AwardType определяет тип награды. Используется для старшинства в орденской планке.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>AWARD_TYPE_UNSPECIFIED</td>
+                <td>0</td>
+                <td><p>AWARD_TYPE_UNSPECIFIED - тип не указан.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_TYPE_ORDER</td>
+                <td>1</td>
+                <td><p>AWARD_TYPE_ORDER - орден.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_TYPE_MEDAL</td>
+                <td>2</td>
+                <td><p>AWARD_TYPE_MEDAL - медаль.</p></td>
+              </tr>
+            
+              <tr>
+                <td>AWARD_TYPE_BADGE</td>
+                <td>3</td>
+                <td><p>AWARD_TYPE_BADGE - знак отличия или почётный знак.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      
         <h3 id="emh.v1.ConflictType">ConflictType</h3>
         <p>ConflictType классифицирует военные конфликты.</p>
         <table class="enum-table">
@@ -3583,6 +3774,37 @@
       <p>Основные сущности и публичный сервис для работы с героями.</p>
 
       
+        <h3 id="emh.v1.AwardDevice">AwardDevice</h3>
+        <p>AwardDevice знак повторности на планке.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>type</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>type - тип знака (звёздочка, цифра, дубовые листья). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>count</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>count - количество (например, 2 звёздочки). </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
         <h3 id="emh.v1.FaceBox">FaceBox</h3>
         <p>FaceBox область интереса на фотографии (обычно лицо героя).</p><p>Координаты задаются в пикселях от левого верхнего угла изображения.</p>
 
@@ -3720,6 +3942,57 @@
                   <td></td>
                   <td><p>award_date_info - гибкая дата награждения.
 Если заполнено, имеет приоритет над award_date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>devices</td>
+                  <td><a href="#emh.v1.AwardDevice">AwardDevice</a></td>
+                  <td>repeated</td>
+                  <td><p>devices - знаки повторности (звёздочки, цифры, дубовые листья).
+Например, при повторном награждении одной и той же медалью. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>ribbon_image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ribbon_image_url - URL изображения ленты награды (денормализация из справочника).
+Пусто, если лента для награды ещё не загружена. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>type</td>
+                  <td><a href="#emh.v1.AwardType">AwardType</a></td>
+                  <td></td>
+                  <td><p>type - тип награды (денормализация из справочника). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>worn_without_bar</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>worn_without_bar - награда носится без колодки (денормализация из справочника). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>is_jubilee</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>is_jubilee - юбилейная награда (денормализация из справочника). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>jurisdiction</td>
+                  <td><a href="#emh.v1.AwardJurisdiction">AwardJurisdiction</a></td>
+                  <td></td>
+                  <td><p>jurisdiction - государственная принадлежность награды (денормализация из справочника). </p></td>
+                </tr>
+              
+                <tr>
+                  <td>image_url</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>image_url - URL изображения знака награды (денормализация из справочника). </p></td>
                 </tr>
               
             </tbody>
@@ -4603,6 +4876,13 @@ DEPRECATED: используйте death_date_info. Поле сохранено 
                   <td></td>
                   <td><p>award_date_info - гибкая дата награждения.
 Если заполнено, имеет приоритет над award_date. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>devices</td>
+                  <td><a href="#emh.v1.AwardDevice">AwardDevice</a></td>
+                  <td>repeated</td>
+                  <td><p>devices - знаки повторности награды (звёздочки, цифры, дубовые листья). </p></td>
                 </tr>
               
             </tbody>
@@ -7209,6 +7489,12 @@ DEPRECATED: используйте death_date_info. Поле сохранено 
                 <td>UPLOAD_TYPE_SUBMISSION_ATTACHMENT</td>
                 <td>3</td>
                 <td><p>UPLOAD_TYPE_SUBMISSION_ATTACHMENT - документ к заявке.</p></td>
+              </tr>
+            
+              <tr>
+                <td>UPLOAD_TYPE_AWARD_RIBBON</td>
+                <td>4</td>
+                <td><p>UPLOAD_TYPE_AWARD_RIBBON - изображение ленты награды для орденской планки.</p></td>
               </tr>
             
           </tbody>
