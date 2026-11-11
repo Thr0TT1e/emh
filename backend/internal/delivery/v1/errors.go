@@ -24,6 +24,7 @@ var errorMessages = map[domain.ErrorCode]string{
 	domain.ErrCodeStatusUnspecified:            "Статус публикации не задан",
 	domain.ErrCodeStatusRequired:               "Статус публикации обязателен при обновлении",
 	domain.ErrCodeDuplicateFieldMask:           "Дублирование поля в field_mask",
+	domain.ErrCodeInvalidCursor:                "Некорректный курсор пагинации",
 	domain.ErrCodePhotosNotBelongToHero:        "Некоторые фотографии не принадлежат данному герою",
 	domain.ErrCodeSelfRelation:                 "Нельзя создать связь героя с самим собой",
 	domain.ErrCodeInvalidDateFormat:            "Неверный формат даты",
@@ -45,6 +46,7 @@ var errorMessages = map[domain.ErrorCode]string{
 	domain.ErrCodeInvalidLatitude:        "Широта должна быть в диапазоне от -90 до 90",
 	domain.ErrCodeInvalidLongitude:       "Долгота должна быть в диапазоне от -180 до 180",
 	domain.ErrCodeAwardNameRequired:      "Название награды обязательно",
+	domain.ErrCodeAwardDuplicate:         "Награда с таким названием, типом и юрисдикцией уже существует в справочнике",
 	domain.ErrCodeConflictNameRequired:   "Название конфликта обязательно",
 	domain.ErrCodeLocationNameRequired:   "Название локации обязательно",
 
@@ -111,6 +113,8 @@ func connectCodeFromDomainCode(code domain.ErrorCode) connect.Code {
 	case domain.ErrCodeLLMInputTooLarge:
 		return connect.CodeInvalidArgument
 	case domain.ErrCodeSubmissionDuplicate:
+		return connect.CodeAlreadyExists
+	case domain.ErrCodeAwardDuplicate:
 		return connect.CodeAlreadyExists
 
 	default:

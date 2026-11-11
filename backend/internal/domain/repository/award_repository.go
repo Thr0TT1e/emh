@@ -14,6 +14,15 @@ type AwardRepository interface {
 	GetByID(ctx context.Context, id string) (*domain.Award, error)
 	List(ctx context.Context, f domain.AwardFilter) ([]*domain.Award, string, int64, error)
 	HasHeroes(ctx context.Context, awardID string) (bool, error)
+
+	// ExistsByKey — дешёвая проверка существования награды по составному ключу
+	// сида (name, type, jurisdiction). Используется seeder'ом до загрузок в MinIO.
+	ExistsByKey(ctx context.Context, name string, awardType domain.AwardType, jurisdiction domain.AwardJurisdiction) (bool, error)
+
+	// InsertIfAbsent — INSERT ... ON CONFLICT (name, type, jurisdiction) DO NOTHING.
+	// Возвращает true, если строка вставлена; false — если уже существует
+	// (защита от гонки сида с админкой, ручные правки не перезаписываются).
+	InsertIfAbsent(ctx context.Context, p domain.CreateAwardParams) (bool, error)
 }
 
 // HeroAwardRepository абстракция для связи герой-награда.

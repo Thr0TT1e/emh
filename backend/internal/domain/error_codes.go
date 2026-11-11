@@ -17,6 +17,7 @@ const (
 	ErrCodeStatusUnspecified            ErrorCode = "STATUS_UNSPECIFIED"
 	ErrCodeStatusRequired               ErrorCode = "STATUS_REQUIRED"
 	ErrCodeDuplicateFieldMask           ErrorCode = "DUPLICATE_FIELD_MASK"
+	ErrCodeInvalidCursor                ErrorCode = "INVALID_CURSOR"
 	ErrCodePhotosNotBelongToHero        ErrorCode = "PHOTOS_NOT_BELONG_TO_HERO"
 	ErrCodeSelfRelation                 ErrorCode = "SELF_RELATION"
 	ErrCodeInvalidDateFormat            ErrorCode = "INVALID_DATE_FORMAT"
@@ -38,8 +39,10 @@ const (
 	ErrCodeInvalidLatitude        ErrorCode = "INVALID_LATITUDE"
 	ErrCodeInvalidLongitude       ErrorCode = "INVALID_LONGITUDE"
 	ErrCodeAwardNameRequired      ErrorCode = "AWARD_NAME_REQUIRED"
-	ErrCodeConflictNameRequired   ErrorCode = "CONFLICT_NAME_REQUIRED"
-	ErrCodeLocationNameRequired   ErrorCode = "LOCATION_NAME_REQUIRED"
+	// ErrCodeAwardDuplicate — конфликт составного ключа (name, type, jurisdiction).
+	ErrCodeAwardDuplicate       ErrorCode = "AWARD_DUPLICATE"
+	ErrCodeConflictNameRequired ErrorCode = "CONFLICT_NAME_REQUIRED"
+	ErrCodeLocationNameRequired ErrorCode = "LOCATION_NAME_REQUIRED"
 
 	// API Keys
 	ErrCodeAPIKeyAlreadyRevoked ErrorCode = "API_KEY_ALREADY_REVOKED"
@@ -106,6 +109,8 @@ func CodeFromError(err error) ErrorCode {
 		return ErrCodeStatusRequired
 	case errors.Is(err, ErrDuplicateFieldMask):
 		return ErrCodeDuplicateFieldMask
+	case errors.Is(err, ErrInvalidCursor):
+		return ErrCodeInvalidCursor
 	case errors.Is(err, ErrPhotosNotBelongToHero):
 		return ErrCodePhotosNotBelongToHero
 	case errors.Is(err, ErrSelfRelation):
@@ -146,6 +151,8 @@ func CodeFromError(err error) ErrorCode {
 		return ErrCodeInvalidLongitude
 	case errors.Is(err, ErrAwardNameRequired):
 		return ErrCodeAwardNameRequired
+	case errors.Is(err, ErrAwardDuplicate):
+		return ErrCodeAwardDuplicate
 	case errors.Is(err, ErrConflictNameRequired):
 		return ErrCodeConflictNameRequired
 	case errors.Is(err, ErrLocationNameRequired):

@@ -6,7 +6,7 @@ After=emh-postgres.service
 Requires=emh-postgres.service
 
 [Container]
-Image=docker.io/thr0tt1e/emh-backend:v0.0.1
+Image=codeberg.org/thr0tt1e/emh-backend:latest
 ContainerName=emh-migrate
 EnvironmentFile=%h/emh/.env
 Network=emh-net.network

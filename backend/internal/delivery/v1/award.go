@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"connectrpc.com/connect"
@@ -55,8 +54,8 @@ func (s *AwardServer) ListAwards(
 
 	awards, nextCursor, total, err := s.awardUC.List(ctx, filter)
 	if err != nil {
-		s.logger.ErrorContext(ctx, "list awards failed", "error", err)
-		return nil, connect.NewError(connect.CodeInternal, errors.New("internal error"))
+		// domain.ErrInvalidCursor -> CodeInvalidArgument; прочие -> CodeInternal.
+		return nil, mapDomainError(ctx, s.logger, err, "list awards failed")
 	}
 
 	protoAwards := make([]*emhv1.Award, 0, len(awards))

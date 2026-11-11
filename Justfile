@@ -47,6 +47,26 @@ gen-sdk:
 ip-pepper:
     @openssl rand -hex 32
 
+# --- Сид справочника наград (ADR-005) ---
+
+# Каталог сида на хосте (VPS): seed.json + исходники. Переопределяется env EMH_SEEDS_DIR.
+seeds_dir := env("EMH_SEEDS_DIR", home + "/emh/seeds")
+home := env("HOME", "~")
+
+# Сборка seed.json из исходников (строгая валидация: enum-канон, webp, размеры)
+build-seed:
+    @go run -C backend ./cmd/seed-builder ./seeds/awards
+
+# Инкремент сида наград на VPS: one-shot контейнер с тем же образом, что и сервис.
+# Требуется актуальный seed.json в {{seeds_dir}} (git lfs pull на хосте).
+seed-awards-vps:
+    podman run --rm \
+        -v {{seeds_dir}}:/app/seeds:ro \
+        --env-file {{home}}/emh/.env \
+        --network emh-net \
+        docker.io/thr0tt1e/emh-backend:latest \
+        seed-awards /app/seeds/seed.json
+
 # --- Интеграционные тесты ---
 
 # Переменная для тестовой БД (можно переопределить через env).

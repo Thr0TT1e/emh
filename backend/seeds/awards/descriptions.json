@@ -1,0 +1,58 @@
+{
+  "awards": [
+    {
+      "name": "Звание Героя Российской Федерации",
+      "description": "Высшая государственная награда Российской Федерации. Присваивается за заслуги перед государством и народом, связанные с совершением героического подвига.",
+      "type": "AWARD_TYPE_ORDER",
+      "jurisdiction": "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+      "is_jubilee": false,
+      "worn_without_bar": true,
+      "sort_order": 1,
+      "image": "images/hero-of-russia.webp"
+    },
+    {
+      "name": "Орден Святого апостола Андрея Первозванного",
+      "description": "Высший орден Российской Федерации. Учреждён в 1998 году как возрождение исторической награды.",
+      "type": "AWARD_TYPE_ORDER",
+      "jurisdiction": "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+      "is_jubilee": false,
+      "worn_without_bar": false,
+      "sort_order": 2,
+      "image": "images/order-st-andrew.webp",
+      "ribbon": "ribbons/ribbon-order-st-andrew.webp"
+    },
+    {
+      "name": "Орден Святого Георгия I степени",
+      "description": "Высшая военная награда Российской Федерации. Учреждён в 2000 году как возрождение ордена Российской империи.",
+      "type": "AWARD_TYPE_ORDER",
+      "jurisdiction": "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+      "is_jubilee": false,
+      "worn_without_bar": false,
+      "sort_order": 3,
+      "image": "images/order-st-george-1.webp",
+      "ribbon": "ribbons/ribbon-order-st-george-1.webp"
+    },
+    {
+      "name": "Орден «За заслуги перед Отечеством» I степени",
+      "description": "Государственная награда Российской Федерации за особо выдающиеся заслуги перед государством.",
+      "type": "AWARD_TYPE_ORDER",
+      "jurisdiction": "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+      "is_jubilee": false,
+      "worn_without_bar": false,
+      "sort_order": 4,
+      "image": "images/order-for-merit-1.webp",
+      "ribbon": "ribbons/ribbon-order-for-merit-1.webp"
+    },
+    {
+      "name": "Медаль «За отвагу»",
+      "description": "Государственная награда Российской Федерации. Учреждена в 1994 году как преемница советской медали. Вручается за личное мужество и отвагу.",
+      "type": "AWARD_TYPE_MEDAL",
+      "jurisdiction": "AWARD_JURISDICTION_RUSSIAN_FEDERATION",
+      "is_jubilee": false,
+      "worn_without_bar": false,
+      "sort_order": 100,
+      "image": "images/medal-for-courage.webp",
+      "ribbon": "ribbons/ribbon-medal-for-courage.webp"
+    }
+  ]
+}

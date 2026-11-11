@@ -5,7 +5,7 @@ Description=EMH Frontend (Nuxt ISR)
 After=emh-backend.service
 
 [Container]
-Image=docker.io/thr0tt1e/emh-frontend:v0.0.3
+Image=codeberg.org/thr0tt1e/emh-frontend:latest
 ContainerName=emh-frontend
 Network=emh-net.network
 PublishPort=127.0.0.1:3000:3000

@@ -270,10 +270,22 @@ func (s *MediaStorage) Download(ctx context.Context, key string) (io.ReadCloser,
 // для доступа к Internal().PutObject(), что нарушало DIP и делало
 // невозможным тестирование с моками.
 func (s *MediaStorage) Upload(ctx context.Context, key string, data io.Reader, contentType string) error {
-	// Оборачиваем reader для подсчёта загруженных байт
-	cr := &countingReader{ReadCloser: io.NopCloser(data), operation: "upload"}
 	// Для retry нужен Seeker — сохраняем оригинал если возможно
 	seeker, isSeeker := data.(io.ReadSeeker)
+
+	// Если данные seekable — размер известен заранее: PutObject с явным size
+	// отправляет один PUT вместо multipart-карго (POST ?uploads= + parts +
+	// complete) для неизвестного размера. Мелкие объекты (ленты, превью)
+	// проходят одним запросом.
+	var size int64 = -1
+	if isSeeker {
+		if end, err := seeker.Seek(0, io.SeekEnd); err == nil {
+			size = end
+		}
+	}
+
+	// Оборачиваем reader для подсчёта загруженных байт
+	cr := &countingReader{ReadCloser: io.NopCloser(data), operation: "upload"}
 
 	_, err := withRetry(ctx, defaultRetryConfig, "upload", func() (struct{}, error) {
 		if isSeeker {
@@ -285,7 +297,7 @@ func (s *MediaStorage) Upload(ctx context.Context, key string, data io.Reader, c
 			cr.reset() // сбрасываем счётчик перед retry
 		}
 		_, err := s.internal.PutObject(
-			ctx, s.bucket, key, cr, -1,
+			ctx, s.bucket, key, cr, size,
 			minio.PutObjectOptions{ContentType: contentType},
 		)
 

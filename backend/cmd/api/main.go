@@ -42,6 +42,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	// 2.5. Subcommand `seed-awards`: one-shot импорт сида и выход (ADR-005).
+	if isSeedAwardsCommand() {
+		runSeedAwards(ctx, cfg, logger, dbPool, mediaStorage)
+		return
+	}
+
+	// 2.6. Авто-сид наград при первом запуске (пустой справочник + файл сида).
+	// Синхронно до старта HTTP: каталог готов к первому запросу (Q19).
+	// Миграции к этому моменту применены отдельным emh-migrate.container.
+	bootstrapAwardsSeed(ctx, logger, dbPool, mediaStorage)
+
 	// 3. Wiring зависимостей
 	deps, err := wireDependencies(cfg, logger, dbPool, mediaStorage)
 	if err != nil {

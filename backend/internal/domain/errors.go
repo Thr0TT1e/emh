@@ -29,6 +29,9 @@ var (
 	// ErrDuplicateFieldMask возвращается при дублировании поля в field_mask.
 	ErrDuplicateFieldMask = errors.New("field_mask contains duplicate field")
 
+	// ErrInvalidCursor возвращается при неразбираемом keyset-курсоре пагинации.
+	ErrInvalidCursor = errors.New("invalid pagination cursor")
+
 	// ErrPhotosNotBelongToHero возвращается при попытке операции с чужими фото.
 	ErrPhotosNotBelongToHero = errors.New("some photos do not belong to hero")
 
@@ -90,6 +93,10 @@ var (
 
 	// ErrAwardNameRequired возвращается при отсутствии названия награды.
 	ErrAwardNameRequired = errors.New("award name is required")
+
+	// ErrAwardDuplicate возвращается при конфликте составного ключа
+	// (name, type, jurisdiction) в справочнике наград (ADR-005, idx_awards_seed_key).
+	ErrAwardDuplicate = errors.New("award with the same name, type and jurisdiction already exists")
 
 	// ErrConflictNameRequired возвращается при отсутствии названия конфликта.
 	ErrConflictNameRequired = errors.New("conflict name is required")

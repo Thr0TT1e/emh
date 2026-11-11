@@ -9,6 +9,7 @@
     import { useToast } from 'primevue/usetoast'
     import ImageUpload from '~/components/admin/ImageUpload.vue'
     import { awardJurisdictionLabel, awardTypeLabel } from '~/lib/awards'
+    import { isAlreadyExists } from '~/lib/errors'
     import { toPlain } from '~/lib/pb'
     import type { AwardJson } from '~/sdk/emh/v1/award_pb'
     import { AwardSchema } from '~/sdk/emh/v1/award_pb'
@@ -18,6 +19,7 @@
     import EditIcon from '~icons/carbon/edit?width=1.25em&height=1.25em'
     import ImageIcon from '~icons/carbon/image?width=1.25em&height=1.25em'
     import TrashCanIcon from '~icons/carbon/trash-can?width=1.25em&height=1.25em'
+    import WarningAltIcon from '~icons/carbon/warning-alt?width=1.25em&height=1.25em'
     import MedalOutlineIcon from '~icons/mdi/medal-outline?width=1.25em&height=1.25em'
 
     definePageMeta({ layout: 'admin', middleware: 'admin' })
@@ -59,19 +61,33 @@
 
     // ---------------------------------------------------------------------------
     // Список + серверный поиск (search_query есть в ListAwardsRequest)
+    // Курсорная пагинация pageSize=50: keyset (sort_order,name,id) — обход
+    // полный; без явного pagination usecase обрезал до 20 (сид ~400 = невидимы).
     // ---------------------------------------------------------------------------
+    const PAGE_SIZE = 50
+
     const awards = ref<AwardJson[]>([])
     const loading = ref(false)
     const searchQuery = ref('')
+    const page = ref(0)
+    const cursorStack = ref<string[]>([''])
+    const hasMore = ref(false)
 
-    async function load() {
+    async function load(p: number = page.value) {
         loading.value = true
         try {
-            const res = await award.listAwards({ searchQuery: searchQuery.value })
+            const res = await award.listAwards({
+                searchQuery: searchQuery.value,
+                pagination: { pageSize: PAGE_SIZE, cursor: cursorStack.value[p] ?? '' },
+            })
             // Сортируем по sort_order по возрастанию: меньший номер = старшая награда.
             awards.value = (res.awards ?? [])
                 .map((a) => toPlain(AwardSchema, a))
                 .sort((x, y) => (x.sortOrder ?? 0) - (y.sortOrder ?? 0))
+            const next = res.pagination?.nextCursor ?? ''
+            hasMore.value = next !== ''
+            if (next) cursorStack.value[p + 1] = next
+            page.value = p
         } catch (e: any) {
             toast.add({ severity: 'error', summary: 'Ошибка', detail: e?.message ?? 'Не удалось загрузить награды', life: 5000 })
         } finally {
@@ -82,8 +98,20 @@
     let searchTimer: ReturnType<typeof setTimeout> | undefined
     watch(searchQuery, () => {
         clearTimeout(searchTimer)
-        searchTimer = setTimeout(load, 400)
+        searchTimer = setTimeout(() => {
+            cursorStack.value = ['']
+            load(0)
+        }, 400)
     })
+
+    // ---------------------------------------------------------------------------
+    // Каталог для клиентской проверки дублей (уровень 1, ADR-005).
+    // Полный справочник курсорным циклом (useAwardCatalog); сравнение — строгое
+    // равенство тройки (name, type, jurisdiction): зеркалит уникальный индекс
+    // idx_awards_seed_key, не блокирует то, что сервер принял бы.
+    // duplicateExisting определён после формы (зависит от form/editingId).
+    // ---------------------------------------------------------------------------
+    const { data: catalog, refresh: refreshCatalog } = await useAwardCatalog()
 
     onMounted(load)
 
@@ -105,6 +133,13 @@
         wornWithoutBar: false,
         isJubilee: false,
     })
+
+    // Подписи numeric-значений формы для текста дубль-предупреждения
+    // (awardTypeLabel/awardJurisdictionLabel принимают JSON-строки proto).
+    const formTypeLabel = computed(() =>
+        TYPE_OPTIONS.find((o) => o.value === form.type)?.label ?? 'Не указан')
+    const formJurisdictionLabel = computed(() =>
+        JURISDICTION_OPTIONS.find((o) => o.value === form.jurisdiction)?.label ?? 'Не указана')
 
     // Полный набор изменяемых полей для partial update (snake_case, Q24а).
     const UPDATE_FIELD_MASK = [
@@ -139,6 +174,19 @@
         dialogVisible.value = true
     }
 
+    // Уровень 1: совпадение ключа (name, type, jurisdiction) с другой записью
+    // каталога. В режиме правки собственная запись исключена (rename/edit без
+    // смены ключа — не дубль). Строгое равенство строк — зеркало индекса.
+    const duplicateExisting = computed<AwardJson | null>(() => {
+        if (!form.name) return null
+        return (catalog.value ?? []).find((a) =>
+            a.id !== (editingId.value ?? '') &&
+            a.name === form.name &&
+            TYPE_JSON_TO_NUM[a.type ?? 'AWARD_TYPE_UNSPECIFIED'] === form.type &&
+            JURISDICTION_JSON_TO_NUM[a.jurisdiction ?? 'AWARD_JURISDICTION_UNSPECIFIED'] === form.jurisdiction,
+        ) ?? null
+    })
+
     async function save() {
         if (!form.name.trim()) {
             toast.add({
@@ -158,6 +206,9 @@
             })
             return
         }
+        // Уровень 1 (страховка): кнопка уже disabled при дубле, но save()
+        // может быть вызван иначе — не отправляем заведомый конфликт ключа.
+        if (duplicateExisting.value) return
         busy.value = true
         try {
             const payload = {
@@ -193,8 +244,22 @@
                 })
             }
             dialogVisible.value = false
-            await load()
+            await Promise.all([load(), refreshCatalog()])
         } catch (e: any) {
+            // Уровень 2: серверный конфликт idx_awards_seed_key (гонка двух
+            // админов, пропуски уровня 1). Сообщение человекочитаемое — с бэкенда.
+            if (isAlreadyExists(e)) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Уже существует',
+                    detail: e?.message ?? 'Награда с таким названием, типом и юрисдикцией уже существует',
+                    life: 5000,
+                })
+                // Каталог устарел (дубль создан конкурентом) — обновляем,
+                // индикатор уровня 1 подхватит совпадение.
+                await refreshCatalog()
+                return
+            }
             toast.add({ severity: 'error', summary: 'Ошибка', detail: e?.message ?? 'Не удалось сохранить', life: 5000 })
         } finally {
             busy.value = false
@@ -226,7 +291,8 @@
                     detail: a.name,
                     life: 3000
                 })
-                await load()
+                // Ключ удалённой записи освобождается — каталог дубль-чека обновляем.
+                await Promise.all([load(), refreshCatalog()])
             }
         } catch (e: any) {
             // «При наличии связей с героями вернёт ошибку» — показываем текст бэкенда
@@ -309,6 +375,14 @@
                         </div>
                     </div>
 
+                    <!-- Уровень 1: совпадение ключа (name, type, jurisdiction) -->
+                    <Message v-if="duplicateExisting" severity="warn" :closable="false">
+                        <div class="award_dup">
+                            <WarningAltIcon />
+                            <span>В справочнике уже есть «{{ form.name }}» (тип: {{ formTypeLabel }}, принадлежность: {{ formJurisdictionLabel }}).</span>
+                        </div>
+                    </Message>
+
                     <label>
                         <span class="afield__label">Описание / статут</span>
                         <Textarea v-model="form.description" rows="3" class="w-full" />
@@ -317,13 +391,14 @@
 
                 <template #footer>
                     <Button label="Отмена" outlined severity="secondary" @click="dialogVisible = false" />
-                    <Button :label="editingId ? 'Сохранить' : 'Создать'" :loading="busy" @click="save" />
+                    <Button :label="editingId ? 'Сохранить' : 'Создать'" :loading="busy" :disabled="!!duplicateExisting"
+                        :title="duplicateExisting ? 'Такая награда уже есть в справочнике' : undefined" @click="save" />
                 </template>
             </Dialog>
         </template>
     </Card>
 
-    <DataTable :value="awards" :loading="loading" striped-rows class="atable mt-4" table-style="min-width: 50rem">
+    <DataTable :value="awards" :loading="loading" striped-rows data-key="id" class="atable mt-4" table-style="min-width: 50rem">
         <Column header="Изображение" style="width: 90px">
             <template #body="{ data }">
                 <img v-if="data.imageUrl" :src="data.imageUrl" :alt="data.name" class="award-thumb" />
@@ -379,6 +454,14 @@
             <div class="p-4 text-center">Наград не найдено</div>
         </template>
     </DataTable>
+
+    <!-- Курсорная пагинация (паттерн admin/heroes): stack курсоров, Назад/Вперёд -->
+    <div class="mt-3 flex gap-3">
+        <Button outlined :disabled="page === 0 || loading" label="← Назад" severity="secondary"
+            @click="load(page - 1)" />
+        <Button outlined :disabled="!hasMore || loading" label="Вперёд →" severity="secondary"
+            @click="load(page + 1)" />
+    </div>
 </template>
 
 <style scoped>
@@ -404,6 +487,12 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
+    }
+
+    .award_dup {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 
     .award-tags {
