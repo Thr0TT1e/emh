@@ -147,6 +147,16 @@ a:hover {
   transform: none;
 }
 
+/* ADR-006 T7: глобальный a11y-fallback — reveal не должен скрывать контент
+   у пользователей с reduced-motion, даже если IO/гидрация не сработали. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Бронзовый разделитель секций */
 .rule {
   border: 0;

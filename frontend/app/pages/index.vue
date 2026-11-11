@@ -99,6 +99,15 @@
   useHead({
     link: [
       { rel: 'canonical', href: canonical },
+      // LCP-логотип: нативный img в теле страницы не виден парсеру <head> —
+      // preload поднимает его загрузку на критический путь (ADR-006 T5).
+      {
+        rel: 'preload',
+        as: 'image',
+        href: '/logo_v5_full_vert_wbr.svg',
+        type: 'image/svg+xml',
+        fetchpriority: 'high',
+      },
     ],
   });
 
@@ -117,7 +126,9 @@
     <header class="masthead">
       <div class="masthead__inner">
         <div class="masthead__logo">
-          <Image src="/logo_v5_full_vert_wbr.svg" alt="Вечная память героям" />
+          <!-- LCP-кандидат: нативный img с размерами и приоритетом (ADR-006 T5) -->
+          <img src="/logo_v5_full_vert_wbr.svg" alt="Вечная память героям" width="300" height="378"
+            fetchpriority="high" decoding="async" />
         </div>
 
         <p class="masthead__slogan">
@@ -165,12 +176,10 @@
         </div>
 
         <div v-if="heroes.length" class="heroes-grid">
-          <NuxtLink v-for="(h, i) in heroes" :key="h.id" :to="`/heroes/${h.id}`" class="hero-card reveal" v-reveal
-            :style="{ transitionDelay: `${(i % 12) * 30}ms` }">
+          <NuxtLink v-for="(h, i) in heroes" :key="h.id" :to="`/heroes/${h.id}`" class="hero-card">
             <div class="hero-card__photo">
               <img v-if="h.mainThumbnailUrl" :src="h.mainThumbnailUrl" :alt="fullName(h)" width="480" height="600"
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" loading="lazy" decoding="async"
-                class="hero-card__photo-img" />
+                :loading="i < 4 ? 'eager' : 'lazy'" decoding="async" class="hero-card__photo-img" />
               <span v-else class="hero-card__photo-empty">
                 <AccountTieHatOutlineIcon />
               </span>
@@ -245,8 +254,8 @@
 
   .masthead__logo img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    /* height: auto сохраняет пропорции viewBox (3816.55×4804.25) без object-fit-растеринга */
+    height: auto;
   }
 
   .masthead__title {

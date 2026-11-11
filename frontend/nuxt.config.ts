@@ -220,6 +220,12 @@ export default defineNuxtConfig({
           title: 'Поиск героев',
           href: '/opensearch.xml',
         },
+        // ADR-006 T6: технические поддомены живут на neverforgotten.ru (Caddyfile),
+        // не на каноническом IDN. Изображения <img> — no-cors → preconnect БЕЗ crossorigin.
+        { rel: 'preconnect', href: 'https://s3.neverforgotten.ru' },
+        { rel: 'dns-prefetch', href: 'https://s3.neverforgotten.ru' },
+        // Connect fetch — anonymous CORS → preconnect С crossorigin.
+        { rel: 'preconnect', href: 'https://api.neverforgotten.ru', crossorigin: '' },
       ],
     },
     // @ts-expect-error

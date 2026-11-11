@@ -8,6 +8,10 @@
 # Punycode: xn--b1aaibdmu4k.xn--p1acf
 # ==========================================================================
 xn--b1aaibdmu4k.xn--p1acf {
+    # Компрессия HTML/JS/CSS/SVG на edge (ADR-006 T1).
+    # Уже сжатые ответы (WebP, woff2, gzip от Connect) Caddy пропускает.
+    encode zstd gzip
+
     # Кэширование статических шрифтов (1 год, immutable)
     @fonts {
         path /fonts/*
@@ -94,6 +98,21 @@ s3.neverforgotten.ru {
         Access-Control-Expose-Headers "ETag, x-amz-request-id, x-amz-id-2"
         Vary "Origin"
     }
+
+    # Кэш S3 по мутабельности ключа (ADR-006 T2, Reference - photo pipeline §1–2).
+    # Write-once ключи: UUID (photos/heroes) и контент-хеш (awards)
+    @immutable_get {
+        method GET
+        path */awards/* */photos/* */heroes/*
+    }
+    header @immutable_get Cache-Control "public, max-age=31536000, immutable"
+
+    # Thumbnails перезаписываются воркером при FaceBox-редактировании (тот же ключ)
+    @thumb_get {
+        method GET
+        path */thumbnails/*
+    }
+    header @thumb_get Cache-Control "public, max-age=300, stale-while-revalidate=604800"
 
     reverse_proxy emh-minio:9000
 }
