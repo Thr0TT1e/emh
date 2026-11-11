@@ -178,7 +178,8 @@ message AddHeroAwardRequest {
   // award_id - UUID награды из справочника.
   string award_id = 2 [(buf.validate.field).string.uuid = true];
   // award_date - дата награждения (строка YYYY-MM-DD).
-  string award_date = 3 [(buf.validate.field).string.pattern = "^\\d{4}-\\d{2}-\\d{2}$"];
+  // Legacy-поле: пусто, если передан award_date_info.
+  string award_date = 3 [(buf.validate.field).string.pattern = "^(\\d{4}-\\d{2}-\\d{2}|)$"];
   // decree_number - номер приказа или указа о награждении.
   string decree_number = 4;
   // award_date_info - гибкая дата награждения.

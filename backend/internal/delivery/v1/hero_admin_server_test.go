@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"connectrpc.com/connect"
 	"connectrpc.com/validate"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"codeberg.org/Thr0TT1e/emh/backend/internal/domain"
 	emhv1 "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1"
@@ -89,14 +91,14 @@ func (m *mockHeroQueryUCForAdmin) ListHeroPhotosPaged(ctx context.Context, heroI
 
 // mockAwardUC мок для HeroAwardUseCase.
 type mockAwardUC struct {
-	addFunc        func(ctx context.Context, heroID, awardID string, date *string, decree string) error
+	addFunc        func(ctx context.Context, p domain.AddHeroAwardParams) error
 	removeFunc     func(ctx context.Context, heroID, awardID string) error
 	listByHeroFunc func(ctx context.Context, heroID string) ([]*domain.HeroAward, error)
 }
 
-func (m *mockAwardUC) Add(ctx context.Context, heroID, awardID string, date *string, decree string) error {
+func (m *mockAwardUC) Add(ctx context.Context, p domain.AddHeroAwardParams) error {
 	if m.addFunc != nil {
-		return m.addFunc(ctx, heroID, awardID, date, decree)
+		return m.addFunc(ctx, p)
 	}
 	return nil
 }
@@ -794,9 +796,9 @@ func TestHeroAdminServer_AddHeroAward_Success(t *testing.T) {
 	awardID := newUUID()
 	var capturedHero, capturedAward string
 	awardUC := &mockAwardUC{
-		addFunc: func(ctx context.Context, hid, aid string, date *string, decree string) error {
-			capturedHero = hid
-			capturedAward = aid
+		addFunc: func(ctx context.Context, p domain.AddHeroAwardParams) error {
+			capturedHero = p.HeroID
+			capturedAward = p.AwardID
 			return nil
 		},
 	}
@@ -818,6 +820,71 @@ func TestHeroAdminServer_AddHeroAward_Success(t *testing.T) {
 	// Echo-паттерн: возвращается запрос.
 	if resp.Msg.HeroId != heroID {
 		t.Errorf("response hero_id = %q", resp.Msg.HeroId)
+	}
+}
+
+// TestHeroAdminServer_AddHeroAward_FlexibleDateOnly регрессия на 400 invalid_argument:
+// фронт присылает пустой award_date и гибкую дату в award_date_info —
+// запрос должен пройти protovalidate и донести FlexibleDate до usecase.
+func TestHeroAdminServer_AddHeroAward_FlexibleDateOnly(t *testing.T) {
+	heroID := newUUID()
+	awardID := newUUID()
+	anchor := time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	var captured domain.AddHeroAwardParams
+	awardUC := &mockAwardUC{
+		addFunc: func(ctx context.Context, p domain.AddHeroAwardParams) error {
+			captured = p
+			return nil
+		},
+	}
+	client, cleanup := setupHeroAdminServer(t, nil, nil, awardUC, nil, nil, nil, nil, nil)
+	defer cleanup()
+
+	_, err := client.AddHeroAward(context.Background(), connect.NewRequest(&emhv1.AddHeroAwardRequest{
+		HeroId:  heroID,
+		AwardId: awardID,
+		// awardDate остаётся "" (default): legacy-поле не заполняется.
+		AwardDateInfo: &emhv1.FlexibleDate{
+			Precision:   emhv1.DatePrecision_DATE_PRECISION_YEAR,
+			AnchorDate:  timestamppb.New(anchor),
+			DisplayText: "2022",
+		},
+	}))
+	if err != nil {
+		t.Fatalf("AddHeroAward with flexible date failed: %v", err)
+	}
+	if captured.AwardDate != nil {
+		t.Errorf("legacy award_date = %v, want nil", captured.AwardDate)
+	}
+	if captured.AwardDateInfo == nil {
+		t.Fatal("award_date_info not passed to usecase")
+	}
+	if captured.AwardDateInfo.Precision != domain.PrecisionYear {
+		t.Errorf("precision = %v, want PrecisionYear", captured.AwardDateInfo.Precision)
+	}
+	if captured.AwardDateInfo.Anchor == nil || !captured.AwardDateInfo.Anchor.Equal(anchor) {
+		t.Errorf("anchor = %v, want %v", captured.AwardDateInfo.Anchor, anchor)
+	}
+}
+
+// TestHeroAdminServer_AddHeroAward_InvalidFlexibleDate проверяет, что неконсистентная
+// гибкая дата (UNKNOWN с anchor) отклоняется до записи в БД.
+func TestHeroAdminServer_AddHeroAward_InvalidFlexibleDate(t *testing.T) {
+	client, cleanup := setupHeroAdminServer(t, nil, nil, &mockAwardUC{}, nil, nil, nil, nil, nil)
+	defer cleanup()
+
+	_, err := client.AddHeroAward(context.Background(), connect.NewRequest(&emhv1.AddHeroAwardRequest{
+		HeroId:  newUUID(),
+		AwardId: newUUID(),
+		AwardDateInfo: &emhv1.FlexibleDate{
+			Precision:   emhv1.DatePrecision_DATE_PRECISION_UNKNOWN,
+			AnchorDate:  timestamppb.New(time.Now()),
+			DisplayText: "",
+		},
+	}))
+	if connect.CodeOf(err) != connect.CodeInvalidArgument {
+		t.Fatalf("err = %v, want invalid_argument", err)
 	}
 }
 

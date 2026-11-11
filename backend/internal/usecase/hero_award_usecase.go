@@ -9,7 +9,7 @@ import (
 )
 
 type HeroAwardUseCase interface {
-	Add(ctx context.Context, heroID, awardID string, awardDate *string, decreeNumber string) error
+	Add(ctx context.Context, p domain.AddHeroAwardParams) error
 	Remove(ctx context.Context, heroID, awardID string) error
 	ListByHero(ctx context.Context, heroID string) ([]*domain.HeroAward, error)
 }
@@ -32,16 +32,21 @@ func NewHeroAwardUseCase(
 	}
 }
 
-func (uc *heroAwardUseCase) Add(ctx context.Context, heroID, awardID string, awardDate *string, decreeNumber string) error {
+func (uc *heroAwardUseCase) Add(ctx context.Context, p domain.AddHeroAwardParams) error {
 	// Проверяем существование героя
-	if _, err := uc.heroRepo.GetByID(ctx, heroID); err != nil {
+	if _, err := uc.heroRepo.GetByID(ctx, p.HeroID); err != nil {
 		return fmt.Errorf("hero not found: %w", err)
 	}
 	// Проверяем существование награды
-	if _, err := uc.awardRepo.GetByID(ctx, awardID); err != nil {
+	if _, err := uc.awardRepo.GetByID(ctx, p.AwardID); err != nil {
 		return fmt.Errorf("award not found: %w", err)
 	}
-	return uc.repo.Add(ctx, heroID, awardID, awardDate, decreeNumber)
+	if p.AwardDateInfo != nil {
+		if err := p.AwardDateInfo.IsValid(); err != nil {
+			return fmt.Errorf("validate award_date_info: %w", err)
+		}
+	}
+	return uc.repo.Add(ctx, p)
 }
 
 func (uc *heroAwardUseCase) Remove(ctx context.Context, heroID, awardID string) error {

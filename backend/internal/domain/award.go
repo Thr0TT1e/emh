@@ -57,6 +57,17 @@ type HeroAward struct {
 	IsJubilee      bool
 }
 
+// AddHeroAwardParams параметры привязки награды к герою.
+type AddHeroAwardParams struct {
+	HeroID  string
+	AwardID string
+	// AwardDate - legacy-колонка award_date (DATE). nil, если дата не передана.
+	AwardDate *time.Time
+	// AwardDateInfo - гибкая дата награждения (JSONB). nil, если не передана.
+	AwardDateInfo *FlexibleDate
+	DecreeNumber  string
+}
+
 // CreateAwardParams параметры создания награды.
 type CreateAwardParams struct {
 	Name           string

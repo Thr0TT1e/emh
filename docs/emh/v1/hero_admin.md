@@ -1602,7 +1602,7 @@ AddHeroAwardRequest запрос на привязку награды к гер�
 | ----- | ---- | ----- | ----------- |
 | hero_id | string | optional | hero_id - UUID героя. |
 | award_id | string | optional | award_id - UUID награды из справочника. |
-| award_date | string | optional | award_date - дата награждения (строка YYYY-MM-DD). |
+| award_date | string | optional | award_date - дата награждения (строка YYYY-MM-DD). Legacy-поле: пусто, если передан award_date_info. |
 | decree_number | string | optional | decree_number - номер приказа или указа о награждении. |
 | award_date_info | [FlexibleDate](#emh-v1-flexibledate) | optional | award_date_info - гибкая дата награждения. Если заполнено, имеет приоритет над award_date. |
 | devices | [AwardDevice](#emh-v1-awarddevice) | repeated | devices - знаки повторности награды (звёздочки, цифры, дубовые листья). |

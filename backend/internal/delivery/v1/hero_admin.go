@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
 	"codeberg.org/Thr0TT1e/emh/backend/internal/domain"
 	emhv1 "codeberg.org/Thr0TT1e/emh/backend/internal/gen/emh/v1"
@@ -270,12 +271,29 @@ func (s *HeroAdminServer) AddHeroAward(
 		"award_id", req.Msg.AwardId,
 	)
 
-	var awardDate *string
+	var awardDate *time.Time
 	if req.Msg.AwardDate != "" {
-		awardDate = &req.Msg.AwardDate
+		t, err := usecase.ParseDateStr(req.Msg.AwardDate)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid award_date: %w", err))
+		}
+		awardDate = t
 	}
 
-	if err := s.heroAwardUC.Add(ctx, req.Msg.HeroId, req.Msg.AwardId, awardDate, req.Msg.DecreeNumber); err != nil {
+	awardDateInfo, err := mapProtoFlexibleDate(req.Msg.AwardDateInfo)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid award_date_info: %w", err))
+	}
+
+	params := domain.AddHeroAwardParams{
+		HeroID:        req.Msg.HeroId,
+		AwardID:       req.Msg.AwardId,
+		AwardDate:     awardDate,
+		AwardDateInfo: awardDateInfo,
+		DecreeNumber:  req.Msg.DecreeNumber,
+	}
+
+	if err := s.heroAwardUC.Add(ctx, params); err != nil {
 		return nil, mapDomainError(ctx, s.logger, err, "add hero award failed")
 	}
 

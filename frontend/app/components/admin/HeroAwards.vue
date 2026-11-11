@@ -40,7 +40,7 @@
         heroId: props.heroId,
         awardId: attach.awardId,
         // award_date_info имеет приоритет над award_date (контракт).
-        // award_date оставляем пустым: паттерн-валидация не применяется к пустой строке.
+        // award_date оставляем пустым: legacy-паттерн допускает "" (`^(\d{4}-\d{2}-\d{2}|)$`).
         awardDate: "",
         awardDateInfo: prepareAwardDateForApi(attach.awardDateInfo),
         decreeNumber: attach.decreeNumber,

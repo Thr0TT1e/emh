@@ -13,6 +13,7 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/validate"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"codeberg.org/Thr0TT1e/emh/backend/internal/auth"
 	"codeberg.org/Thr0TT1e/emh/backend/internal/delivery/interceptor"
@@ -122,7 +123,7 @@ func setupTestServer(t *testing.T) (*httptest.Server, func()) {
 	photoUC := usecase.NewPhotoUseCase(photoRepo, heroRepo, mediaStorage, thumbnailEnqueuer, logger)
 
 	mediaUC := usecase.NewMediaUseCase(mediaStorage, 15*time.Minute)
-	submissionUC := usecase.NewSubmissionUseCase(submissionRepo, heroRepo)
+	submissionUC := usecase.NewSubmissionUseCase(submissionRepo, heroRepo, nil, logger)
 
 	// 4. Создаём тестового админа
 	passwordHash, err := auth.HashPassword("test-password")
@@ -144,6 +145,7 @@ func setupTestServer(t *testing.T) (*httptest.Server, func()) {
 		15*time.Minute,
 		7*24*time.Hour,
 		refreshTokenRepo,
+		nil,
 		logger,
 	)
 
@@ -416,6 +418,7 @@ func TestE2E_HeroWithRelations(t *testing.T) {
 		Name:        "Орден Мужества",
 		Description: "Государственная награда РФ",
 		ImageUrl:    "https://example.com/awards/order-of-courage.jpg",
+		Type:        emhv1.AwardType_AWARD_TYPE_ORDER,
 	})
 	awardReq.Header().Set("Authorization", "Bearer "+accessToken)
 	awardResp, err := awardAdminClient.CreateAward(ctx, awardReq)
@@ -423,6 +426,19 @@ func TestE2E_HeroWithRelations(t *testing.T) {
 		t.Fatalf("CreateAward failed: %v", err)
 	}
 	awardID := awardResp.Msg.Id
+
+	flexAwardReq := connect.NewRequest(&emhv1.CreateAwardRequest{
+		Name:        "Медаль «За боевые отличия»",
+		Description: "Ведомственная награда",
+		ImageUrl:    "https://example.com/awards/medal.jpg",
+		Type:        emhv1.AwardType_AWARD_TYPE_MEDAL,
+	})
+	flexAwardReq.Header().Set("Authorization", "Bearer "+accessToken)
+	flexAwardResp, err := awardAdminClient.CreateAward(ctx, flexAwardReq)
+	if err != nil {
+		t.Fatalf("CreateAward (flex) failed: %v", err)
+	}
+	flexAwardID := flexAwardResp.Msg.Id
 
 	conflictReq := connect.NewRequest(&emhv1.CreateConflictRequest{
 		Name:        "Специальная военная операция",
@@ -475,6 +491,24 @@ func TestE2E_HeroWithRelations(t *testing.T) {
 		t.Fatalf("AddHeroAward failed: %v", err)
 	}
 
+	// 4b. Привязываем вторую награду с пустым award_date и гибкой датой —
+	// регрессия на 400 invalid_argument (паттерн legacy-поля не должен резать "").
+	addFlexAwardReq := connect.NewRequest(&emhv1.AddHeroAwardRequest{
+		HeroId:  heroID,
+		AwardId: flexAwardID,
+		// AwardDate: "" — legacy-поле не заполняется.
+		AwardDateInfo: &emhv1.FlexibleDate{
+			Precision:   emhv1.DatePrecision_DATE_PRECISION_YEAR,
+			AnchorDate:  timestamppb.New(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)),
+			DisplayText: "2022",
+		},
+	})
+	addFlexAwardReq.Header().Set("Authorization", "Bearer "+accessToken)
+	_, err = heroAdminClient.AddHeroAward(ctx, addFlexAwardReq)
+	if err != nil {
+		t.Fatalf("AddHeroAward (flex date) failed: %v", err)
+	}
+
 	// 5. Привязываем конфликт
 	addConflictReq := connect.NewRequest(&emhv1.AddHeroConflictRequest{
 		HeroId:           heroID,
@@ -512,8 +546,28 @@ func TestE2E_HeroWithRelations(t *testing.T) {
 		t.Fatal("GetHero returned nil hero")
 	}
 
-	if len(getResp.Msg.Hero.Awards) != 1 {
-		t.Errorf("Awards count = %d, want 1", len(getResp.Msg.Hero.Awards))
+	if len(getResp.Msg.Hero.Awards) != 2 {
+		t.Fatalf("Awards count = %d, want 2", len(getResp.Msg.Hero.Awards))
+	}
+
+	// Проверяем round-trip гибкой даты: награда с award_date_info должна сохраниться и вернуться.
+	var flexAward *emhv1.HeroAward
+	for _, a := range getResp.Msg.Hero.Awards {
+		if a.AwardId == flexAwardID {
+			flexAward = a
+		}
+	}
+	if flexAward == nil {
+		t.Fatal("flex-date award not returned in hero detail")
+	}
+	if flexAward.AwardDateInfo == nil {
+		t.Fatal("award_date_info lost in round-trip")
+	}
+	if flexAward.AwardDateInfo.Precision != emhv1.DatePrecision_DATE_PRECISION_YEAR {
+		t.Errorf("award_date_info precision = %v, want YEAR", flexAward.AwardDateInfo.Precision)
+	}
+	if got := flexAward.AwardDateInfo.AnchorDate.AsTime().Format("2006-01-02"); got != "2022-01-01" {
+		t.Errorf("award_date_info anchor = %q, want 2022-01-01", got)
 	}
 
 	if len(getResp.Msg.Hero.Conflicts) != 1 {

@@ -27,7 +27,7 @@ type AwardRepository interface {
 
 // HeroAwardRepository абстракция для связи герой-награда.
 type HeroAwardRepository interface {
-	Add(ctx context.Context, heroID, awardID string, awardDate *string, decreeNumber string) error
+	Add(ctx context.Context, p domain.AddHeroAwardParams) error
 	Remove(ctx context.Context, heroID, awardID string) error
 	ListByHero(ctx context.Context, heroID string) ([]*domain.HeroAward, error)
 }

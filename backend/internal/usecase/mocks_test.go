@@ -576,7 +576,7 @@ type mockHeroAwardRepository struct {
 	callCount      atomic.Int32
 }
 
-func (m *mockHeroAwardRepository) Add(ctx context.Context, heroID, awardID string, awardDate *string, decreeNumber string) error {
+func (m *mockHeroAwardRepository) Add(ctx context.Context, p domain.AddHeroAwardParams) error {
 	return nil
 }
 

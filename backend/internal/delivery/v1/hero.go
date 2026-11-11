@@ -259,6 +259,9 @@ func mapHeroAwardToProto(a *domain.HeroAward) *emhv1.HeroAward {
 	if a.AwardDate != nil {
 		proto.AwardDate = timestamppb.New(*a.AwardDate)
 	}
+	if a.AwardDateInfo != nil {
+		proto.AwardDateInfo = mapFlexibleDateToProto(*a.AwardDateInfo)
+	}
 	return proto
 }
 

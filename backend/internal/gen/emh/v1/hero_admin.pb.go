@@ -793,6 +793,7 @@ type AddHeroAwardRequest struct {
 	// award_id - UUID награды из справочника.
 	AwardId string `protobuf:"bytes,2,opt,name=award_id,json=awardId,proto3" json:"award_id,omitempty"`
 	// award_date - дата награждения (строка YYYY-MM-DD).
+	// Legacy-поле: пусто, если передан award_date_info.
 	AwardDate string `protobuf:"bytes,3,opt,name=award_date,json=awardDate,proto3" json:"award_date,omitempty"`
 	// decree_number - номер приказа или указа о награждении.
 	DecreeNumber string `protobuf:"bytes,4,opt,name=decree_number,json=decreeNumber,proto3" json:"decree_number,omitempty"`
@@ -2220,12 +2221,12 @@ const file_emh_v1_hero_admin_proto_rawDesc = "" +
 	"\x06heroes\x18\x01 \x03(\v2\x13.emh.v1.HeroSummaryR\x06heroes\x12:\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1a.emh.v1.PaginationResponseR\n" +
-	"pagination\"\xaa\x02\n" +
+	"pagination\"\xad\x02\n" +
 	"\x13AddHeroAwardRequest\x12!\n" +
 	"\ahero_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06heroId\x12#\n" +
-	"\baward_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aawardId\x129\n" +
+	"\baward_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\aawardId\x12<\n" +
 	"\n" +
-	"award_date\x18\x03 \x01(\tB\x1a\xbaH\x17r\x152\x13^\\d{4}-\\d{2}-\\d{2}$R\tawardDate\x12#\n" +
+	"award_date\x18\x03 \x01(\tB\x1d\xbaH\x1ar\x182\x16^(\\d{4}-\\d{2}-\\d{2}|)$R\tawardDate\x12#\n" +
 	"\rdecree_number\x18\x04 \x01(\tR\fdecreeNumber\x12<\n" +
 	"\x0faward_date_info\x18\x05 \x01(\v2\x14.emh.v1.FlexibleDateR\rawardDateInfo\x12-\n" +
 	"\adevices\x18\x06 \x03(\v2\x13.emh.v1.AwardDeviceR\adevices\"`\n" +
